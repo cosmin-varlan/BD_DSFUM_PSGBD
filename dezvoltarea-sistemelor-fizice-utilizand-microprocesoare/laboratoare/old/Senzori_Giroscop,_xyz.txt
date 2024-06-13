@@ -1,0 +1,20 @@
+== Introducere ==
+
+[[Fișier: senzor97.jpg|thumb|upright|200px|alt=Modul Accelerometru.|Modul Accelerometru.]]
+Functionarea giroscopului se bazeaza pe conservarea impulsului unghiular; un corp care se roteste in jurul propriei axe tinde sa-si pastreze aceasta axa de rotatie si se va opune unui impuls perturbator cu un altul, de-a lungul unei axe perpendiculare pe axa de rotatie si pe axa impulsului perturbator.
+Atat giroscopul cat si acceleratorul
+
+== Prezentare ==
+
+
+Modulul conține un circuit integrat MPU-6050 cu accelerometru, giroscop și senzor de temperatură. Acesta comunică pe interfață I2C, având nevoie de doar 2 conexiuni. Fiecare dispozitiv ce folosește interfața I2C are propria adresă. MPU6050 poate selecta una din două adrese disponibile, legând pinul AD0 la GND sau VCC. Această conexiune este făcută de obicei pe placuța modulului. 
+
+== Utilizarea senzorului ==
+
+[[Fișier: accelerometru98.jpg|thumb|upright|400px|alt=Modul Accelerometru.|Modul Accelerometru.]]
+Pentru utilizarea modulului este nevoie de bibliotecile I2Cdev si MPU6050 pe care le gasiti la linkul https://github.com/optimusdigital/i2cdevlib/tree/master/Arduino Foldere denumite I2Cdev si MPU6050 trebuiesc adaugate in folderul Arduino-ului vostru in subfolderul “libraries”. Pinii trebuie lipiti pe placuta modulului inainte de apelarea programelor.
+
+Programul pe care il veti gasi la categoria Examples > MPU6050 > MPU6050_DMP6 folosește algoritmi complecși de filtrare și prelucrare a datelor, calculând unghiul de înclinație al modului. Datele sunt afișate pe terminalul serial. Încărcați codul pe plăcuță și deschideți terminalul. Nu uitati sa schimbati valoarea Serial.begin() – ului in 9600. Programul va trimite un mesaj de inițializare (așteaptă să primească un caracter de la tastatură) și apoi va afișa unghiurile calculate în ordinea: yaw, pitch, roll. 
+
+În exemplele oferite puteți găsi și un program mai simplu (File -> Examples -> MPU6050 -> MPU6050_raw) ce afișează datele de la accelerometru și giroscop (compass) neprelucrate. Comparați cele două programe pentru a observa diferența. 
+Observatie: daca primiti de la serial ca nu s-a putut realiza conexiunea schimbati valorile "MPU6050 mpu(0x69)" in "MPU6050 mpu(0x68)" pentru exemplul “MPU6050_DMP6” si din "MPU6050 accelgyro" in "MPU6050 accelgyro(0x69)" pentru exemplul MPU6050_raw.

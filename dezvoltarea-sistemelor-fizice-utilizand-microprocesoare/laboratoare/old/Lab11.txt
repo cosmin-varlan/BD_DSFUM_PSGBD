@@ -1,0 +1,53 @@
+== Disclaimer ==
+De ce studiem Arduino (acum) si nu incercam sa program pe o platforma mai complexa (cum ar fi de exemplu Raspberry Pi, Orange Pi, Banana Pi, alte "PAIe", BeagleBone, etc.) ? 
+
+Well, exista cateva motive pe care le vom da in ordinea importantei:
+* cu Arduino lucrati SUPER LOW LEVEL - ce inseamna acest super low level ? inseamna ca puteti efectiv sa ajungeti sa masurati curentul care este permis de un senzor sa treaca prin el pentru a gasi o anumita valoare sau sau multiplexati in timp o serie de LEDuri, sa intelegeti cum se face si de ce functioneaza un FADE pe un LED fara sa aveti o functie care sa il aprinda la o anumita intensitate, etc. Bine, cred ca v-ati dat seama singuri ca nu ai nevoie nici macar de un sistem de operare ca sa faceti aplicatii in Arduino: de fapt asa functioneaza orice procesor (in bucla) - faptul ca in bucla aia ruleaza sistemul de operare care permite diverselor aplicatii sa faca cate ceva va face poate sa va ganditi cat de complicat este procesorul telefonului vostru, al laptopului, PCului, statiei orbitale etc.
+* Arduino a fost inventat special pentru educatie (ma rog... wiring - vezi cursul 1) !
+* Arduino se programeaza in C/C++ (pe care ar trebui sa le stiti inca din anul 1) - in acest fel noi mai mult trebuie sa va explicam mai degraba cum se citeste un byte de pe serial cand nu ai un buffer disponibil decat sa va explicam cum se concateneaza doua siruri de caractere (desi, am vazut ca ne cam batem capul si cu asta - chiar imi pare rau ca nu am facut un laborator despre lucrul cu siruri de caractere - lasati ca cei de la anu nu mai scapa).
+* Arduino este ieftin (si vi-l permiteti mai toti, inclusiv noi ca sa dotam laboratorul acesta). Din cauza popularitatii sale, foarte foarte multi senzori sunt creati intai pentru Arduino si daca acestia "prind", sunt apoi portati pe alte platforme populare.
+
+HOWEVER: nu veti vedea niciodata un Arduino in productia de masa: nu il veti vedea in implementari de succes a unor proiecte de genul smart home, roboti industriali sau mai stiu eu ce chestie care este super importanta (ca sa va zic sincer, nici eu nu am incredere in el :D - la unele faze chiar am fost dezamagit). 
+
+Un singur echipament am vazut facut (destul de des) cu ajutorul Arduinourilor: imprimantele 3D. Initial am crezut ca cineva a fost destul de comod si cand au fost inventate au fost inventate cu ajutorul Arduinourilor si a cam ramas asa din inertie. Am stat la un moment dat la o discutie cu un "pionier" in 3D printing de aici, din Iasi (pe care sper ca il veti cunoaste la penultimul curs): Danut Lipsa. In discutia despre imprimantele 3D chiar am fost curios de ce este utilizat Arduino. Raspunsul a fost super interesant, nu pot sa il citez exact, dar ideea de baza este ca atunci cand ai un sistem de operare in spate (cum au celelalte platforme), controlul timpului pentru sincronizarea axelor pe care se deplaseaza capul de scriere al imprimantei devine extrem de greu de facut: daca te trezesti ca sistemul de operare gaseste alt proces mai important exact in mijlocul printarii cand tu ai capul de printare la 260<sup>o</sup>C si din el curge plastic ? - not nice !
+
+Acum s-au realizat alte platforme care sa fie la fel de low level ca si Arduino si in care gradul de incredere este mai mare. Cu toate acestea, foarte multe imprimante 3D functioneaza inca cu Arduino.
+
+== Raspberry PI ==
+
+[[Fișier:sense.jpg|thumb|upright|500px|alt=Raspberry pi + sense hat.|Raspberry pi + sense hat.]]
+
+Cea mai populara platforma IoT care sa aiba o putere de calcul mai mare este fara doar si poate Raspberry PI. Am discutat despre acesta la cursul precedent asa ca doar va voi reaminti linkul catre prezentarea de atunci: https://profs.info.uaic.ro/~vcosmin/pagini/resurse_arduino/Cursuri_2016/12/Arduino_12.pdf (in caz ca vreti sa o re-parcurgeti. 
+
+Vom utiliza ca si sistem de operare pe cel construit special pentru Raspberry PI: Raspbianul (construit peste Debian). Programarea se poate face fie in C/C++ fie in Python, dar pentru ca probabil deja sunteti satui de C/C++ de la Arduino si pentru ca tot invatati voi semestrul acesta Python (si va si place), vom insista pe acest limbaj (sau veti) - dar nu se supara nimeni daca faceti aplicatiile in C/C++ sau altceva ce poate fi rulat pe debian/raspbian.
+
+Pentru ca nu avem decat un singur Raspberry PI, veti lucra (cu totii pe acesta). Fiecare echipa va intra la IP-ul ..... (utilizand putty) si in directorul ~/studenti isi va crea propriul director format din numele celor doi membri ai echipei. In directorul studenti aveti deja un folder denumit "exemple" in care veti gasi cateva programele exemplu realizate in python pentru un hat (in cazul Raspberry PI shieldurile se numesc HATs) ce are urmatoarele capabilitati:
+* matrice de leduri RGB (8x8)
+* giroscop (masoara inclinarea hat-ului)
+* accelerometru
+* barometru
+* temperatura
+* umiditate relativa
+* joystick (4 axe + push).
+
+Pentru a utiliza joystickul ar trebui ca sa faceti fiecare echipa cate un drum pana la raspberry asa ca vom incerca sa evitam exercitiile care sa necesite atingerea efectiva a raspberry-ului.
+
+Pentru a verifica un exercitiu, un membru al echipei trebuie sa ridice o mana in sus si sa "blocheze resursa critica". Echipa va avea voie sa testeze aplicatia cat timp studentul respectiv va avea mana sus dar nu mai mult 30 de secunde. (basically ar trebui sa rulati codul sa vedeti ca merge). Nimeni altcineva nu testeaza codul daca un coleg - membru al altei echipe - are o mana ridicata :D.
+
+== Exercitii ==
+
+====== Problema 1 (2pt) ======
+
+Faceti un efect de fade intre doua culori pe un singur led.
+
+====== Problema 2 (2pt) ======
+
+Afisati in consola valorilor tuturor senzorilor (cei de mai sus). Modificati cateva din valori (de exemplu sufland peste shield il veti incalzi/raci si ii veti creste umiditatea; nu scuipati !)
+
+====== Problema 3 (6pt) ======
+
+Faceti un ceas binar care sa afiseze pe primele 3 linii consecutive ziua / luna / ultimele doua cifre ale anului; linia 4 va fi libera si apoi pe urmatoarele 3 linii: ora / minutul / secunda. Toate vor fi afisate in binar, un bit 1 fiind reprezentat de un led aprins. Colorati ledurile in functie de valoarea maxima (de exemplu cand secunda are o valoare mica, randul reprezentand secunda va avea culoarea verde si cand valoarea este aproapiata de valoarea maxima (60 - in caz ca cineva nu stie), randul va avea culoarea rosie - evident daca e la 30 va fi media intre cele doua: galben [nu e neaparat sa folositi aceste culori]). Pe ultimul rand se va afisa temperatura (ghiciti ce; tot in binar) :D
+
+== LINK-uri (foarte ajutatoare) ==
+
+https://projects.raspberrypi.org/en/projects/getting-started-with-the-sense-hat/8

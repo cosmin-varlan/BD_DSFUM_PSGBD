@@ -1,0 +1,172 @@
+==Introducere==
+<b>Global System for Mobile Communications</b> (<b>Sistem Global pentru Comunicații Mobile</b>), prescurtat <b>GSM</b>, este standardul de telefonie mobilă (celulară) cel mai răspândit din lume, precum și numele rețelei de telefonie respective. Atributul „mobil” al multor aparate și dispozitive actuale se referă în primul rând la conectivitatea lor (fără fir, prin semnale radio) la sistemul GSM, practic din orice punct de pe glob unde există oameni. Din aceasta rezultă și mobilitatea utilizatorului.
+Există pe glob 14 domenii de frecvențe pentru GSM, toate situate în câte una din următoarele benzi: 400 MHz, 700 MHz, 850 MHz, 900 MHz, 1.800 MHz, 2.100 MHz și 2.600 MHz. Unele domenii se folosesc numai pe anumite continente. Frecvențele cu care transmit telefoanele mobile în cadrul unei legături cu releul antenă (legături numite „uplink”) se deosebesc de frecvențele folosite de relee în direcția inversă („downlink”).
+
+==Din ce este formată o rețea GSM?==
+[[Fișier:Structura-retea-GSM.jpg|300px|thumb|upright|alt=Structură rețea GSM|Structură simplificată rețea GSM (poza preluată de pe http://www.go4it.ro/telefoane-mobile/retelele-gsm-pe-intelesul-tuturor-3291414/)]]
+Structura unei rețele GSM este destul de complicată. În principiu, există trei elemente principale: <b>Base Station Subsystem (BSS)</b>, <b>Network an Switching Subsystem (NSS)</b> și <b>GPRS Core Network</b>. <b>Base Station Subsystem</b> este acea componentă care permite conectarea telefoanelor mobile la centrala de telefonie mobilă. Ea este formată din stațiile GSM pe care le vedem la tot pasul în zilele noastre și care sunt numite <b>Base Transceiver Station (BTS)</b>, precum și din <b>unitățile de control pentru stații (BSC)</b>. Stațiile GSM sunt de obicei dotate cu antene unidirecționale. Zona de acoperire din jurul unei stații/celule GSM este împărțită radial în sectoare, pentru fiecare din ele fiind repartizată una sau două antene. Un tip comun de sectorizare este cea de tip trifoi, cu trei sectoare de 120o fiecare.
+
+<b>O unitate de control pentru stații (BSC)</b> controlează de obicei zeci sau sute de antene, direcționând traficul către NSS. Într-o rețea GSM există mai multe BSC-uri regionale care concentrează conexiunile dintr-o anumită zonă și le transmite către MSC, o componentă a NSS. BSC este considerată cea mai robustă componentă a unei rețele GSM, fiind dotată cu sisteme redundante pentru a asigura funcționarea continuă a rețelei.
+
+<b>Network Switching Subsystem (NSS)</b> este acea componentă a unei rețele GSM similară cu centrala telefonică a unei rețele de telefonie fixă. Ea realizează managementul convorbirilor din rețea și asigură interconectivitatea cu alte rețele de telefonie mobilă sau fixă. Cea mai importantă componentă a NSS este <b>Mobile Switching Center (MSC)</b>. Aceasta este responsabilă în principal cu direcționarea apelurilor și a SMS-urilor. De asemenea, prin intermediul MSC-ului, un utilizator din rețeau GSM poate contacta un utilizator de telefonie fixă. GPRS sau General Packet Radio Service este un serviciu de telefonie mobilă pentru transmisia de date, bazat pe trunchierea fluxului de date în pachete. GPRS Core Network, cea de-a treia componentă a unei rețele GSM, este responsabilă cu managementul acestui serviciu de date.
+
+==Clasificarea sistemelor de comunicații mobile==
+* 1G
+* 2G
+* 3G
+* 4G
+* 5G (momentan indisponibil, se preconizează că va apărea în 2020)
+* GPRS
+* EGPRS (EDGE)
+* LTE
+
+==Shield, conectare și bibliotecă==
+[[Fișier:Shield-GSM-explicit.PNG|300px|thumb|upright|alt=Shield GSM|Shield GSM (poza preluată de pe https://www.robofun.ro/gsm-shield-a)]]
+Shieldul utilizat este <b>GSM GPRS Shield a-gsm v2.68</b>. Am conectat shield-ul pe placa Arduino și am inserat o cartelă SIM (în socket-ul 0, shield-ul având posibilitatea de a insera 2 SIM-uri). Pentru a putea funcționa corect are nevoie de o sursă externă de curent, acest lucru se realizează conectând shield-ul la calculator printr-un cablu microUSB (sau cu un încărcător de telefon).
+
+Biblioteca utilizată (<b>GSM.h</b>) este deja inclusă în IDEE (Arduino 1.8.5) și vine cu diverse exemple pentru a putea testa/utiliza shield-ul. 
+Există o întârziere din momentul în care în Arduino a fost încărcat codul și momentul în care se poate efectua comunicarea (dacă în timp ce se încarcă se vor trimite mesaje către cartela SIM din Arduino, acele mesaje se vor primi mai târziu dar există posibilitatea de a se pierde sau de a ajunge în altă ordine decât cea dorită).
+
+Din cauza faptului că se face codificare UTF-8, în mesaje nu sunt acceptate diacritice (dacă se vor utiliza diacritice, se vor afișa alte caractere decât literele dorite). 
+Mesajele pot fi trimise și primite în orice ordine, nu neapărat unul trimis-unul primit. 
+
+Pentru a trimite mesaje, se va scrie în consolă "send" urmat de tasta Enter. Primirea mesajelor se face fără nici un fel de acțiune din partea utilizatorului. 
+
+==Codul sursă==
+Mai jos veți vedea codul sursă utilizat pentru a realiza o comunicare prin SMS (<span style="color:red">este necesară o cartelă SIM ce poate trimite și primi mesaje</span>) utilizand un Arduino Uno și un shield GSM.
+
+<source lang="c">
+// include the GSM library
+#include <GSM.h>
+
+// PIN Number for the SIM
+#define PINNUMBER ""
+
+// initialize the library instances
+GSM gsmAccess;
+GSM_SMS sms;
+
+// Array to hold the number a SMS is retreived from
+char senderNumber[20];
+
+void setup() {
+  // initialize serial communications and wait for port to open:
+  Serial.begin(9600);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
+
+  Serial.println("SMS Messages Receiver");
+
+  // connection state
+  boolean notConnected = true;
+
+  // Start GSM connection
+  while (notConnected) {
+    if (gsmAccess.begin(PINNUMBER) == GSM_READY) {
+      notConnected = false;
+    } else {
+      Serial.println("Not connected");
+      delay(1000);
+    }
+  }
+
+  Serial.println("GSM initialized");
+  Serial.println("Waiting for messages");
+}
+
+void sended(){
+  Serial.print("Enter a mobile number: ");
+  char remoteNum[20];  // telephone number to send sms
+  readSerial(remoteNum);
+  Serial.println(remoteNum);
+
+  // sms text
+  Serial.print("Now, enter SMS content: ");
+  char txtMsg[200];
+  readSerial(txtMsg);
+  Serial.println("SENDING");
+  Serial.println();
+  Serial.println("Message:");
+  Serial.println(txtMsg);
+
+  // send the message
+  sms.beginSMS(remoteNum);
+  sms.print(txtMsg);
+  sms.endSMS();
+  Serial.println("\nCOMPLETE!\n");
+}
+
+int readSerial(char result[]) {
+  int i = 0;
+  while (1) {
+    while (Serial.available() > 0) {
+      char inChar = Serial.read();
+      if (inChar == '\n') {
+        result[i] = '\0';
+        Serial.flush();
+        return 0;
+      }
+      if (inChar != '\r') {
+        result[i] = inChar;
+        i++;
+      }
+    }
+  }
+}
+
+void loop() {
+  String seend;
+  if(Serial.available()>0)
+          {
+            seend=Serial.readString();
+            //to send a message you need to write de word "send"
+            if (seend=="send")
+                  Serial.println("Send:");
+                  sended();
+          }
+          
+  char c;
+
+  // If there are any SMSs available()
+  if (sms.available()) {
+    Serial.println("Message received from:");
+
+    // Get remote number
+    sms.remoteNumber(senderNumber, 20);
+    Serial.println(senderNumber);
+
+    // An example of message disposal
+    // Any messages starting with # should be discarded
+    if (sms.peek() == '#') {
+      Serial.println("Discarded SMS");
+      sms.flush();
+    }
+ 
+    char b=0;
+    char count=0;
+    char data[10];
+
+    //convert bytes into char 
+    while (c = (char)sms.read()) 
+    {
+      sprintf(data, "%c", c);
+      Serial.print(data);
+    }
+
+    Serial.println("\nEND OF MESSAGE");
+
+    // Delete message from modem memory
+    sms.flush();
+    Serial.println("MESSAGE DELETED");
+  }
+
+  delay(1000);
+
+}
+</source>
+
+==Linkuri utile==
+* http://www.msqe.ase.ro/Documente/retelemobile%282%29.pdf
+* https://ro.wikipedia.org/wiki/GSM
+* http://www.go4it.ro/telefoane-mobile/retelele-gsm-pe-intelesul-tuturor-3291414/

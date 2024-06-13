@@ -1,0 +1,63 @@
+====== Problema 1 (n x 2 pt) ======
+
+Construiti programatic (doar cod, fara a stoca in prealabil nici unul dintre cadre) o animatie complexa (ca cea de aici: https://www.youtube.com/watch?v=HFxSoWriyoA )
+Animatiile pot fi de doua tipuri: animatii de intrare (care vor umple ecranul sau o portiune din acesta) si animatii de iesire (care sting toate ledurile de pe ecran) si nu au voie sa fie generate random.
+Fiecare animatie (indiferent ca este de intrare sau de iesire) va fi punctata cu 2 puncte cu conditia sa fie diferita (de exemplu daca faceti un for de la 1 la 64 si aprindeti ledurile este o animatie dar daca faceti un for de la 1 la 64 iarasi pentru a stinge ledurile sau daca faceti un for de la 64 la 1 pentru a stinge ledurile, va fi considerata ca fiind aceeasi animatie).... 
+
+
+Aveti voie sa stocati litere sau cifre sau alte cadre, daca acestea sunt folosite in animatie dar nu aveti voie sa stocati cadre consecutive pe care sa le redati unul dupa altul (e.g. Daca scrieti un text si in scrolati la nivel de pixel de la dreapta spre stanga, aveti voie sa stocati cumva literele).
+
+
+Puteti face oricate animatii doriti, fiecare va valora 2 puncte. 
+
+
+<span style="color:red">Observatie:</span> nu aveti voie sa includeti nici o biblioteca aditionala pentru manipularea matricelor (de genul LedControl sau MaxMatrix). Problemele rezolvate prin includerea de biblioteci de acest tip nu vor fi punctate.
+
+
+<!--
+
+
+== Comunicare ==
+
+Exista mai multe moduri de comunicare intre doua Arduinouri. Am dori sa faceti voi paginile de wiki pentru acestea (10pt pentru cine face o pagina <b>bine documentata</b> despre unul din modurile de comunicare urmatoare - pagina poate fi facuta si acasa dar nu mai tarziu de 20 decembrie). Paginile trebuie sa acopere comunicarea directa intre doua Arduinouri precum si comunicarea intre mai multe (macar 3) Arduino-uri. Paginile vor fi facute in format WIKI (puteti vedea sursa uneia dintre pagini de pe aici in care vedeti o anumita formatare ce va intereseaza) sau puteti cauta apela la paginile: https://www.mediawiki.org/wiki/Help:Formatting/ro sau https://en.wikipedia.org/wiki/Help:Cheatsheet .
+
+* Comunicare Ethernet;
+* Comunicare utilizand module radio (433Mhz);
+* Comunicare prin portul SPI;
+* Comunicare IR;
+* Comunicare USART (pinii TX / RX) 
+
+Cine doreste sa faca un astfel de document imi va comunica prin email iar eu voi scrie numele celui ce a promis ca face acea pagina (o aceeasi pagina poate fi facuta de maxim doi studenti, fiecare pentru el). 
+
+== Exercitii ==
+
+Inafara de punctele ce pot fi obtinute pentru paginile de mai sus, veti putea acumula puncte si rezolvand urmatoarea problema (ce poate fi realizata in grupuri de maxim 4 studenti):
+
+====== Problema 1 (10pt) ======
+
+Folosind 3 Arduino (1 master si 2 slave), implementati un mecanism de calcul paralelizat, utilizand interfata seriala SPI pentru a face un brute-force pe un sir de maxim 4 caractere in domeniul 'a'-'z' (3 Arduino, maxim 4 studenti).
+
+* Pentru a genera un HASH se va folosi biblioteca SpritzCipher (Sketch -> Include Library -> Manage Libraries si dati search la "SpritzCipher"). In folderul de exemple, la sfarsit veti gasi SpritzCypher si in el SpritzHash test (ca sa nu ziceti ca nu ne plac shpritzurile).
+
+* Prin consola seriala, Arduino-ului master va primi un hash (pe un sir de maxim 4 caractere in domeniul 'a'-'z'); hashuri de test: "B43B2C26E58FDE9000D917102C4404BF8310F95A9E703AFAB1D6D2A1D183D7B0", "13684F5EB50917638746819975A261B87E2916D67866D6DA905EE1459DA8BC1E" si "CEE5F04DBF7B815C0F22DED56DCE25129B8FF51D608DBDA6E70013FC55D05054". Arduino-ul master isi seteaza propriul spatiu de cautare, si va initializa Arduino-urile slave pentru spatiile secundare (aveti grija ca spatiile de cautare sa fie impartite echitabil - fiecare Arduino sa incerce numar aproximativ identic de stringuri). 
+
+* Fiecare Arduino, va genera un string, va face hash si va compara hash-ul cu hash-ul primit. Daca a gasit string-ul care genereaza acelasi hash ca cel primit de la master isi va aprinde ledul de pe pinul 13 si va trimite inapoi masterului stringul ce genereaza hash-ul. In momentul in care Masterul stie generatorul hash-ului (fie pentru ca a gasit-o el sau ca a primit-o de la unul din colaboratori), il va trimite pe portul serial catre PC si da comanda de oprire celor doi slaves care cautau stringul.
+
+Arduino genereaza aproximativ 100 hashuri pe secunda. Pentru a genera hashurile pentru toate cuvintele de maxim 4 litere (cuvinte de 1,2,3,4 litere) are nevoie de aproximativ 7 minute. Problema va fi punctata doar daca timpul de executie pentru un hash este de sub 10 minute.
+
+
+TIP: urmatorul hash este cel al unui cuvant de 2 litere: 19BC132FC205F4BA07288774546ECFDF2F43DAE8D6AB27DD3334CD61DFA528E3 . Pentru descoperirea acestuia, trei arduinouri ar trebui sa lucreze in paralel 2 secunde (sau unul in 6 secunde).
+
+
+https://people.csail.mit.edu/rivest/pubs/RS14.pdf
+
+
+
+
+Utilizati 3 Arduino: 1 master si 2 slave. Masterul va construi un sir de 400 de valori int (un int are 2 bytes) pe care il va trimite si celor doi arduino-slave. Fiecare dintre Arduino va sorta sirul si va aprinde ledul de la pinul 13 atunci cand sortarea este gata. Tipurile de sortari implementate vor fi:
+* Bubble Sort
+* Merge Sort
+* Qucik Sort
+
+Conform https://en.wikipedia.org/wiki/Sorting_algorithm, memoria suplimentara necesara este de 1 la Bubble, si n la Merge, Quick.
+-->

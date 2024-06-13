@@ -1,0 +1,161 @@
+
+
+== Matrice de leduri 8X8 ==
+
+[[Fișier:matr.jpg|thumb|upright|400px|alt=Matrice led.|Matrice led.]]
+Matricea de leduri ce va fi utilizata in cadrul acestui laborator cea din imaginea "Matrice led" alaturata (imagine preluata de la http://www.circuitstoday.com/interfacing-8x8-led-matrix-with-arduino). Cele 64 de leduri sunt multiplexate astfel incat fiecare led poate fi aprins independent. De exemplu, pentru a aprinde ledul din coltul stanga-sus (primul led), conform schemei care apare si ea in imaginea amintita, ar trebui sa conectam anodul R1 la plus si catodul C1 la minus. Pentru a prinde ledul din stanga-sus in acelasi timp cu ledul imediat de sub el, ar trebui ca pe langa conectarea lui R1 la plus sa conectam si pe R2 (tot la plus). Este suficient sa lasam doar pe C1 la minus pentru a scurge curentul ce trece prin cele doua leduri. Similar, daca vrem sa aprindem mai multe leduri de pe coloana conectata la C1, trebuie sa alimentam randurile Ri unde vrem sa se aprinda ledul si sa conectam C1 la ground. Asadar, intr-o matrice de leduri putem aprinde simultan o coloana intreaga. Daca dorim sa aprindem ledurile de pe coloana C2 vom proceda similar, de aceasta data punand C2 la ground (C1 care probabil ca este conectat la Arduino trebuie acum sa fie pus tot la plus - deci pinul lui setat pe high). 
+
+In mod similar putem proceda pentru a aprinde matricea de leduri pe randuri: de exemplu alimentand doar R1 (cu +) si punand la ground pe C1, C3, C5, C7, toate ledurile de pe primul rand care sunt pe pozitii impare vor fi aprinse. 
+
+Cel mai eficient mod de a aprinde ledurile din matrice este aprinderea unei coloane (sau a unei linii - depinde cum se doreste sa se lucreze), stingerea coloanei si trecerea la urmatoarea si continuarea procesului pana se ajunge la ultima coloana. Daca se reuseste parcurgerea matricei de 30 de ori pe secunda, probabil ca ochiul nu isi va da seama ca de fapt fiecare led aprins este de fapt aprins doar 1/8 din timp. Timpul necesar tinerii unei coloane aprinse este asadar de 1000/30/8 = aprox 4ms. 
+
+[[Fișier:led_array.jpg|thumb|upright|400px|alt=Conectare directa.|Conectare directa.]]
+Daca doriti sa conectati matricea direct la arduino, aveti nevoie asadar de 16 pini liberi - chestiune care este ok daca folositi un Arduino Mega, dar un caz nu prea fericit daca folositi alt tip de Arduino (puteti folosi in acest caz si pinii analogi setati ca output). In cazul in care conectati pinii direct la Arduino, nu uitati ca pentru a nu arde ledurile, fiecare pin R (sau fiecare pin C - cum preferati) trebuie sa ajunga la arduino inseriat cu o rezistenta (de aprox. 220-300 Ohm). In acest sens, puteti gasi un tutorial la adresa: https://www.benningtons.net/index.php/more-8x8-led-matrix/ (de aici a fost preluata si imaginea alaturata ce reprezinta modul de conectare directa a matricei la Arduino.
+
+De obicei matricea se conecteaza la Arduino utilizand un driver - un integrat care permite manipularea polaritatii pinilor si care in acelasi timp ofera si rezistenta necesara pentru a nu arde led-urile. Cel mai popular astfel de driver este MAX7219.
+
+== MAX7219 ==
+
+[[Fișier:SPI.jpg|thumb|upright|400px|alt=Interfata SPI.|Interfata SPI.]]
+MAX7219 are o interfata SPI pe 4 fire care sunt expuse pentru conectarea la Arduino, restul pinilor sunt utilizati pentru a interactiona cu matricea de leduri sau pentru a permite transferul de informatii catre un urmator max inseriat. Interfata SPI este asadar formata din:
+* pinul DIN -  de fapt este pinul pentru MOSI (Master Out, Slave In): pe aici sunt trimise informatiile catre MAX. Evident, MAX nu are nevoie sa trimita informatii in sens invers si din acest motiv nu exista o interfata pentru MISO (Master In, Slave Out) asa cum a fost prezentat in curs protocolul SPI.
+* pinul CS (chip select) care indica faptul ca informatiile sunt transmise lui MAX atunci cand acest pin este setat pe LOW.
+* pinul CLK - clock (in curs este intalnit ca SCK), este utilizat pentru a sincroniza Masterul cu Slaveul (in cazul nostru masterul este Arduino, salveul este MAXul).
+
+In imaginea alaturata puteti (re)vedea interfata SPI. Din cele descrise mai sus, puteti deduce ca pinul MOSI (DIN) se va conecta la pinul 11 al Arduino, pinul CS va fi conectat la 10 (selectare slave), pinul CLK va fi conectat la pinul 13 (SCK).
+Conectati asadar:
+* DIN la 11;
+* CS la 10;
+* CLK la 13;
+* GND la GND;
+* VCC la 5V.
+
+In continuare va fi dat codul pentru realizarea unei imagini 8x8 si animarea ei prin schimbarea intensitatii. Codul este comentat, va rugam sa cititi si comentariile:
+
+<source lang="c">
+// prima oara vom memora pozitiile la care este conectata matricea:
+int MOSI_pin = 11;
+int SlaveSelect_pin = 10;
+int Clock_pin = 13;
+
+
+// apoi stabilim cateva zone memorabile din max:
+byte max7219_reg_noop        = 0x00; // nu face nimic
+byte max7219_reg_digit0      = 0x01; // seteaza primul rand
+byte max7219_reg_digit1      = 0x02;
+byte max7219_reg_digit2      = 0x03;
+byte max7219_reg_digit3      = 0x04;
+byte max7219_reg_digit4      = 0x05;
+byte max7219_reg_digit5      = 0x06;
+byte max7219_reg_digit6      = 0x07;
+byte max7219_reg_digit7      = 0x08;
+byte max7219_reg_decodeMode  = 0x09;
+byte max7219_reg_intensity   = 0x0a;
+byte max7219_reg_scanLimit   = 0x0b;
+byte max7219_reg_shutdown    = 0x0c;
+byte max7219_reg_displayTest = 0x0f;
+
+void putByte(byte data) { // trebuie sa scriem bitii din data pe rand, de la stg la dreapta, sincronizat
+  for (int i=7; i>=0; i--)
+  {  
+    digitalWrite(Clock_pin, LOW);   // incepe o scriere sincronizata
+    digitalWrite(MOSI_pin, data & (0x01 << i)); // cand i=7 scriu cel mai din stg bit din data...
+    digitalWrite(Clock_pin, HIGH);   // a terminat sincronismul
+  }
+}
+
+
+void toMax( byte reg, byte col) {    
+  digitalWrite(SlaveSelect_pin, LOW);       // selectez slaveul    
+  putByte(reg);                  // ii zic in ce zona de memorie scriu
+  putByte(col);                  // si scriu valoarea
+  digitalWrite(SlaveSelect_pin,HIGH);       // deselectez slaveul ca sa activez ce am scris
+}
+
+void setup() {
+
+  pinMode(MOSI_pin, OUTPUT);
+  pinMode(Clock_pin,  OUTPUT);
+  pinMode(SlaveSelect_pin,   OUTPUT);
+
+  digitalWrite(Clock_pin, HIGH);  
+
+// cateva setari:
+  toMax(max7219_reg_scanLimit, 0x07);      
+  toMax(max7219_reg_decodeMode, 0x00);  
+  toMax(max7219_reg_shutdown, 0x01);    // nu e in shutdown
+  toMax(max7219_reg_displayTest, 0x00); // nu testez nimic
+   for (int i=1; i<=8; i++) {    
+    toMax(i,0);                         // curat fiecare rand
+  }
+  toMax(max7219_reg_intensity, 0x00);   // setez intensitatea la minim                                                 
+}
+
+void loop() {
+   toMax(1,B11011011);                       
+   toMax(2,B11011011);                       
+   toMax(3,B11010011);                       
+   toMax(4,B11001111);                       
+   toMax(5,B11011111);                      
+   toMax(6,B10000011);                      
+   toMax(7,B01111111);                      
+   toMax(8,B11111111);      
+
+   // in continnuare, vom modifica intensitatea intr-o bucla pentru a face un efect de fade:
+   int dir=1, k=0;
+   for(;;)
+   {
+      k+=dir;
+      if ((k==7)||(k==0)) dir*=-1;
+      toMax(max7219_reg_intensity, k);   // setez intensitatea la minim  
+      delay(100);
+   }                 
+}
+</source>
+
+== Exemple ==
+
+https://profs.info.uaic.ro/~arduino/index.php/Max7219anim
+
+== Exercitii ==
+
+====== Problema 1 (5pt) ======
+
+Realizati Conway Game of Life pe o matrice de 8x8 leduri (https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life). Marginea din stanga nu are in stanga nici un vecin, cea de sus nu are nici un vecin in partea de sus, cea din dreapta nu are vecini in dreapta si cea de jos nu are nici un vecin jos. BONUS: daca stie sa faca autoreset atunci cand ajunge intr-o stare din care animatia nu mai evolueaza: +3pt.
+
+====== Problema 2 (2pt / 5pt) ======
+
+Tipul de date uint64_t poate stoca un intreg fara semn pe 64 de biti. Cei 64 de biti poti fi utilizati pentru a aprinde simultan cele 64 de leduri ale matricei. Gasiti o metoda de conversie pentru a reprezenta datele direct pe matrice si utilizati urmatorul editor https://xantorohara.github.io/led-matrix-editor/# pentru a crea o imagine si a o afisa. Primiti 3 puncte in plus daca veti prelua imaginile de pe portul serial si veti construi o aplicatie pe calculator care sa livreze aceste imagini una dupa alta in vederea construirii unei animatii.
+
+
+
+<!--
+== Exercitii ==
+
+
+
+====== Problema 1 (3pt) ======
+
+Utilizand un senzor de distanta afisati pe un array de LEDuri care este distanta pana la primul obstacol. Puteti pozitiona senzorul inspre tavan si sa aprindeti cate un led pentru fiecare 10cm dintre senzor si un caiet.
+
+====== Problema 2 (3pt) ======
+
+Utilizand o matrice de leduri (8x8) care dispune de un multiplexor (cum ati invatat la curs), realizati una din urmatoarele animatii (la alegere):
+
+* Un melc: veti incepe cu primul led din stanga sus (0,0), va urma al doilea de sus si in continuare pana aprindeti prima linie (ledurile de la 0,0 pana la 0,7). Aprinderea ledurilor va continua pe ultima coloana  (ledurile 1,7-> 7,7) apoi pe linia de jos in sens invers (ledurile 7,6 -> 7,0) si apoi pe prima coloana de jos in sus (ledurile 6,0->1,0). Se va continua cu unrmatorul nivel (ledurile 1,1->6,6) etc.
+* Prima linie din (cea de sus) ca si cum ar intra in matrice dinspre stanga inspre dreapta. Dupa ce a intrat 3 pixeli, a doua linie va intra dinspre dreapta inspre stanga. Dupa ce si aceasta a intrat 3 pixeli, a treia linie va intra dinspre stanga inspre dreapta. etc. 
+* "Rama" care sa mearga automat catre un punct generat aleator (prin mancarea punctului rama nu va creste). Iesirea ramei din ecran prin partea stanga o va face sa apara prin partea dreapta si reciproc (la fel pentru sus-jos).
+* Alta animatie destul de complexa ce poate fi obtinuta programatic (si nu din mai multe matrice afisate una dupa alta). (o sursa de inspiratie: https://www.youtube.com/watch?v=HFxSoWriyoA)
+
+====== Problema 3 (6pt) ======
+
+Realizati Conway Game of Life pe o matrice de 8x8 leduri (https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life). Marginea din stanga nu are in stanga nici un vecin, cea de sus nu are nici un vecin in partea de sus, cea din dreapta nu are vecini in dreapta si cea de jos nu are nici un vecin jos.
+-->
+
+== Resurse utilizate ==
+* https://www.best-microcontroller-projects.com/max7219.html
+* https://gist.github.com/nrdobie/8193350
+* http://www.circuitstoday.com/interfacing-8x8-led-matrix-with-arduino
+* https://playground.arduino.cc/LEDMatrix/Max7219
+* https://xantorohara.github.io/led-matrix-editor/#
+* https://www.youtube.com/watch?v=HFxSoWriyoA

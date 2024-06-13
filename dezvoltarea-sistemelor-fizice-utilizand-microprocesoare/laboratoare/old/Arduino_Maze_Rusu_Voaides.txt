@@ -1,0 +1,183 @@
+Jocul a fost conceput pentru un LCD 16x2, utilizand libraria LiquidCrystal.h, fiind necesare 4 butoane: UP,
+DOWN LEFT si RIGHT.
+
+
+Obiectivul este destul de simplu: omuletul trebuie sa evite inimile din calea sa pentru a ajunge la iesire.
+Cand acesta o gaseste, adica paraseste ecranul prin extremitatea dreapta, ai castigat. Omuletul se poate
+misca apasand unul dintre butoanele UP, DOWN, LEFT sau RIGHT pentru care s-au preluat o valoare
+inferioara si una superioara a curentului ca sa intelegem ce buton a fost apasat.
+
+
+Ce poate fi imbunatatit:
+* Harta sa nu fie limitata doar de ecran, ci sa fie una mai lunga. Adica in timp ce omuletul se deplaseaza, LCD-ul sa descopere putin cate putin din harta;
+* Proiectile care sa incerce sa opreasca caracterul sa avanseze. Astfel putem oferi si o stare finala nefavorabila (in cazul in care omuletul e lovit), nu numai una castigatoare;
+
+<source lang="c">
+/*  Realizat de Rusu Andrei Mircea si Voaides Alexandru
+ *  Anul 3, Grupa B4
+ */
+
+#include <LiquidCrystal.h>
+
+const int rs = 8, en = 9, d4 = 4, d5 = 5, d6 = 6, d7 = 7;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+// the custom characters
+byte heart[8] = {
+  0b00000,
+  0b01010,
+  0b11111,
+  0b11111,
+  0b11111,
+  0b01110,
+  0b00100,
+  0b00000
+};
+
+byte armsDown[8] = {
+  0b00100,
+  0b01010,
+  0b00100,
+  0b00100,
+  0b01110,
+  0b10101,
+  0b00100,
+  0b01010
+};
+
+byte armsUp[8] = {
+  0b00100,
+  0b01010,
+  0b00100,
+  0b10101,
+  0b01110,
+  0b00100,
+  0b00100,
+  0b01010
+};
+
+int gameMatrix[2][16] = 
+{
+  0, 1 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0, 0 , 0, 0, 1, 1,
+  2, 0 , 0 , 1 , 0 , 1 , 0 , 0 , 0 , 0 , 1, 1 , 1, 0, 0, 0
+}; // 0 for empty, 1 for obstacles, 2 for the player
+
+int playerL=1; // current player line
+int playerC=0; // current player column
+
+bool gameWon = 0;
+bool gameWonShown = 0;
+
+int lcd_key;
+
+void setup() {
+  // initialize LCD and set up the number of columns and rows
+  lcd.begin(16, 2);
+
+  lcd.createChar(0, heart);
+  lcd.createChar(1, armsDown);
+  lcd.createChar(2, armsUp);
+
+  lcd.setCursor(0, 0);
+  printMatrix();
+}
+
+void printMatrix()
+{
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  
+  for (int i=0;i<=1;i++)
+    for (int j=0;j<=15;j++)
+      {
+        lcd.setCursor(j,i);
+        if (gameMatrix[i][j]==1)
+          lcd.write((byte)0); // heart "obstacle"
+        else if (gameMatrix[i][j]==2)
+          {
+            if (i==0)
+              lcd.write(2); // hands up when "in-air"
+            else lcd.write(1); // hands down when "on earth"
+          }
+        else lcd.write("");
+      }
+}
+
+int read_LCD_buttons()
+{
+  int sensorValue = analogRead(A0);
+  delay(80);
+  sensorValue = analogRead(A0);
+  return sensorValue;
+}
+
+// empty current player location and move the new location in the game matrix
+void moveToLocation(int playerNewL, int playerNewC)
+{
+  gameMatrix[playerL][playerC] = 0;
+  gameMatrix[playerNewL][ playerNewC] = 2;
+  playerL=playerNewL;
+  playerC=playerNewC;
+  printMatrix();
+}
+
+void loop() {
+
+   if (!gameWon)
+   { 
+     if (!gameWonShown) // if already won, show message only if not already shown
+     {
+       lcd.clear();
+       lcd.print("YOU WON");
+       gameWonShown = true;
+     }
+   }
+   else{
+    
+    lcd_key = read_LCD_buttons();
+   
+    if(lcd_key < 1000)
+    {
+      //LEFT
+      if(lcd_key > 405 && lcd_key < 413)
+      {
+        if(playerC >= 1)
+        {
+          if (gameMatrix[playerL][ playerC - 1] != 1) moveToLocation(playerL, playerC - 1);
+        }
+      }
+   
+      //DOWN
+      if(lcd_key > 252 && lcd_key < 259)
+      {
+        if(playerL== 0)
+        {
+          if (gameMatrix[playerL + 1][ playerC] != 1) moveToLocation(playerL +1, playerC);
+        }
+      }
+   
+      //UP
+      if(lcd_key > 96 && lcd_key < 104)
+      {
+        if(playerL == 1)
+        {
+          if (gameMatrix[playerL -1][ playerC] != 1) moveToLocation(playerL -1, playerC);
+        }
+      }
+   
+      //RIGHT
+      if(lcd_key >= 0 && lcd_key < 6)
+      {
+        if(playerC <= 14)
+        {
+          if (gameMatrix[playerL][ playerC + 1] != 1)
+               moveToLocation(playerL, playerC+1);        
+        }
+        else if (playerC==15) // if on the last column and trying to move right, the game is won
+          gameWon=true;
+      }
+    }
+   }
+   
+}
+</source>

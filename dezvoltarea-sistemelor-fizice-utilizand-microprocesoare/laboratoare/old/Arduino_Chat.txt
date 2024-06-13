@@ -1,0 +1,123 @@
+==<b>Sistem de comunicare prin USB over Ethernet intre 2 placi Arduino</b>==
+
+Mai jos veti vedea un exemplu despre cum ar putea fi implementat un sistem de comunicare intre 2 placi Arduino utilizand doua shielduri de tip Ethernet. 
+Fiecare Arduino va fi conectat la cate un calculator (prin intermediul unui cablu USB), se va incarca programul specific pe fiecare, cele doua shielduri ethernet trebuie sa fie conectate cu un cablu de retea (de preferat cross-over). Pentru a trimite si receptiona mesajele s-au utilizat consolele seriale.
+<p><i>Mentiuni inainte de rulare: </i></p>
+* "serverul" trebuie pornit inainte si lasat cateva secunde pentru ca Arduino sa ruleze tot codul si sa poata accepta o conexiune (daca veti incerca sa va conectati instant la "server", va va aparea "Deconectat!" de mai multe ori pana cand se va putea realiza conexiunea);
+* sirul "***STARTING CONFERENCE***" e pentru sincronizare - in acest mod "serverul" stie ca s-a conectat un client - (ar putea fi vazut pe server cand vine si sa fie scos);
+* este important ca adresele mac sa fie diferite pentru fiecare Arduino;
+* noi am folosit portul standard 80, dar acesta poate fi modificat cum doriti (se recomanda folosirea unuia mai mare decat 1024);
+* "clientul" va trebui sa stie atat adresa lui cat si adresa "serverului", in schimb, "serverul" va sti doar adresa sa;
+
+===<i>SERVERUL</i>===
+
+<source lang="c">
+/*
+ * Made by Cosmin Ambroci & Maria Chistol
+ * 8 November 2017
+ */
+#include <SPI.h>
+#include <Ethernet.h>
+
+byte mac[] = {
+  0xAC, 0x0D, 0x0E, 0xEF, 0xDE, 0xAF
+};
+IPAddress ip(192, 168, 1,107);
+
+EthernetServer server(80);
+void setup() {
+  Serial.begin(9600);
+  while (!Serial) {
+    ; 
+  }
+  Ethernet.begin(mac, ip);
+  server.begin();
+}
+
+
+void loop() {
+  EthernetClient client = server.available();
+  if (client) {
+    Serial.println("Conectat cu partenerul");
+    boolean currentLineIsBlank = true;
+    while (client.connected()) {
+      if (client.available()) {
+        String readFrom = client.readString();
+        Serial.print("C: ");
+        Serial.println(readFrom);
+      }
+      if(Serial.available()>0){
+            String citire=Serial.readString();
+            Serial.print("S: ");
+            Serial.println(citire);
+            client.println(citire);
+      }
+      }
+    delay(1);
+    client.stop();
+    Serial.println("Partener deconectat!");
+  }
+}
+
+ </source>
+ 
+===<i>CLIENTUL</i>===
+ 
+ <source lang="c">
+/*
+ * Made by Cosmin Ambroci & Maria Chistol
+ * 8 November 2017
+ */
+#include <SPI.h>
+#include <Ethernet.h>
+
+byte mac[] = { 0x0E, 0xAB, 0xBE, 0xEC, 0xAE, 0x3D };
+
+IPAddress server(192, 168, 1, 107); 
+IPAddress ip(192, 168, 1, 108);
+EthernetClient client;
+
+void setup() {
+  Serial.begin(9600);
+  while (!Serial) {
+    ; 
+  }
+  
+  Ethernet.begin(mac, ip);
+  delay(1000);
+  
+  if (client.connect(server, 80)) {
+    Serial.println("Conectat cu partenerul.");  
+    client.println("***STARTING CONFERENCE***");
+    Serial.println("S: ***STARTING CONFERENCE***");
+    Serial.println(" ");
+  } 
+  else {
+    Serial.println("Nu m-am putut conecta.");
+  }
+}
+
+void loop() {
+
+   while (true){
+       if (client.available()) {
+        String citire = client.readString();
+        Serial.print("S: ");
+        Serial.print(citire);
+       }
+       if(Serial.available()>0){
+        String readFrom=Serial.readString();
+        Serial.print("C: ");
+        Serial.println(readFrom);
+        client.print(readFrom);
+      }
+ 
+       if (!client.connected()) {
+        Serial.println();
+        Serial.println("Deconectat!");
+        client.stop();
+      }
+   }
+}
+
+ </source>

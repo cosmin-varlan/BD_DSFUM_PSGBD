@@ -1,0 +1,109 @@
+== Introducere ==
+
+[[Fișier:emitator-receptor.jpg|thumb|upright|350px|alt=Emitator-receptor 433Mhz.|Emitator-receptor 433Mhz.]]
+
+Comunicarea radio este o optiune low-cost excelenta pentru comunicatii wireless.
+Spectrul de frecvențe radio (spectrul radio) reprezintă acea porțiune a spectrului electromagnetic ce cuprinde undele ale căror frecvențe sunt cuprinse între 1 Hz și 3000 GHz. Spectrul se imparte in 12 game de frecvente:
+* ELF - de la 3 Hz la 30 Hz (extremely low frequency),
+* SLF - de la 30 Hz la 300 Hz (super low frequency),
+* ULF - de la 300 Hz la 3000 Hz (3 kHz) (ultra low frequency),
+* VLF - de la 3 kHz la 30 kHz (very low frequency), 
+* LF - de la 30 kHz la 300 kHz (low frequency),
+* MF - de la 300 kHz la 3000 kHz (3 MHz) (medium frequency),
+* HF - de la 3 MHz la 30 MHz (high frequency),
+* VHF - de la 30 MHz la 300 MHz (very high frequency),
+* UHF - de la 300 MHz la 3000 MHz (3 GHz) (ultra high frequency),
+* SHF - de la 3 GHz la 30 GHz (super high frequency),
+* EHF – de la 30 GHz la 300 GHz (extremely high frequency),
+* THF – de la 300 GHz la 3000 GHz (tremendously high frequency).
+
+== Emitator ==
+
+[[Fișier: Emitator2.jpg|thumb|upright|200px|alt=Emitator.|Emitator.]]
+
+Echipamentul de emisie are rolul de a emite in eter informația utilă. Acesta, preia informația de voce sau alta sursă, printr-un microfon, o aplica unui amplificator pentru ai amplifica semnalul, iar apoi semnalul este direcționat catre un modulator. Aici are loc un amestec al semnalului util, cu un semnal de radiofrecvență, provenit de la un oscilator local. Din acest etaj, semnalul este injectat în etajul de radiofrecvență și apoi direct în antenă.
+Pentru Arduino, modulul de transmisie are urmatoarele specificatii:
+* Distanta: 20-200 m (in functie de tensiunea de alimentare)
+* Tensiune alimentare: 3.5V - 12V;
+* Dimensiuni: 19 x 19 mm
+* Mod operare: AM
+* Rata transmisie: 4Kb/s
+* Putere transmisie: 10mW
+* Frecventa transmisie: 433MHz
+* Pini de la stanga la dreapta; GND, VCC, DATA
+
+== Receptor == 
+
+[[Fișier:Receptor.jpg|thumb|upright|200px|alt=Receptor.|Receptor.]]
+
+După ce semnalul a fost astfel transformat in radiație electromagnetică, intervine echipamentul de recepție. Aici, semnalul captat de antena receptorului, este demodulat, și apoi transmis unui amplificator de joasă frecvență.
+Pentru Arduino, modulul de receptie are urmatoarele specificatii:
+
+* Tensiune alimentare: 5V
+* Curent static: 4mA
+* Frecventa: 433 MHz
+* Sensibilitate receptor: -105dB
+* Dimensiuni: 30 x 14 x 7 mm
+* Pini de la stanga la dreapta; GND, DATA, DATA, VCC
+
+== Utilizarea modulelor radio ==
+
+[[Fișier:schema-conectare98.PNG|thumb|upright|400px|alt=Schema Conectare.|Schema Conectare.]]
+
+Pentru a realiza o astfel de comunicare intre 2 placi Arduino aveti nevoie de module de transmisie si receptie radio ce functioneaza in banda de 433Mhz ce se incadreaza in categoria UHF (ultra high frequency).
+In primul rand utilizarea celor 2 module necesita folosirea librariei VirtualWire ( pe care o gasiti la linkul http://www.airspayce.com/mikem/arduino/VirtualWire/VirtualWire-1.20.zip si pe care o dezarhivati in folderul “libraries” al directorului “Arduino”).
+
+{| class="table1 style="margin-left: auto; margin-right: auto; border: 2px; width =100%"
+|-
+! Transmitator
+! Receptor
+|-
+| <code>
+ // SimpleSend  
+ // This sketch transmits a short text message using the VirtualWire library  
+ // connect the Transmitter data pin to Arduino pin 12
+ #include <VirtualWire.h>  
+ const int led_pin = 13;  
+ void setup()  
+ {  
+    vw_setup(2000); 
+ }  
+ void loop()  
+ {  
+    digitalWrite(led_pin, HIGH); 
+    char *mes = (char*)("Salut");
+    send(mes);  // Transmiterea mesajului sub forma unui array de bytes
+    delay(1000);  
+ }  
+ void send (char *message)  
+ {  
+    vw_send((uint8_t *)message, strlen(message));  
+    vw_wait_tx(); // Asteapta pana cand e transmis tot mesajul
+    digitalWrite(led_pin, LOW); 
+</code>
+
+| <code>
+ #include <VirtualWire.h>  
+ byte message[VW_MAX_MESSAGE_LEN];
+ byte messageLength = VW_MAX_MESSAGE_LEN;
+ void setup()  
+ {  
+    Serial.begin(9600);  
+    Serial.println("Receptorul e pregatit sa primeasca mesaje...");  
+    vw_setup(2000);
+    vw_rx_start(); // Activeaza receptorul
+ }  
+ void loop()  
+ {  
+    if (vw_get_message(message, &messageLength)) 
+    {  
+       Serial.print("Am receptionat mesajul: ");  
+       for (int i = 0; i < messageLength; i++)  
+       {  
+          Serial.write(message[i]);  
+       }  
+       Serial.println();  
+    }  
+ }  
+</code>
+|}

@@ -1,0 +1,31 @@
+[[Fișier:Hero.jpg|thumb|upright|400px|alt=Recomandare.|Recomandare.]]
+
+== ASM ==
+
+Cel mai simplu tutorial de ASM pentru Arduino il gasiti aici: https://ucexperiment.wordpress.com/2016/03/04/arduino-inline-assembly-tutorial-1/ (in partea de sus aveti si lectiile urmatoare ca linkuri)
+
+S-ar putea sa va fie de ajutor si: http://www.microchip.com/webdoc/avrassembler/index.html 
+
+Asa ca vom trece direct la exercitiile pe care trebuie sa le rezolvati in ASM:
+
+== Exercitii ==
+
+====== Problema 1 (1pt) ======
+
+Scrieti un cod in ASM care sa faca swap intre doua variabile de tip byte declarate global. [codul il gasiti si in tutorialul de mai sus, dar trebuie sa il intelegeti si sa fiti capabili sa il explicati]
+
+====== Problema 2 (2pt) ======
+
+Adunati doua valori de tip byte (fara sa tineti cont de carry).
+
+====== Problema 3 (3pt) ======
+
+Adunati doua valori de tip long (a se testa pentru 49399 + 1001 ).
+
+====== Problema 4 (4pt) ======
+
+Inmultiti doua numere prin adunari repetate (inmultirea cu shiftare de biti care este varianta eficienta o gasiti printre exemplele de la linkul de mai sus).
+
+====== Problema 5 (2pt) ======
+
+Avand doua variabile globale a si b, scrieti un cod ASM care dupa rulare va duce valoarea mai mica in a si pe cea mai mare in b.

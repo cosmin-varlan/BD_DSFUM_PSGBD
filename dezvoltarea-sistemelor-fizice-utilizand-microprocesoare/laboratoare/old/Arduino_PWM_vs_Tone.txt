@@ -1,0 +1,44 @@
+<source  lang="c">
+#define p_tip 4
+#define p_r1 5
+#define p_r2 6
+#define p_sleeve 7
+
+
+
+void setup() {
+  pinMode(p_tip, OUTPUT);
+  pinMode(p_r1, OUTPUT);
+  pinMode(p_r2, OUTPUT);
+  pinMode(p_sleeve, OUTPUT);
+
+  digitalWrite(p_tip, LOW);
+  digitalWrite(p_r1, LOW);
+  digitalWrite(p_r2, LOW);
+  digitalWrite(p_sleeve, LOW);
+}
+
+
+
+
+void loop() {
+  long long t=millis();
+
+  // ca sa obtin o frecventa de 100hz, trebuie sa il pu pe high/low de 100 de ori intr-o secunda
+  // deci am voie sa pun high dupa care delay de 5 milisecunde si apoi low si delay de 5 milisecunde
+  while (millis()<t+1000)
+  {
+      digitalWrite(5,1);           
+      delay(5);
+      digitalWrite(5,0);
+      delay(5);
+  }
+
+
+  delay (1000);
+
+  // acelasi efect pot sa il obtin (mai simplu) cu functia tone:  
+  tone(5,100, 1000);
+  delay (10000);  
+}
+</source>

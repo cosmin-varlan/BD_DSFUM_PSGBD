@@ -1,0 +1,46 @@
+== Vanatoarea de comori in caverna Wumpusului [50pt] ==
+
+[[Fișier:wumpus.jpg|thumb|upright|200px|alt=Wumpus|Wumpus]]
+
+Prin intermediul unui algoritm de generare a unui labirint (some ideas: https://en.wikipedia.org/wiki/Maze_generation_algorithm ), arduino va genera, in mod aleator, o matrice de 23x64 de valori (0 / 1) avand urmatoarea semnificatie:
+
+* 0 - pozitie accesibila (pe care s-ar putea merge)
+* 1 - perete
+
+
+Din orice pozitie accesibila se poate ajunge in alta pozitie accesibila (nu exista insule de zone accesibile inconjurate de pereti). Se poate trece dintr-o pozitie intr-alta doar prin mutari de tipul Nord/Sud/Est/Vest.
+
+In 4 pozitii accesibile ale labirintului exista 4 cautatori de comori (denumiti A,B,C,D). Pozitiile initiale ale acestora sunt generate aleator. 
+
+Intr-una din pozitiile accesibile labirintului se afla o comoara (G = GOLD aka BitCoins). Nici unul dintre cei patru cautatori de comori nu stie unde se afla comoara, ei putand interoga doar daca au ajuns sau nu la comoara.
+
+Cei 4 cautatori de comori se pot deplasa in labirint prin miscari Nord/Sud/Est/Vest doar daca in directia in care incearca sa se deplaseze pozitia este accesibila. De asemenea, ei pot sta intr-o anumnita locatie daca doresc sa faca acest lucru.
+
+Intr-o pozitie random pe harta se afla un animal fioros denumit Wumpus (W) a carui raget poate fi auzit de catre cautatorii de comori. In plus, cautatorii de comori isi pot da seama la ce distanta se afla acesta din cauza ca aud mai tare sau mai incet ragetul animalului (distanta in acest caz este numarul de locatii accesibile dintre cautator si wumpus). Fiecare cautator poate interoga aceasta valoare in orice moment, eventual pentru a-si alege strategia de deplasare. Ei afla numai disntanta nu si directia din care vine ragetul. Wumpusul se deplaseaza alator prin labirint, in fiecare moment alegand una din pozitiile accesibile adiacente (Wumpusul nu poate sta).
+
+Caverna Wumpusului este supravegheata de un vrajitor rau (denumit Cosmin Varlan ... sau Vlad Craciun, dupa caz). Acesta poate sa faca o magie si sa adoarma toate personajele din povestea noastra (Pont: magia se realizeaza prin deconectarea arduinoului de la sursa de energie electrica). In momentul in care magia se risipeste, toti eroii nostri (pozitivi si negativi) se vor trezi si isi vor continua cautarea (dupa comoara sau dupa cautatori de comori) din aceeasi pozitie in care erau inainte de magie.
+
+Castiga cautatorul de comori care a gasit comoara sau Wumpusul daca a mancat toti cautatorii de comori. In momentul gasirii comorii, vor fi afisate si ultimele 200 de miscari ale cautatorului: N/S/E/V (nu si stagnarile). In cazul castigarii unuia dintre peronaje, se va face o pauza de 30 de secunde si problema va fi reluata in alta caverna (generata din nou). Scopul vostru este sa ii faceti pe cautatorii de comori sa adune cat mai mult. In dreapta hartii vor fi afisate mereu numarul de comori stranse de fiecare cautator (ca tot aveti lungimea de 64 si in consola de la putty se pot afisa 80 de caractere).
+
+Pont 1: Vazuta in putty (conectat pe portul serial la care este atasat Arduino), toata povestea arata ca o animatie (pentru ca aceasta fereastra este setata default la 24x80 linii, pe ultima sta mereu cursorul si deci afisand 23 de linii ale matricei, veti vedea la fiecare pas pe ecran o noua matrice.
+
+Pont 2: Folositi memoria eeprom pentru a salva datele.
+
+Restrictie: problema trebuie sa ruleze corect pe un Arduino UNO la care nu aveti conectat nici un alt fel de dispozitiv (e.g. fara carduri).
+
+<span style="color:white; background-color:red">Cele 50 de puncte se acorda integral sau deloc (nu exista cale de mijloc, pentru probleme care merg "pe jumatate").</span>
+
+Acordam 10 de puncte in plus persoanelor care deseneaza labirintul folosind caracterele avand codurile ascii in intervalele 185-188, 200-206 (╣ ║ ╗ ╝ ╚ ╔ ╩ ╦╠ ═ ╬). In rest se va folosi caracterul avand codul ascii 219 (█) pentru reprezentarea unui perete. Cei patru cautatori de comori vor fi reprezentati cu caractere avand codurile ascii 3,4,5,6 (♥ ♦ ♣ ♠ : reprezentantii reginelor de inima rosie, caro, trefla si frunza). Wumpusul = 153 (Ö ca are antene). Comoara = G.
+
+Data limita: primul laborator la care veniti.
+
+
+
+
+<span style="color:green">Pentru cei care nu au Arduino la dispozitie, www.tinkercad.com este solutia: mergeti acolo, faceti-va cont sau autentificati-va cu fb, scrieti adresa: https://www.tinkercad.com/#/ si in partea stanga apasati pe "Circuits" apoi Create new Circuit apoi apasati pe Arduino Uno R3 aflat pe al doilea rand si in dreapta aveti buton pentru inchiderea ferestrei de componente si inca unul pentru deschiderea editorului de cod. Puteti apasal pe "Block" ca sa scapati de scriere ca si blocuri... is useless (unless baby). Si de aici ar trebui sa va descurcati. [nu merge salvarea, dar probabil restul e ok]</span>
+
+
+====== Solutii ======
+
+* [[Solutie 1 Supertema 2017]] - Autori: Iftimesei Ioan, Sfarghiu Andrei
+* [[Solutie 2 Supertema 2017]] - Autori: Soficu Corneliu

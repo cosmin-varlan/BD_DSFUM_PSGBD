@@ -1,0 +1,25 @@
+== Principiul fizic ==
+
+
+Masurarea temperaturii se face cu ajutorul senzorilor de temperatura.
+Sint de doua tipuri:
+<ul>
+<li>in contact cu obiectul de masurat </li>
+<li>fara contact cu obiectul de masurat</li>
+</ul>
+
+Senzorii de masurare cu contact se pot imparti in categorii:
+<ul><li>nonelectrici: mecanici(bazati pe dilatarea corpurilor, cel mai cunoscut fiind clasicul termometru cu 
+mercur sau alcool) sau chimici</li>
+<li>electrici : termocupluri, termorezistente, jonctiuni p-n, etc. </li>
+</ul>
+In cazul accesului dificil sau al temperaturilor foarte mari , se folosesc pirometre, senzori in infrarosu,
+senzori cu fibre optice, etc
+
+
+== Folosirea impreuna cu Arduino ==
+
+Senzorul de temperatura DHT11 este foarte usor de folosit impreuna cu Arduino. 
+Acesta are 3 terminali, anume : plus, minus si OUT (semnalul). <br>
+Schema exemplu '''[http://cdn.shopify.com/s/files/1/1689/3027/files/schematic-dht11t-1024x560.png?v=1483733943 aici]'''.<br>
+Cod sursa aici '''[https://github.com/Micro-Gear/deluxe/tree/master/DHT_example aici]'''. (folosind libraria SimpleDHT)
