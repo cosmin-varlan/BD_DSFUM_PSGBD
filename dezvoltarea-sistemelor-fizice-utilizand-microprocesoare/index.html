@@ -12,6 +12,11 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>        
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css">
     <link rel="stylesheet" href="stil.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>    
+    
 </head>
 <body>
 
@@ -153,7 +158,17 @@
         <div class="row">
             <div class="col-md-12">
                 <h2>Laborator</h2>
-                <p> Va urma... </p>
+                <div class="row">
+                    <div class="col-md-2" style="background-color:rgba(0, 0, 0, .1); border-radius:5px;">
+                       <ol style="padding:10px;"> 
+                           <li><a href="#" onclick="load_lab('lab1');">Introducere</a></li>
+                           <li><a href="#" onclick="load_lab('lab2');">PWM</a></li>
+                       </ol>
+                    </div>
+                    <div class="col-md-10" id="lab_page">
+                        <!-- Lab contet goes here -->
+                    </div>
+                </div>
             </div>  
         </div>  
     </div>
@@ -288,13 +303,21 @@
 
 
     <script>
+
+        function load_lab(lab_name){
+            fetch("laboratoare/"+lab_name+".html")
+            .then((res)=>res.text())
+            .then((pagina)=>{document.getElementById("lab_page").innerHTML = pagina; hljs.highlightAll();})
+            .catch((err)=>console.log("Error:", err));
+        }
+
         function show(pagina){
             var lista=["paginaprincipala", "curs", "laborator", "proiecte", "regulament", "cine"];
             for(let i=0; i<lista.length; i++)
                 if(document.getElementById(lista[i])!=null) document.getElementById(lista[i]).style.display = "none";            
             document.getElementById(pagina).style.display = "block";
         }
-        show("paginaprincipala");
+        show("paginaprincipala");        
     </script>
 </body>
 </html>
