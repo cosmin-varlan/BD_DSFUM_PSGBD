@@ -1,0 +1,35 @@
+
+
+<pre><code class="language-C">
+uint8_t fibo(uint8_t a){
+    volatile uint8_t x=a;      
+    volatile uint8_t z=0;
+  
+      asm(
+        "ldi r26, 1 \n"   // incarc prima valoare din sirul lui fibonacci in registrul r26
+        "dec %1     \n"   // decrementez numarul elementului pentru ca voi porni de fapt de la urmatrul
+        "ldi r27, 1 \n"   // incarc prima valoare din sirul lui fibonacci in registrul r27
+        "dec %1     \n"   // decrementez iarasi   
+        "1:         \n"      // eticheta pentru a ma intoarce si a face bucla
+        "mov r21, r26  \n"   // copii registrul 26 in 21
+        "add r21, r27  \n"   // adun la r21 pe r27 (de fapt am calculat suma lui 26 cu 27)
+        "mov r26, r27  \n"   // mut continutul lui r27 in r26
+        "mov r27, r21  \n"   // mut continutul lui r21 (suma) in r27
+        "dec %1     \n"      // decrementez pozitia.... daca se ajunge la zero, atunci se seteaza flagu-ul ZERO pe 1 si urmatoarea linie va fi ignorata
+        "brne 1b    \n"      // daca nu s-a ajuns la 0 in urma decrementarii, se sare la eticheta 1 pentru a relua si a calcula o noua suma
+        "mov %0, r21  \n"    // la sfarsit se trece continutul lui r21 (ultima suma) in parametrul de iesire.
+        : "+r" (z) : "r" (x) : "r26", "r27", "r21"
+        );
+    
+    return z;
+}
+
+void setup() {
+  Serial.begin(9600);
+  uint8_t m = fibo(10);
+  Serial.println(m);
+}
+void loop() { 
+}
+</code></pre>
+

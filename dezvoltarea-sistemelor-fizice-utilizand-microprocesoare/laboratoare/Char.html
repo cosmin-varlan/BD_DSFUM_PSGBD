@@ -1,0 +1,361 @@
+<p>== char ==</p>
+<p>La fel ca si byte, tipul de date char este reprezentat pe 8 biti. In octetul respectiv (byte) putem reprezenta 256 de valori, de la 0 la 255 in cazul byte si de la -128 la 127 pentru tipul char. Atunci cand se doreste afisarea unui caracter (prin utilizarea Serial.print()), se va afisa caracterul avand codul ascii corespunzator. De exemplu, daca executam urmtorul cod va fi afisata litera 'A'.</p>
+
+
+
+<pre><code class="language-c">
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  char c=65; //desi i-am atribuit un numar, acesta este convertit automat in caracterul 'A'
+  Serial.println(c);
+  while(true);  
+}
+</code></pre>
+
+
+<p>Daca se aduna sau se scade o valoare numerica dintr-o variabila de tip char, se va considera codul ascii, iar rezultatul va fi unul numeric (e.g 'B'-1 este 65 si nu 'A'.)</p>
+
+<p>Pentru a converti o valoare (care nu este de tip char) in caracter, putem sa o atribuim direct (cum am facut mai sus) sau putem sa ii face un cast la acest tip de date (e.g. (char)('B'-1) este caracterul 'A'). Evident, veti obtine un caracter inteligibil daca valoarea ce se doreste a fi transformata are un corespondent in codul ascii.</p>
+
+<p>De obicei, un caracter nu vine singur ci impreuna cu fratiorii lui :D </p>
+
+<p>Pentru lucrul cu mai multe caractere, in Arduino, exista doua posibilitati:</p>
+<ul>
+<li> utilizarea clasei String;</li>
+<li> utilizarea sirurilor de caractere: char*.</li>
+</ul>
+
+
+<p>== String ==</p>
+<p>In primul rand, atunci cand utilizati clasa String, automat programul vostru va creste cu aprox. 1,2KB. Nu pare mult, dar cand stiti ca aveti doar 32KB la dispozitie in memoria Flash a Arduinoului, s-ar putea ca pentru a optimiza sa doriti sa utilizati char *. Pe de alta parte, utilizarea String ar putea sa va usureze munca pentru ca aveti deja impementate o serie de functii care nu se regasesc in lucrul cu siruri de charactere (char*).</p>
+
+<p>Sa vedem care ar fi functiile cu care ati putea lucra in cazul String.</p>
+
+<p>Pentru a da o valoare unui obiect de tip String se foloseste operatorul egal:</p>
+
+<p> String s = "Acesta este un obiect de tip String.";</p>
+
+<p>O alta metoda este de a converti o valoare de alt tip (e.g. char sau int) prin intermediul constructorului:</p>
+
+<ul>
+<li> String(val) </li>
+<li> String(val, baza)</li>
+<li> String(val, cifreDupaVirgula)</li>
+</ul>
+
+
+<p>De exemplu, urmatoarele sunt Stringuri:</p>
+
+
+
+<pre><code class="language-c">
+  String s1 = String(10);
+  String s2 = String(10,BIN);
+  String s3 = String(3.1415,2);
+  
+  Serial.println(s1);  // 10
+  Serial.println(s2);  // 1010
+  Serial.println(s3);  // 3.14
+</code></pre>
+
+
+<p>Cateva dintre functiile cele mai importante in lucrul cu obiecte de tip String (o lista completa o puteti gasi la https://www.arduino.cc/reference/en/language/variables/data-types/stringobject/) sunt:</p>
+
+<h6> Aflarea numarului de caractere (lungimea) </h6>
+
+<p>Metoda length() aplicata unui obiect de tip String returneaza numarul de caractere din obiectul de tip String:</p>
+
+
+
+<pre><code class="language-c">
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() { 
+  String s = "Acesta este un obiect de tip String.";
+  Serial.println(s.length());   // afiseaza 36
+  while(true);  
+}
+</code></pre>
+
+
+<h6> Manipularea unui singur caracter alfanumeric </h6>
+
+<p>Pentru a afla ce carcter se afla la o anumita pozitie se poate utiliza:</p>
+<ul>
+<li> metoda s.charAt(x) - unde x este pozitia;</li>
+<li> operatorul de acces asupra unui element dintr-o anumita pozitie (e.g s[x]):</li>
+</ul>
+
+
+<p><source lang="c"></p>
+<p>void setup() {</p>
+<p>  Serial.begin(9600);</p>
+}
+
+<p>void loop() { </p>
+<p>  String s = "Acesta este un obiect de tip String.";</p>
+<p>  Serial.println(s.charAt(2));  // e</p>
+<p>  Serial.println(s[1]);         // c</p>
+<p>  while(true);  </p>
+}
+<p></source></p>
+
+<p>Pentru a modifica caracterul de pe pozitia x, ii poate fi atribuita o noua valoare prin intermediul operatorului de acces:</p>
+
+<p> s[3] = 'a';</p>
+
+<p>Sau se poate utiliza metoda setCharAt():</p>
+
+<p>   s1.setCharAt(0, 'X');</p>
+
+<h6> Manipularea simultana a mai multor caractere </h6>
+
+<p>Exista cateva functii ce pot fi utilizate pentru a modifica in intregime obiectul de tip String:</p>
+
+<ul>
+<li> toLowerCase() - modifica toate literele mari in litere mici, caracterele ce nu sunt litere sau literele mici raman neafectate;</li>
+<li> toUpperCase() - modifica toate literele mici in litere mari, caracterele ce nu sunt litere sau literele mari raman neafectate;</li>
+</ul>
+
+
+<h6> Concatenarea a doua siruri </h6>
+
+<p>Metoda concat() poate fi utilizata pentru a adauga Stringul dat ca parametru la obiectul de tip String apelant:</p>
+
+
+
+<pre><code class="language-c">
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() { 
+  String s1 = "text 1";
+  String s2 = "text 2";
+  s1.concat(s2);
+  Serial.println(s1); // "text 1text 2"
+  while(true);  
+}
+</code></pre>
+
+
+<p>Pentru concatenare poate fi folosit si operatorul + (concatenare) sau += (append):</p>
+
+
+<pre><code class="language-c">
+s1 = s1 + s2; // ocupa cu 6 bytes de memorie mai mult decat celelalte variante desi face acelasi lucru
+s1 += s2;
+</code></pre>
+
+
+<h6> Cautarea unui caracter sau a unui String intr-un String </h6>
+
+<p>Se realizeaza cu una din metodele:</p>
+<ul>
+<li> indexOf(val, poz) - cauta caracterul sau Stringul reprezentat de val incepand de la pozitia poz;</li>
+<li> lastIndexOf(val, poz) - cauta caracterul sau Stringul reprezentat de val dar de la sfarsitul Stringului catre inceputul acestuia, eventual incepand de la pozitia data ca parametru.</li>
+</ul>
+
+
+<p>Cu ajutorul acestor functii putem, spre exemplu, sa numaram de cate ori apare un String in alt String:</p>
+
+
+<pre><code class="language-c">
+void setup() {
+  Serial.begin(9600);
+}
+ 
+void loop() { 
+  delay(1000);
+  String s1 = "leru-i ler si iarasi ler";
+  String s2 = "ler";
+  int lerCount = 0;
+  for(int i=s1.indexOf(s2); i!=-1; i = s1.indexOf(s2,i+1))
+  {
+    lerCount++;   
+  }
+  Serial.println(lerCount); 
+  while(true);  
+}
+</code></pre>
+
+
+<h6> Verificarea ordinii lexicografice sau elgalitatii a doua obiecte de tip String </h6>
+
+<p>Mai multe metode si operatori pentru acest lucru:</p>
+<ul>
+<li> compareTo() - compara ordinea lexicografica a Stringului apelant cu cea a Stringului dat ca parametru: -1 daca apelantul e mai mic, 0 daca sunt egale, 1 daca apelantul e mai mare;</li>
+<li> equals() - adevarat daca apelantul este la fel cu parametru;</li>
+<li> equalsIgnoreCase() - adevarat daca apelantul este la fel cu parametru, de aceasta data fara a face distinctie intre literele mici si mari;</li>
+<li> operatori cu rezultat boolean, avand semnificatia standard: ==, !=, <=, <, >, >=</li>
+</ul>
+
+
+<p><source lang="c"></p>
+<p>void setup() {</p>
+<p>  Serial.begin(9600);</p>
+}
+
+<p>void loop() { </p>
+<p>  delay(300);</p>
+<p>  String s1 = "abc";</p>
+<p>  String s2 = "abd";  </p>
+<p>  if (s1!=s2) Serial.println(s1.compareTo(s2) == -1 ? s1+" este mai mic decat "+s2 : s2+" este mai mic decat "+s1); </p>
+<p>  while(true);  </p>
+}
+<p></source></p>
+
+<h6> Inlocuirea aparitilor unui substring </h6>
+
+<p>Se realizeaza utilizand metoda replace(substr1, substr2) unde toate aparitiile lui substr1 din obiectul string apelant vor fi inlocuite cu s2:</p>
+
+
+<pre><code class="language-c">
+  String s1 = "Produsul se plateste in lei si costa 2 lei";
+  String s2 = "lei";
+  String s3 = "dolari";  
+  s1.replace(s2,s3);
+  Serial.println(s1); 
+</code></pre>
+
+
+<h6> Obtinerea unii portiuni dintr-un String </h6>
+
+<p>Putem utiliza metoda substring(index1, index2) ce returneaza un obiect de tip String format din caracterele aflate intre cei doi indecsi. </p>
+
+<p>O a doua metoda ne permite sa eliminam dintr-un string un substring ce incepe de la o anumita pozitie si are un anumit numar de caractere: remove(index, contor);</p>
+
+<p>In aceasta clasa mai exista o serie de metode ce nu au fost discutate si pe care va invitam sa le gasiti la adresa: https://www.arduino.cc/reference/en/language/variables/data-types/stringobject/</p>
+
+<p>== char * ==</p>
+
+<p>Utilizarea clasei String vine cu o utilizare a memoriei flash suplimentara (de 1.2Kb). In cazul utilizarii sirurilor de caractere nu este nevoie sa faceti nici un import, iar functiile disponibile sunt direct recunoscute. Partea dificila in utilizarea sirurilor de caractere (char *) este, probabil, managementul corect al celor 2Kb de memoriei RAM. Avand in vedere acest aspect, recomandarea mea (Cosmin Varlan) ar fi sa invatati sa utilizati corect sirurile de caractere, clasa String fiind doar o amagire care imbraca tipul de baza (char *) intr-o haina frumoasa, facand singura managementul memoriei. </p>
+
+<p>Pentru a ne asigura de faptul ca nu ramanem fara memorie, si ca aceasta este utilizata cum trebuie, vom utiliza o biblioteca denumita MemoryFree (sau MemoryFree-master) pe care o puteti instala direct din managerul de biblioteci (Sketch->Include Library->Manage Libraries dupa care cautati MemoryFree). Atunci cand importati aceasta biblioteca veti putea utiliza functia freeMemory() care intoarce o valoare intreaga reprezentand numarul de octety (bytes) liberi disponibili in memoria RAM. Chiar si exemplul furnizat de biblioteca MemoryFree utilizeaza siruri de caractere pentru a demonstra cum un astfel de sir ocupa memoria.</p>
+
+<p>Un sir de caractere poate fi declarat in oricare dintre modurile urmatoare (si va ocupa exact 10 octeti din memoria RAM):</p>
+
+<ul>
+<li> char str[8] = "Arduino";</li>
+<li> char str[] = "Arduino";</li>
+<li> char* str = "Arduino";</li>
+<li> char str[8] = {'A', 'r', 'd', 'u', 'i', 'n', 'o' ,'\0'};</li>
+</ul>
+
+
+<p>Sirurile de caractere sunt formate din zone contigue: daca avem un sir format din 3 caractere si primul caracter se afla la adresa de memorie n, atunci al doilea se va afla la adresa n+1 iar al treilea la adresa n+2. In plus, fiecare sir de caractere se termina cu caracterul nul ('/0'). Fara acest terminator, functiile ce primesc ca parametru un sir de caractere nu ar sti cat de lung este sirul respectiv (in cazul sirurilor de numere, de obicei se transmite si numarul de elemente ale sirului; am putea proceda la fel si in cazul sirurilor de caractere dar ar fi o bataie mai mare de cap). De fapt, daca va uitati la prima declaratie, variabila str a fost declarata ca avand 8 caractere desi cuvantul "Arduino" are doar 7 caractere, iar in ultimul exemplu sunt scrise efectiv caracterele sirului, inclusiv terminatorul (in celelalte cazuri, terminatorul este adaugat automat).</p>
+
+
+
+<pre><code class="language-c">
+#include <MemoryFree.h>
+char str[9] = {'A', 'r', 'd', 'u', 'i', 'n', 'o' ,'\0'}; // de comentat
+void setup() {
+    Serial.begin(9600);
+}
+void loop() {
+    Serial.println(str); // de comentat
+    Serial.print("freeMemory()=");
+    Serial.println(freeMemory());
+    delay(1000);
+}
+
+</code></pre>
+
+
+<p>Exemplul de mai sus afiseaza sirul de caractere impreuna cu memoria ramasa libera. Daca veti comenta liniile marcate cu "de comentat", veti observa ca memoria libera este mai mare cu 8 octeti la cea de-a doua rulare.</p>
+
+<p>Sa vedem in continuare cateva functii disponibile atunci cand lucrati cu siruri de caractere:</p>
+
+<h6> Aflarea lungimii unui sir de caractere </h6>
+
+<p>Functia strlen avand ca parametru sirul de caractere al carui lungime doriti sa il aflati va intoarce numarul de caractere existente in acel sir. Aceasta fie numara cate caractere gaseste in sir inainte de intalnirea caracterului '\0', fie returneaza dimensiunea declarata a sirului in cazul in care sirul este mai mare. Exemplu:</p>
+
+
+
+<pre><code class="language-c">
+char* str = "Arduino";
+void setup() {
+    Serial.begin(9600);
+}
+void loop() {
+    Serial.println(strlen(str));
+    delay(1000);
+}
+</code></pre>
+
+
+<h6> Copierea unui sir in altul </h6>
+
+<p>Comanda pentru copierea unui sir in alt sir este strcpy. Primul parametru este sirul ce va fi suprascris, cel de-al doilea parametru este sirul cu care se va suprascrie.</p>
+
+
+<pre><code class="language-c">
+void setup() {
+    Serial.begin(9600);
+}
+void loop() {
+
+    char* str1 = "ABCD";
+    char* str2 = "abcdefghijklmnopqrstuvwxyz";  
+    
+    Serial.println(str1);
+    Serial.println(str2);
+
+    Serial.println("Copiem");
+    strcpy(str1,str2);
+ 
+    Serial.println(str1);
+    Serial.println(str2);  
+ 
+    while(true);
+}
+</code></pre>
+
+
+<p>In exemplul de mai sus s-a copiat sirul de caractere aflat in str2 in sirul str1. Daca la inceput au fost afisate valorile "ABCD" si apoi "abcdefghijklmnopqrstuvwxyz", dupa copiere ambele variabile ar trebui sa contina sirul de caractere "abcdefghijklmnopqrstuvwxyz". Este "Ar trebui" pentru ca de fapt nu se prea intampla acest lucru (cel putin nu in cazul meu - si daca in cazul vostru pare ca este ok, de fapt nu este). Motivul sta in felul in care este implementata functia strcpy, nu numai in cazul Arduino ci chiar in C/C++ in general:</p>
+
+
+<pre><code class="language-c">
+char *strcpy(char *dest, const char *src)
+{
+   char *save = dest;
+   while(*dest++ = *src++);
+   return save;
+}
+// preluat de la: https://en.wikibooks.org/wiki/C_Programming/string.h/strcpy unde gasiti si alte chestiuni interesante despre strcpy
+</code></pre>
+
+
+<p>Deoarece in implementarea functie nu s-a pus problema ca sirul al doilea ar putea fi mai lung decat primul sir, poate aparea problema in care memoria alocata sirului destinatie este mai mic si atunci fie s-ar putea ca sirul sursa sa nu incapa sau sa utilizeze memoria altor variabile. Daca vrem sa copiem cum trebuie sir2 in sir1 trebuie ca intai sa eliberam memoria ocupata de sir1 si apoi sa alocam o noua zona de memorie in care ar putea incape sir2:</p>
+
+
+<pre><code class="language-c">
+void setup() {
+    Serial.begin(9600);
+}
+void loop() {
+
+    char* str1 = "ABCD";
+    char* str2 = "abcdefghijklmnopqrstuvwxyz";  
+    
+    Serial.println(str1);
+    Serial.println(str2);
+
+    free(str1);
+    str1 = (char*) malloc(strlen(str2)+1);
+    Serial.println("Copiem");
+    strcpy(str1,str2);
+ 
+    Serial.println(str1);
+    Serial.println(str2);  
+ 
+    while(true);
+}
+</code></pre>
+

@@ -1,0 +1,229 @@
+<h2> Introducere </h2>
+<p>[[Fișier:pisica_infrarosu.jpg|thumb|upright|300px|alt=pisica_infrarosu|Pisică în infraroșu.]]</p>
+<p>Radiația infraroșu este un tip de radiație electro-magnetica cu frecvența de 430THz până la 300GHz (700nm-1mm) (imediat sub spectrul culorii roșu pe care o poate distinge ochiul uman). Aceasta este emisă de obiectele și ființele) cu temperaturi apropiate de temperatura camerei.</p>
+<p>Emiterea și captarea de radiație infraroșu stă la baza multor tehnologii moderne: protocoale de comunicarea la distanță (telecomenzi), distingrerea diferențelor de căldură (vedere nocturnă, urmărirea rachetelor), spectroscopie, meteorologie etc.</p>
+<h2> Instalare librărie </h2>
+<p># Vizitați pagina [https://github.com/cyborg5/IRLib2 IRLib2] de pe GitHub.</p>
+<p># Descărcați ZIP-ul.</p>
+<p># Dezarhivați fișierul descărcat.</p>
+<p># Redenumiți folderul obținut în ”IRLib2-master”. Acesta conține 5 foldere diferite (IRLib este de fapt o colecție de 5 librării care colaborează).</p>
+<p># Copiați folderele obținute în directorul care conține celelalte librării Arduino de obicei în ”(home)/Documents/Arduino/Libraries”</p>
+
+<h2> Recepționarea semnalelor infraroșu </h2>
+<p>[[Fișier:IRreceiver.png|thumb|upright|300px|alt=IRreceiver|Schemă receiver infraroșu.]]</p>
+<p>Pentru a recepționa undele infraroșu aveți nevoie de un [https://ardushop.ro/ro/home/441-led-5mm-infrarosu-emitator.html?search_query=infrarosu&results=8 receiver], precum TSOP38238, care poate fi găsit la magazinele de specialitate . Receptorul are o celulă fotosensibilă care reacționează cu radiațiile electro-magnetice din spectrul infraroșu.</p>
+
+<p>După cum se poate vedea în schema alăturată, receptorul are 3 pini: unul OUT în stânga, unul ground(GND) în centru și unul de tensiune (5V) în dreapta.</p>
+<p>Pentru conectarea receptorului, legați pinul OUT la orice pin digital de pe placa Arduino, pinul GND la GND-ul Arduino iar pinul drept la pinul 5V al Arduino. Receptorul se conectază la un pin digital deoarece acesta se ocupă nu doar de măsurarea radiaților ci și de demodularea semnalului și oferirea unei unde pătratice (practic, digitale).</p>
+
+
+<pre><code class="language-c">
+//Headerul pentru librăria pe care ați descărcat-o care implementează interfața cu senzorul
+#include "IRLibAll.h"
+
+// Se instanțiază o clasă de tip receiver, IRrecvPCI, care va folosi pinul digital 2
+
+IRrecvPCI myReceiver(2);
+
+// Creăm obiect decodor, IRdecode
+
+IRdecode myDecoder;
+
+void setup() {
+
+    Serial.begin(9600); // Inițializăm interfeței seriale
+
+    while (!Serial); // Aștemptăm deschiderea interfeței seriale
+
+    myReceiver.enableIRIn(); // Pornim receiver
+
+    Serial.println(F("Ready to receive IR signals"));
+
+}
+
+void loop() {
+
+//Nu se execută codul din structura if până când receptorul sesizează unde infraroșu pe care le interpretează ca pe un semnal valid
+
+    if (myReceiver.getResults()) {
+
+        myDecoder.decode(); // Decodăm informația
+
+        myDecoder.dumpResults(true); //Afișăm informația înregistrată de receiver. Opțiunea ”false” va oferi mai puține informații
+
+        myReceiver.enableIRIn(); //Restartăm receptorul
+
+    }
+
+}
+</code></pre>
+
+
+<h2> Emiterea semnalelor infraroșu </h2>
+<p>[[Fișier:poza_circuit.jpg|thumb|upright|300px|alt=poza_circuit|Poză cu circuitul.]]</p>
+<p>Pentru a emite undele infraroșu aveți nevoie de un [https://ardushop.ro/ro/home/440-led-5mm-infrarosu-emitator.html?search_query=infrarosu&results=8 emitter] care de asemenea poate fi găsit la magazinele de specialitate . Emițătorul este doar un LED care eliberează unde din spectrul infraroșu.</p>
+
+<p>În mod obișnuit, pin-ul OUTPUT al Arduino nu emite suficient curent pentru a susținte funcționarea unui LED infraroșu. Din această cauză, veți avea nevoie de un tranzistor NPN și un rezistor de 470 Ohmi cu care sa reproduceți circuitul din imagine/schemă. </p>
+<p>[[Fișier:IRemitter.png|thumb|upright|300px|alt=IRemitter|Schemă emitter infraroșu.]]</p>
+
+
+<pre><code class="language-c">
+//Headerul pentru librăria pe care ați descărcat-o care implementează interfața cu emițătorul
+#include <IRLibAll.h> //Includem
+ 
+IRsend mySender; //Creăm o clasă emițător, IRsend
+
+void setup() {
+
+    Serial.begin(9600);  //Pornim interfața serială
+
+}
+
+
+//Așteptăm ca utilizatorul să introducă o comandă prin intermediul interfeței seriale
+void loop() {
+
+    if (Serial.read() != -1) {
+
+    //Vom emite un cod de fiecare dată când utilizatorul trimite un caracter prin interfața serială
+
+    //Librăria descărcată cunoaște protocoale implementate de diverse categorii de produse 
+//dar si de diverse companii precum: SONY, Samsung, Panasonic etc. 
+    //De exemplu, următorul cod va avea ca efect
+//emiterea unui semnal de ponire/oprire pentru dispozitivele SONY.
+    //Funcția send primește 3 parametrii: protocolul, mesajul și numărul de biți.
+
+        mySender.send(SONY,0xa8bca, 20);
+
+    }
+
+}
+
+</code></pre>
+
+<h2> Interpretarea output-ului unui receiver </h2>
+<p>Pentru ca folosirea unei librării nu vă ajută să înțelegeți detaliile comunicării infraroșu, vom implementa una dintre funcționalitățile librăriei exemplificată mai sus. Pentru asta avem nevoie cel puțin de circuitul simplu de la ”Recepționarea semnalelor infraroșu” dar și de o telecomandă (sau circuitul funcțional de la ”Emiterea semnalelor infraroșu”, care să emită ca una).</p>
+
+<p>[[Fișier:SemnalEmis.jpg|thumb|left|500px|alt=semnal_emis|Rafalele de semnale trimise de telecomandă.]]</p>
+<p>[[Fișier:Asdf.jpg|thumb|upright|500px|alt=semnal_primit|Conversia în semnal digital realizată de receiver. Asta încercăm să măsurăm în programul de mai jos.]]</p>
+<p>[[Fișier:Fdsa.gif|thumb|upright|500px|alt=emitere_primire|Modul de comunicare emițător-receptor.]]</p>
+<p><br></p>
+<p><br></p>
+<p><br></p>
+<p><br></p>
+<p><br></p>
+<p><br></p>
+<p><br></p>
+<p><br></p>
+<p><br></p>
+<p><br></p>
+<p><br></p>
+<p><br></p>
+<p><br></p>
+<p><br></p>
+<p>O să considerăm cazul unei telecomenzi care funcționează emițând semnale infraroșu (cum sunt cele de la televizoare). O astfel de telecomandă comunică cu televizorul printr-un protocol care definește mai multe comenzi. Telecomanda funcționează emițând un numar relativ mic de rafale de semnale de o anumită amplitudine per comandă. Pe partea cealaltă, receiver-ul televizorului (și cel folosit pentru Arduino) transformă acest semnal fragmentat într-o secventă de platouri (semnal digital) care să poată fi ”înțeleasă” de microcontroller.</p>
+
+
+
+<pre><code class="language-c">     
+    // Vom folosi metoda ”raw” de citire a inputului unui pin care este mult mai rapidă decât digitalRead(). 
+    // Viteza de interogare a pinului este foarte importantă în acestă situație 
+    // deoarece semnalele sunt emise la intervale de timp foarte scurte.
+    
+    #define IRpin_PIN      PIND
+    #define IRpin          2
+     
+    // Stabilim o durată maximă pentru dimensiunea unui semnal de un anumit tip (”platou” de tip LOW sau HIGH).
+    #define MAXPULSE 65000
+     
+    // Această variabilă este o măsură a milisecundelor ce vor trece între interogări consecutive ale pinului
+    #define RESOLUTION 20 
+     
+    // vom stoca cel mult 100 de valori pentru highpulse și lowpulse
+    uint16_t pulses[100][2];  // vector de 100 de valori pentru perechi [highpulse, lowpulse] 
+
+    // indexul perechii [highpulse, lowpulse]  curente
+    uint8_t currentpulse = 0; 
+     
+    void setup(void) {
+      Serial.begin(9600);
+      Serial.println("Ready to decode IR!");
+    }
+     
+    void loop(void) {
+      uint16_t highpulse, lowpulse;  // stochează de câte ori trece RESOLUTION milisecunde până se schimbă impulsul
+      highpulse = lowpulse = 0; // începem iterațiile de la 0
+      
+         //  while (digitalRead(IRpin)) { // Această metodă ar fi prea lentă!
+        while (IRpin_PIN & (1 << IRpin)) {
+         // pinul emite în continuare HIGH
+     
+         // incrementăm numărul de iterații ale buclei while în care pinul este HIGH
+         highpulse++;
+         // Arduino așteaptă RESOLUTION milisecunde până la următoarea interogare a pinului
+         delayMicroseconds(RESOLUTION);
+     
+         // Oprim programul când highpulse depășește MAXPULSE: asta se întâmplă când nu s-a primit semnal 
+       // sau semnalul a rămas același (HIGH) de o perioadă lungă de timp.
+         if ((highpulse >= MAXPULSE) && (currentpulse != 0)) {
+           printpulses();
+           currentpulse=0;
+           return;
+         }
+      }
+      // reținem numărul de iterații ale buclei while
+      pulses[currentpulse][0] = highpulse;
+      
+      // ca și mai sus dar acum măsurăm pentru când pinul este pe LOW
+      while (! (IRpin_PIN & _BV(IRpin))) {
+         // pinul e încă LOW
+         lowpulse++;
+         delayMicroseconds(RESOLUTION);
+         if ((lowpulse >= MAXPULSE)  && (currentpulse != 0)) {
+           printpulses();
+           currentpulse=0;
+           return;
+         }
+      }
+      pulses[currentpulse][1] = lowpulse;
+     
+      // s-a citit cu succes o pereche [highpulse, lowpulse], continuăm
+      currentpulse++;
+    }
+     
+    void printpulses(void) {
+      Serial.println("\n\r\n\rReceived: \n\rOFF \tON");
+      for (uint8_t i = 0; i < currentpulse; i++) {
+        Serial.print(pulses[i][0] * RESOLUTION, DEC);
+        Serial.print(" usec, ");
+        Serial.print(pulses[i][1] * RESOLUTION, DEC);
+        Serial.println(" usec");
+      }
+      
+      Serial.println("int IRsignal[] = {");
+      Serial.println("// ON, OFF ");
+      for (uint8_t i = 0; i < currentpulse-1; i++) {
+        Serial.print("pulseIR(");
+        Serial.print(pulses[i][1] * RESOLUTION , DEC);
+        Serial.print(");");
+        Serial.println("");
+        Serial.print("delayMicroseconds(");
+        Serial.print(pulses[i+1][0] * RESOLUTION , DEC);
+        Serial.println(");");
+     
+      }
+      Serial.print("pulseIR(");
+      Serial.print(pulses[currentpulse-1][1] * RESOLUTION, DEC);
+      Serial.print(");");
+     
+    }
+</code></pre>
+
+
+<h2> Linkuri utile </h2>
+<p>https://www.livescience.com/50260-infrared-radiation.html <br></p>
+<p>https://en.wikipedia.org/wiki/Infrared <br></p>
+<p>http://www.instructables.com/id/Arduino-Infrared-Remote-tutorial/ <br></p>
+<p>https://diyhacking.com/controlling-leds-arduino-ir-sensor-remote/ <br></p>
+<p>https://learn.sparkfun.com/tutorials/ir-communication <br></p>
+<p>https://learn.adafruit.com/using-an-infrared-library/hardware-needed <br></p>

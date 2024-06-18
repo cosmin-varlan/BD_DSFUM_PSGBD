@@ -22,11 +22,14 @@
 
 <p>Cateva linkuri cu magazine online din Romania:</p>
 
+
+<p>https://www.optimusdigital.ro</p>
+
 <p>https://ardushop.ro</p>
 
 <p>https://www.robomania.ro/</p>
 
-<p>https://www.optimusdigital.ro</p>
+<p>https://cleste.ro/</p>
 
 <p>https://www.robofun.ro - aici sunt mai scumpe, dar originale</p>
 
@@ -151,6 +154,7 @@ void loop() {
 <h2> Exercitii </h2>
 
 
+<p><!--</p>
 <h6> Problema 1 (10pt) </h6>
 <p>Realizati un program pentru Arduino care sa primeasca de la portul serial una din optiunile 1,2 sau 3. </p>
 <ul>
@@ -159,6 +163,42 @@ void loop() {
 <li> (3pt) Daca optiunea aleasa este 3 se va afisa pe portul serial cuvantul "blink" si va aprinde intermitent ledul de la pinul 13 (asemenea aplicatiei blink).</li>
 <li> (1pt) Efectul trimiterii codului este imediat (instantaneu). Se va testa daca in timpul blinkului. in momentul aprinderii becului se introduce optiunea 1, ledul va ramane aprins respectiv daca in timpul blinkului, daca atunci cand ledul este stins se introduce optiunea 2, ledul ramane stins.</li>
 </ul>
+
+
+<p>--></p>
+
+
+<p>Următoarele probleme se pot face în simulatorul oferit de [https://www.tinkercad.com Tinkercad].</p>
+
+<h6> Problema 1 (5pt) </h6>
+<p>Puneți 10 leduri (cu FV=2V; calculați pentru 15mA) în paralel și citiți o valoare (maxim 1023) de pe portul serial. Ledurile se vor conecta toate cu catodul in pinul GND.</p>
+<p>Afișați valoarea în binar pe cele 10 leduri. </p>
+
+<h6> Problema 2 (5pt) </h6>
+<p>Conectați 4 leduri în paralel având catodul comun (și conectat la pinul GND al Arduino) si anodul conectat la pini diferiți aleși random (dar nu 4 consecutivi).</p>
+<p>Fiecare led se va aprinde și se va stinge după un același interval de timp: </p>
+<ul>
+<li> 1000ms pentru primul led, </li>
+<li> 333ms pentru ce de-al doilea led, </li>
+<li> 250ms pentru cel de-al treilea led, </li>
+<li> 400ms pentru ultimul led. </li>
+</ul>
+
+
+<p>Bonus (3pt): se acordă studentului care are sursa cea mai "scurtă".</p>
+
+<h6> Problema 3 (4pt) </h6>
+<p>Să se facă un joc de lumini astfel: 5 leduri care să se aprindă și să se stingă la fiecare secundă (intervalul cât timp ledul este aprins sau stins este de o secundă). În același timp alte 5 leduri se aprind consecutiv (dar asincron față de cele 5 dinainte - nu au voie să se aprindă sau se se singă cele 5 leduri în același timp cu vreunul din celelalte 5)</p>
+
+<h6> Problema 4 (1pt) </h6>
+<p>Refaceți problema 1, dar înlocuind 1 led cu maximul de leduri în serie suportate pentru 5V (1pt)</p>
+
+<h6> Problema 5 (2pt) </h6>
+<p>Refaceți exercițiul 1 pentru a avea ledurile cu anodul în pinul de 5V.(2pt)</p>
+
+
+
+
 
 
 <p><!--</p>

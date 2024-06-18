@@ -1,0 +1,90 @@
+<h2> NeoPixels </h2>
+
+<p>După cum aţi văzut probabil în laboratoarele precedente, Arduino se descurcă super bine să lucreze cu LEDurile. Cu cât mai multe, cu atât mai bine. Pentru a aprinde un led trebuie să îi dăm un voltaj pe pinii LEDului (de obicei este de 3v dar poate fi şi mai mic pentru anumite LEDuri, de obicei cele de culoare roşie). Pentru a nu arde LEDul, de cele mai multe ori se pune o rezistenţă în serie cu LEDul atunci când dorim să îl conectăm direct la pinii Arduino-ului. </p>
+
+
+
+<p>În cazul în care LEDul era legat direct la pinii Arduino-ului, puteam să îi facem intensitatea luminoasă mai mică punând un voltaj intermediar pe pinul care este conectat LEDul, voltaj care este simulat cu succes de către pinii PWM ai Arduino-ului. Totuşi, aşa cum aţi văzut probabil într-un laborator anterior, pinii PWM pot fi emulaţi de către pinii non-PWM "pulsând" curentul cu o anumită frecvenţă. </p>
+
+<p>O metodă interesantă de multiplexare a pinilor este cea folosind MAX7219 - care este un driver ce permite multiplexarea a celor 128 de pini aparţinând unei matrici de LEDuri de 8x8 în aşa fel încât vor fi folosiţi numai 4 pini specifici comunicării SPI. Despre acestea puteţi afla mai multe citind laboratorul "[[Cel cu matricea de LEDuri]]".</p>
+
+<p>Metoda prezentată în continuare utilizează regiştrii de şiftare (SHIFT REGISTERS). Fiecare LED NeoPixel are în interiorul său un astfel de registru de shiftare. Aceşti regiştri de shiftare permit transmiterea biţilor în mod serial, ei definind pe rând culoare RGB a ultimului LED, a penultimului etc. Astfel, primii 3x8 biţi vor defini culoarea ultimului led, următorii 24 ai penultimului led, etc. Pentru a trimite un bit de 1, pe pinul DI (Digital In) existent în bara (sau banda) de neopixeli se va seta valoarea HIGH pentru 0.7us după care va fi valoarea LOW pentru 0.6us. Pentru a transmite un 0 logic, se va trasnmite 0.35us valoarea HIGH şi 0.8us valoarea LOW (us = microsecunde). În final, se va transmite pentru 50us valoarea HIGH pentru a indica regiştrilor de  shiftare să aprindă LEDurile conform valorilor încărcate în interiorul lor. Totuşi, dacă ştiţi limbajul specific Arduino, cunoaşteţi deja că cea mai mică pauză ce poate fi exprimată în cadrul Arduino este de tipul microsecundelor. Deci pot seta 1 sau mai multe microsecunde un pin să fie pe HIGH sau pe LOW. În nici un caz nu pot să fac aceasta pentru 0.8us - nu în mod direct în orice caz.</p>
+
+<p>[[Fișier:neopixel.jpg|thumb|upright|200px|alt=Neopixel (click pentru a vedea procesorul)|Neopixel (click pentru a vedea procesorul)]]</p>
+
+<p>Pentru a trimite informaţiile către regiştrii de shiftare avem nevoie aşadar de timpi sub celor oferiţi de limbajul Arduino şi, pentru a-i putea obţine, putem realiza un cod ASM în care să aşezăm o sevenţă de instrucţiuni "nop" (care nu fac nimic dar ţin ocupat programul pentru un timp constant). Astfel o instrucţiune "nop" va echiva cu aproximativ 0.05us (deci putem acum forma timpii de mai sus). Nu vă speriaţi, nu trebuie chiar să va apucaţi (deocamdată) sa programaţi Arduino în ASM, trimiterea biţilor este deja implementată în biblioteca "Adafruit Neopixel", bibliotecă ce poate fi instalată direct rin meniurile IDE-ului (Sketch -> Include Libraries -> Manage Libraries şi căutaţi "Adafruit Neopixel"). </p>
+
+<p>După instalarea "Adafruit Neopixel" veţi găsi în secţiunea de exemple şi câteva exemple (simpliste) de utilizarea a acestor benzi de LEDuri. Totuşi, neopixelii noştri o să îi conectăm diferit faţă de cei din acele exemple şi din acest motiv, poate veţi dori să rulaţi codurile din această pagină de wiki.</p>
+
+<p>Pentru a conecta neopixelii la Arduino, puteti introduce direct placuta existenta la laborator in pinii Arduino astfel incat</p>
+<ul>
+<li> pinul din sa fie conectat la pinul 12,</li>
+<li> pinul de 5V sa fie conectat la pinul 13,</li>
+<li> pinii GND (de pa margini sa fie in GND si in pinul 11).</li>
+</ul>
+
+
+<p>Linkuri cu informatii aditionale:</p>
+
+<p>https://wp.josh.com/2014/05/13/ws2812-neopixels-are-not-so-finicky-once-you-get-to-know-them/</p>
+
+<p>https://www.instructables.com/id/Bitbanging-step-by-step-Arduino-control-of-WS2811-/</p>
+
+
+<p>Pentru a nu pune in scurt arduino, trebuie ca neaparat sa setati pinul 11 cu valoarea LOW (ca sa fie tot ground) si pinul 13 cu valoarea HIGH (pentru a putea alimenta LEDurile). Uploadati apoi urmatorul cod:</p>
+
+
+
+
+<pre><code class="language-c">
+#include <Adafruit_NeoPixel.h>
+#ifdef __AVR__
+  #include <avr/power.h>
+#endif
+
+int PIN = 12;
+int NUMPIXELS = 8;
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+
+void setup() {
+  pinMode(13, OUTPUT);  
+  pinMode(11, OUTPUT);  
+  digitalWrite(11,LOW);
+  digitalWrite(13,HIGH);
+  pixels.begin(); // This initializes the NeoPixel library.
+}
+
+int colors[8][3]={{255,0,0},{0,255,0},{0,0,255},{0,255,0},{255,255,0},{0,255,255},{255,0,255},{255,0,0}};
+void loop() {
+  for(int i=0;i<NUMPIXELS;i++){
+    pixels.setPixelColor(i, pixels.Color(colors[i][0],colors[i][1],colors[i][2])); 
+    pixels.show(); 
+  }
+}
+</code></pre>
+
+
+<p><!--</p>
+<h2> Exercitii </h2>
+
+<h6> Problema 1 (5pt) </h6>
+<p>Dat un sir scris in hexazecimal prin intermediul interfetei seriale, construit dupa regula: primele 6 caractere reprezinta primii 3 bytes necesari pentru a aprinde primul led RGB (fiecare byte reprezentand una dintre culorile rosu / verde / albastru), urmatoarele 6 caractere reprezinta valorile pentru al doilea led, etc. Sa se afiseze pe cele 8 LEDuri NeoPixel culorile trimise prin intermediul sirului.</p>
+
+
+<h6> Problema 2 (5pt) </h6>
+<p>Sa se faca pe ledurile neopixel un efect de cometa, de culoare rosie: </p>
+<ul>
+<li> la pasul 1: primul led va fi complet rosu</li>
+<li> la pasul 2: al doilea led va fi complet rosu si primul va fi avea 200 pe valoarea rosu din codificarea RGB</li>
+<li> la pasul 3: al treilea led va fi complet rosu, al doilea va fi avea 200 pe valoarea rosu din codificarea RGB, al treilea va fi 150</li>
+</ul>
+
+
+<p>....</p>
+<ul>
+<li>pasul 8, valorile pentru rosu vor fi 5,10,20,50,100,150,200,255.</li>
+<li>pasul 9, valorile vor fi 0, 5,10,20,50,100,150,200 (primul led va fi stins si in continuare coada cometei va disparea incet incet de pe display - pana la pasul 16).</li>
+</ul>
+
+
+<p>--></p>

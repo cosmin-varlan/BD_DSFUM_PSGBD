@@ -1,0 +1,93 @@
+
+
+<pre><code class="language-c">
+
+#include <EEPROM.h>
+
+const byte EEPROM_ID=0x99;
+const int ID_ADDR = 0;
+const int NR_EVENTS_ADDR = 1;
+byte nr_events=0;
+
+void setup() {
+  Serial.begin(9600);
+  byte id=EEPROM.read(ID_ADDR);
+  if (id == EEPROM_ID) // ma asigur ca aplicatia mea e cea care a folosit ultima oara EEPROM-ul ca sa scrie events
+  {
+    nr_events = EEPROM.read(NR_EVENTS_ADDR);
+  }
+  else
+  {
+    EEPROM.write(ID_ADDR,EEPROM_ID);
+    EEPROM.write(NR_EVENTS_ADDR,0);
+  }
+}
+
+void loop() {
+  if (Serial.available())
+  {    
+    char incomingByte;
+    incomingByte = Serial.read();  
+    if (incomingByte=='1')
+    {
+      if (nr_events<10)
+      {
+        Serial.println("Introduceti datele despre eveniment ($ pentru final):");   
+        Serial.println("Formatul folosit: ZZ-LL-YYYY (HH:MM) -> Text eveniment (maxim 50 chars)");   
+        char event[100]="";
+        int poz=0;
+        while(incomingByte!='$' && poz<95)
+        {
+          if (Serial.available()){          
+            incomingByte = Serial.read();          
+            Serial.print(incomingByte);
+            event[poz++]=incomingByte;
+          }
+        }      
+        event[poz-1]=0;
+        Serial.println();
+        Serial.println("Eventimentul nou introdus:");
+        Serial.println(event);
+  
+        for(int i=0; i<100; i++)
+          EEPROM.write(10 + i + nr_events*100, event[i]);
+        nr_events++;
+        EEPROM.write(NR_EVENTS_ADDR,nr_events);        
+      }
+      else
+      Serial.println("ATI ATINS NUMARUL MAXIM DE EVENIMENTE (10).");
+    }
+    if (incomingByte=='3')
+    {
+      if (nr_events==0){
+        Serial.println();
+        Serial.println("Nu aveti nici un eveniment setat.");
+      }
+      else
+      {
+        Serial.println();
+        Serial.println("Evenimentele disponibile sunt urmatoarele:");      
+        for(byte i=0; i<nr_events; i++) 
+        {
+          char event[100]="";
+          for(byte j=0; j<100; j++)
+          {
+            event[j]=EEPROM.read(10+j+i*100);
+          }
+          Serial.print(i+1);
+          Serial.print(": ");
+          Serial.println(event);
+        }
+      }
+    }    
+    Serial.println();
+    Serial.println("---------------------------------------------");
+    Serial.println("1: Introduceti un eveniment nou...");    
+    Serial.println("2: Steregeti un eveniment."); // trebuie scos din eeprom si decrementat nr eventuri din eeprom
+    Serial.println("3: Afisati evenimentele."); // este facut, dar trebuie verificata daca data si ora este formatata corect
+                                                // frumos ar fi ca sa vezi daca anul e bisect sa poata avea februarie 29 de zile   
+  }
+}
+
+</code></pre>
+

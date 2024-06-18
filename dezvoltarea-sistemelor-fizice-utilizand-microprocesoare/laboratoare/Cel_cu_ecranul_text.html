@@ -1,0 +1,231 @@
+<h2> Ecran LCD </h2>
+
+<p>[[Fișier:Lcd.jpg|thumb|upright|400px|alt=LCD|LCD]]</p>
+
+<p>Ecranul LCD pe care il vom utiliza este dedicat afisarii textului. Ca si capabilitati, el poate afisa un text format din 32 de caractere, cate 16 pe fiecare dintre cele doua randuri disponibile. Fiecare caracter este de fapt o matrice de 5x8 puncte. Deasupra ecranului veti gasi o rezistenta semireglabila ce are rolul setarii contrastului pentru ecranul LCD. Sub ecran se gasesc 6 butoane, primul pentru selectie, urmatoarele 4 pentru a indica o directie (sus/jos/stanga/dreapta) si ultimul pentru a reseta Arduino-ul (este prelungirea butonului reset de pe placa Arduino).</p>
+
+<p>Pentru a putea comanda LCD-ul este utilizat un controller de tip HD44780 care are doua registre pe 8 biti: </p>
+<ul>
+<li> IR (Instruction Register) - tine minte coduri reprezentand instructiuni precum stergerea ecranului sau mutarea curorului la o anumita pozitie. </li>
+<li> DR (Data Register) - memoreaza remporar informatiile ce pot fi stocate fie in DDRAM sau in CGRAM.</li>
+</ul>
+
+
+<p>Alegerea intre cele doua registre se realizeaza printr-un selector de registru care, in cazul ecranului nostru, este conectat la pinul 8.</p>
+
+<p>Ecranul contine doua tipuri de memorii: </p>
+<ul>
+<li> DDRAM (Display Data RAM) - memoreaza codurile ascii ale caracterelor ce vor fi afisate si poate memora pana la 80 de litere. Adresele sunt de la 00 pana la 0F pentru primul rand si de la 40 pana la 4F pentru al doilea rand.</li>
+<li> CGRAM - in aceasta memorie este stocata forma caracterelor. Scriind in ceasta memorie, un programator poate sa isi defineasca propriile caractere (din pacate puteti defini doar 8 caractere). </li>
+</ul>
+
+
+<p>Mai multe detalii puteti gasi [[http://www.microcontrollerboard.com/lcd.html aici]].</p>
+
+<p>Faceti aceasta modificare in oricare dintre exemplele din Examples->LiquidCrystal pentru a observa modul de functionare a LCDului. Foarte important este sa cititi si care sunt instructiunile ce le puteti utiliza, instructiunio ce le veti gasi [[https://www.arduino.cc/en/Reference/LiquidCrystal aici]].</p>
+
+
+<p>Din fericire (pentru voi, dar si pentru noi), nu trebuie sa va bateti capul cu toate adresele de memorie si felul in care sunt exactutate (sau bufferizate) instructiunile. Pentru ca sa aveti voi viata mai usoara, cine a construit ecranul pentru Arduino a construit si o biblioteca pe care voi puteti sa o utilizati cu usurinta. Aceasta biblioteca se numeste LiquidCrystal si vinde deja cu IDEul - deci trebuie doar sa ii dati import. Din pacate, aceasta biblioteca nu a fost facuta exact pentru ecranele voastre ci pentru alte shielduri care folosesc alt layout. Din acest motiv retineti ca trebuie sa inlocuiti valorile pentru constantele rs, en, d4, d5, d6, d7 (sunt doar 4 biti acolo - puteti citi mai multe despre ecrane si despre modul lor de functionare [[http://www.microcontrollerboard.com/lcd.html aici]]).</p>
+
+
+
+<pre><code class="language-c">
+const int rs = 8, en = 9, d4 = 4, d5 = 5, d6 = 6, d7 = 7;
+</code></pre>
+
+
+<h2> Tastatura </h2>
+
+<p>Toate butoanele de pe LCD Keypad shield sunt asociate unui aceluiasi pin analog: A0. </p>
+
+<p>Cum putem face acest lucru > SIMPLU (sau destul de simplu). Ati aflat de la curs ca inserierea a doi rezistori face ca rezistenta totala sa fie suma valorilor celor doi rezistori. Totodata mai stiti (tot de la curs) despre divizorul de tensiune si ca electronii vor merge mereu pe unde le va fi viata mai usoara (unde au de intampinat o rezistenta mai mica).</p>
+
+<p>[[Fișier:Butoane inseriate.jpg|500px|alt=btn|btn]]</p>
+
+<p>Ideea este urmatoarea: curentul vine de la pinul marcat 5V (in partea de sus a imaginii). A0 se comporta ca si ground. Curentul vrea sa se scurga in ground (deci fie in A0 fie in GND). Daca inchidem butonul S4 atunci curentul trebuie sa strabata rezistenta de 20KOhmi (20K) si apoi are de ales: fie merge in sus si ajunge direct in groundul de la A0 sau mai strabate o rezistenta de 10+10+10+20 = 50K pentru a ajunge la pinul GND. Fiind foarte comod, va alege sa se scurga direct in A0 si nu sa mai strabata inca 50K - deci 100% din curent se va duce direct in A0. </p>
+
+<p>Q&A: Q:De ce este nevoie de rezistenta de 20K pusa imediat dupa S4? A: ca sa aiba totusi o rezistenta si sa nu intre direct in scurt-circuit.</p>
+
+<p>Sa presupunem acum ca avem apasat butonul S3. Dupa strabaterea rezistentei de 20K, va putea fie sa strabata o alta rezistenta de 10K fie una de 40K pentru a ajunge in ground. Conform divizorului de tensiune discutat la curs, 80% din curent va merge prin rezistenta de 10K in timp ce restul de 20% va merge spre pinul GND.</p>
+
+<p>La apasarea S2 curentul masurat pe A0 va fi 60% din curentul initial.</p>
+
+<p>La apasarea S1 curentul masurat pe A0 va fi 40% din curentul initial. </p>
+
+<p>Ce se intampla acum daca apasam doua butoane simultan ? Sa presupunem ca apasam S4 si S1. Curentul poate sa mearga prin S4 si apoi direct spre A0 sau poate sa mearga prin S1 si sa strabata or rezistenta suplimentara de 20K. Va prefera sa mearga prin S4 si apasarea celor doua butoane (S4 si S1) va indica de cele mai multe ori aceeasi valoare ca cea obtinuta la apasarea butonului S4. Am scris "de obicei" pentru ca ar putea sa fie imaprtit in 33/66. Din acest motiv, de fapt, pe ramura ce duce catre pinul GND este pusa o rezistenta mult mai mare (de ex. 100K). Ceea ce am vrut sa zic de fapt prin acest ultim paragraf este ca apasarea a doua butoane va face ca sa apara ca si cum un singur buton a fost apasat.</p>
+
+<p>Aceasta metoda de multiplexare a butoanelor (folosind rezistori inseriati) exista si in multe din tastaturi. In fapt, tastaturile "de gaming" sunt cam singurele care evita efectul de "ghosting" adica sunt capabile sa identifice corect fiecare tasta in parte (ca si cum fiecare buton ar fi conectat la un pin Ax diferit). Puteti sa vedeti cat de gameritza e tastatura voastra utilizand aplicatia de [[https://scratch.mit.edu/projects/20966625/ aici]] sau, daca aveti o aversiune fata de Flash, puteti incerca sa deschideti un notepad si, tinand apasate ambele taste shift simultan, scrieti renumitul text "the quick brown fox jumps over the lazy dog". Unele tastaturi vor putea transmite catre calculator doar caracterele "TE UIC RWN JUS VER TE LAY DG".</p>
+
+<p>Revenind la Arduino, pentru a vedea care sunt valorile rezistentelor prin care trebuie sa treaca curentul pentru a ajunge la pinul A0, puteti executa unul din programale aflate in sectiunea de exemple, anume: Examples->Basic->Analog Read Serial. In consola seriala veti putea valoarea aproximativa pentru fiecare buton de pe keypad - evident resetul va reseta arduino, nu va asteptati sa aveti un cod si pentru el. Luato codurile, distribuiti-le in intervale suficient de largi pentru a va asigura ca ati captat fiecare tasta corect pentru a putea face exercitiile din acest laborator.</p>
+
+<p>De exemplu, in cazul shieldului valoarea returnata la apasarea tastei LEFT este aproximativ 410 iar pentru RIGH este 0. Am scris urmatorul cod pentru a afisa in consola seriala ce tasta apas:</p>
+
+
+
+<pre><code class="language-c">
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {  
+  int sensorValue = analogRead(A0);  
+  if (sensorValue<50) Serial.println("RIGHT");
+  if (sensorValue>380 && sensorValue<440) Serial.println("LEFT");
+  delay(1);
+}
+</code></pre>
+
+
+<h2> Exemple ==</h2>
+
+<p>In urmatorul exemplu sunt redefinite si afisate doua caractere, este afisat un text si o valoare numerica:</p>
+
+
+
+<pre><code class="language-c">
+#include <LiquidCrystal.h>
+//            lcd(RS,  E, d4, d5, d6, d7)
+LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
+
+
+byte c1[8] = {
+  0b00000,
+  0b01010,
+  0b11111,
+  0b11111,
+  0b01110,
+  0b00100,
+  0b00000,
+  0b00000
+};
+
+byte c2[8] = {
+  0b11111,
+  0b00001,
+  0b11111,
+  0b10000,
+  0b11111,
+  0b00001,
+  0b11111,
+  0b10000
+};
+
+void setup()
+{
+
+  lcd.begin(16,2);               // initialize the lcd 
+  lcd.createChar (0, c1);    // load character to the LCD
+  lcd.createChar (1, c2);    // load character to the LCD
+}
+
+void loop()
+{
+  lcd.setCursor ( 0, 0);
+  lcd.print ( char(0));
+  lcd.print ( char(1));
+  lcd.setCursor ( 0, 1);
+  lcd.print("Salutari ");
+  int k=3;
+  lcd.print(k);
+  delay (2000);
+  lcd.clear();
+  delay (1000);
+}
+</code></pre>
+
+
+
+<h2> Exercitii </h2>
+
+<p>JOI (01/11/2018)</p>
+
+<p>1. (5pt)Introduceti de la tastatura calculatorului un numar de linie si un text ce se doreste a fi baleat (scroll) circular pe acel rand: (*) in partea dreapta va apare primul caracter apoi va fi impins inspre stanga de un al doilea caracter care trebuie afisat, etc... Dupa ce ultimul caracter al textului a iesit prin partea stanga a ecranului, se va relua animatia de la pasul (*). Daca in timpul afisarii este introdus un nou text, noul text va fi cel afisat. Viteza de scroll va putea fi marita sau micsorata din butoanele de pe shieldul de tip display.</p>
+
+<p><span style="color:red">Nota: nu aveti voie sa folositi functii care automatizeaza scrollul.</span></p>
+
+<p>2. (7pt) Construiti un editor de caractere pentru Arduino. Editorul va face face un pixel sa se inchida si sa se deschida la o anumita pozitie si doar in cadrul primului caracter. In dreapta acestuia va fi afisata pozitia X,Y a pixelului ce "blinkuieste" si la apasarea unui buton, pixelul curent va deveni pixelul curent XOR 1 (isi va schimba statutul din 0 in 1 sau din 1 in 0). La apasarea butonului de finalizare caracterul caracterul va fi afisat pe linia 2, valorile folosite in definirea sa vor fi afisate pe urmatorul rand si se va trece la editarea unui urmator caracter.</p>
+
+<p>Exemplu: https://www.youtube.com/edit?o=U&ar=1&video_id=u4npu-hXIO4</p>
+
+<p>3. (5pt) Construiti o aplicatie (non-python) care sa trimita prin portul serial ora si data curenta din sistemul calculatorului (printr-o aplicatie windows). Afisati pe display aceste inforamatii.</p>
+
+<p>4. (3pt) Afisati alte informatii prin portul serial (precum temperatura CPU, cate FPS am intr-un joc sau cata viata am sau ce melodie iti canta winampul) (continuare dupa problema 3).</p>
+
+
+
+<p>VINERI (02/11/2018)</p>
+
+<p>1. (5pt) Introduceti un mesaj de la consola Seriala (un mesaj mai lung, gen 50-500 caractere). Construiti o aplicatie care sa preia acest mesaj si sa-l afiseze pe display, de jos in sus, cate 1 linie. Mesajul va scrola bottom-top linie cu linie, cu o pauza de 3s. Prima linie de text va apare initial pe randul de jos, apoi urca pe randul de sus si daca mai exista text, dupa ce linia de jos urca, pe ea va apare un nou text din buffer-ul mesajului inital.</p>
+
+<p>2. (5pt) Construiti o aplicatie care permite editarea textului de pe display, folosind tastatura pentru a selecta caracterul dorit, o metoda de vizualizarea a caracterului curent si memorarea si actualizarea textului introdus. La final, cand textul introdus este gata, acesta trebuie sa poata fi trimis catre consola Seriala, preluat si afisat pe PC. Rezervati ultima coloana din display pentru selectia caracterului dorit. (2p) Adaugati suport pentru 1 emoji personalizat de voi.</p>
+
+<p>3. (3pt) Construiti o aplicatie python/bash/powershell/JS/VBS pentru lucru cu consola seriala si faceti in asa fel incat orice tasta introduceti la consola aplicatiei voastre sa apara instant pe display, iar daca stergeti sa dispara atat de la consola cat si de pe display.</p>
+
+<p>4. (5pt) Construiti o aplicatie C/C++ pentru lucru cu consola seriala pentru a transforma shield-u cu display si taste intr-o mini telecomanda pentru PC:</p>
+<ul>
+<li> sa aveti 2 comenzi afisate pe display </li>
+<li> sa puteti alege oricare dintrele ele folosind tastatura </li>
+<li> Selectia unei optiuni va trimite un cod aplicatiei, care mai departe va executa o sarcina aferenta (Ex: deschiderea aplicatiei calc.exe, shutdown, reboot, simularea apasarii unei taste) </li>
+<li> Imediat ce comanda este repceptionata, inainte de a fi executata, se va trimite la display, un mesaj care instiinteaz de primire (Ex: Execut comanda) </li>
+</ul>
+
+
+<p>Resurse:</p>
+<p>C/C++</p>
+
+<ul>
+<li>https://blog.manash.me/serial-communication-with-an-arduino-using-c-on-windows-d08710186498</li>
+<li>http://playground.arduino.cc/interfacing/CPPWindows</li>
+<li>https://github.com/manashmndl/SerialPort</li>
+</ul>
+
+
+<p>BASH:</p>
+
+<ul>
+<li>https://forum.arduino.cc/index.php?topic=61127.0</li>
+</ul>
+
+
+<p>PYTHON:</p>
+
+<ul>
+<li>https://playground.arduino.cc/interfacing/python</li>
+<li>https://www.instructables.com/id/Arduino-Python-Communication-via-USB/</li>
+<li>https://engineersportal.com/blog/2018/2/25/python-datalogger-reading-the-serial-output-from-arduino-to-analyze-data-using-pyserial</li>
+</ul>
+
+
+<p>POWERSHELL:</p>
+
+<ul>
+<li>https://forum.arduino.cc/index.php?topic=39804.0</li>
+<li>https://ianmorrish.wordpress.com/2017/05/13/powershell-serial-monitor-for-arduino/</li>
+<li>https://gist.github.com/hdurdle/38ea09e349d2626b5d99</li>
+<li>https://jfrmilner.wordpress.com/2012/12/30/powershell-power-sockets-arduinorf-part-3-use-powershell-to-send-serial-commands-to-your-arduino/</li>
+</ul>
+
+
+<p><!--</p>
+<h6> Problema 1 (3pt) </h6>
+<p>Avand un cursor care apare si dispare (vezi Examples>LiquidCrystal>Blink), duceti-l pe o anumita pozitie utilizand tastele directionale si afisati valoarea transmisa prin portul serial la acea pozitie.</p>
+
+<h6> Problema 1 - bonus (2pt) </h6>
+<p>Daca textul iese din ecran, afisati restul textului pe cealalta linie. De aceasta data fara a mai sari pe urmatoarea linie.</p>
+
+<h6> Problema 2 (7pt) </h6>
+<p>Prin redefinirea caracterelor (macar 2 caractere) construiti un joc la alegere care poate fi jucat utilizand tastele de sub shield.</p>
+
+<h6> Problema 2 - bonus (2pt) </h6>
+<p>Jocurile cele mai interesante vor primi automat cate doua puncte bonus. Codul sursa al acestora trebuie comentat si trimis la adresa de mail <span style="font-weight:bold">cosmin.varlan@gmail.com</span>: jocurile pe care le implementati vor fi adaugate intr-o pagina pe wiki - va rugam specificati ca si comentariu inaintea codului cine a realizat jocul respectiv.</p>
+<p>--></p>
+
+<h2> Cateva jocuri realizate de voi </h2>
+
+<ul>
+<li> Corneliu Soficu - [[Arduino_snake_by_Corneliu_Soficu|Arduino Snake]]</li>
+<li> Rusu Andrei Mircea & Voaides Alexandru - [[Arduino_Maze_Rusu_Voaides|Maze]]</li>
+</ul>
+
+
+

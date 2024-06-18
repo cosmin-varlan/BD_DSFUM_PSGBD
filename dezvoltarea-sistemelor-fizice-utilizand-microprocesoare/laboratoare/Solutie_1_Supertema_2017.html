@@ -1,0 +1,1045 @@
+
+
+<pre><code class="language-c">
+#include<EEPROM.h>
+int dx[]={2,0,-2,0};
+int dy[]={0,-2,0,2};
+int ix[]={-1,0,1,0};
+int iy[]={0,1,0,-1};
+int nx[]={0,-1,0,1};
+int ny[]={-1,0,1,0}; 
+int sx[]={0,-1,0,1};
+int sy[]={-1,0,1,0};   
+int firstDistanceToTreasure=32767,secondDistanceToTreasure=32767,thirdDistanceToTreasure=32767,fourthDistanceToTreasure=32767;
+int firstDistanceToWumpus=0,secondDistanceToWumpus=0,thirdDistanceToWumpus=0,fourtDistanceToWumpus=0;
+
+typedef struct
+{
+  int x;
+  int y;
+}position;
+
+typedef struct
+{
+  int x;
+  int y;
+  int distance;
+}DistancePosition;
+
+class Queue
+{
+  int queueSize=0;
+  position** vector;
+  public:
+  Queue()
+  {
+    vector=new position*[100];
+  }
+  void Push(position *pos)
+  {  
+    vector[queueSize]=pos;
+    queueSize++;
+  }
+  position* Pop()
+  {
+    position* aux=vector[0];
+    for(int i=0;i<queueSize-1;i++)
+    {
+      vector[i]=vector[i+1];
+    }
+    queueSize--;
+    return aux;
+  }
+  bool IsEmpty()
+  {
+    if(queueSize<1) return 1;
+    else return 0;
+  }
+  bool IsFull()
+  {
+    if(queueSize+1<100) return false;
+    else return true;
+  }
+  int GetSize()
+  {
+    return queueSize;
+  }
+  ~Queue()
+  {
+    for(int i=0;i<100;i++)
+    {
+      free(vector[i]);
+    }
+    free(vector);
+  }
+};
+
+class DistanceQueue
+{
+  int queueSize=0;
+  DistancePosition vector[100];
+  public:
+  void Push(DistancePosition *pos)
+  {  
+    vector[queueSize].x=pos->x;
+    vector[queueSize].y=pos->y;
+    vector[queueSize].distance=pos->distance;
+    queueSize++;
+  }
+  DistancePosition Pop()
+  {
+    DistancePosition aux;
+    aux.x=vector[0].x;
+    aux.y=vector[0].y;
+    aux.distance=vector[0].distance;
+    for(int i=0;i<queueSize-1;i++)
+    {
+      vector[i].x=vector[i+1].x;
+      vector[i].y=vector[i+1].y;
+      vector[i].distance=vector[i+1].distance;
+    }
+    queueSize--;
+    return aux;
+  }
+  bool IsEmpty()
+  {
+    if(queueSize<1) return 1;
+    else return 0;
+  }
+  bool IsFull()
+  {
+    if(queueSize+1<100) return false;
+    else return true;
+  }
+  int GetSize()
+  {
+    return queueSize;
+  }
+};
+
+byte ModifyByte(int eepromPosition,byte byteValue,int indexToModify,int valueToModify)
+{
+  if(valueToModify==1)
+  {
+    byte mask=1<<(indexToModify);
+    byte value= byteValue|mask;
+    EEPROM.write(eepromPosition,value);
+  }
+  else if(valueToModify==2)
+  {
+    byte mask=1<<(indexToModify);
+    byte value=byteValue|mask;
+    return value;
+  }
+  else
+  {
+    byte mask=1<<(indexToModify);
+    mask=~mask;
+    EEPROM.write(eepromPosition,byteValue&mask);
+  }
+}
+
+
+int GetDistance(position *a,position *b)
+{
+  if(a->x==b->x && a->y==b->y) return 0;
+  DistanceQueue *distanceQueue=new DistanceQueue();
+  DistancePosition firstPoint,pos,auxPos;
+  position classicPosition;
+  byte* visited=new byte[185];
+  
+  for(int i=0;i<185;i++)
+  {
+    visited[i]=0;
+  }
+  int eepromPosition,visitedPosition;
+  byte byteValue,visitedByteValue;
+  bool bitValue,isVisited;
+  firstPoint.x=a->x; 
+  firstPoint.y=a->y;
+  firstPoint.distance=0;
+  distanceQueue->Push(&firstPoint);
+  while(distanceQueue->IsEmpty()==false)
+  {
+    pos=distanceQueue->Pop();
+    /*Serial.print("Se extrage: ");
+    Serial.print(pos.x);
+    Serial.print(" ");
+    Serial.println(pos.y);*/
+    for(int i=0;i<4;i++)
+    {
+      auxPos.x=pos.x+sx[i];
+      auxPos.y=pos.y+sy[i];
+      auxPos.distance=pos.distance+1;
+      classicPosition.x=auxPos.x;
+      classicPosition.y=auxPos.y;
+      if(IsValid(&classicPosition)) 
+      {
+        eepromPosition=GetPositionInEEPROM(&classicPosition);
+        byteValue=GetByteValue(eepromPosition);
+        bitValue=GetBitValue(byteValue,classicPosition.y%8);
+        visitedPosition=(auxPos.x)*8+floor((double)auxPos.y/8.0);
+        visitedByteValue=visited[visitedPosition];
+        isVisited=GetBitValue(visitedByteValue,classicPosition.y%8);
+        if(bitValue==1 && isVisited==0)
+        {
+          /*Serial.print("Se introduce: ");
+          Serial.print(auxPos.x);
+          Serial.print(" ");
+          Serial.println(auxPos.y);*/
+           if(auxPos.x==b->x&& auxPos.y==b->y)
+           {
+            delete[] visited;
+            delete distanceQueue;
+            return auxPos.distance;
+           }
+           else 
+           {
+            distanceQueue->Push(&auxPos);
+            visitedByteValue=ModifyByte(-1,visitedByteValue,auxPos.y%8,2);
+            visited[visitedPosition]=visitedByteValue;
+           }
+           
+        }
+      }
+    }
+  }
+  delete[] visited;
+  delete distanceQueue;
+}
+
+bool GetBitValue(byte byteValue,int index)
+{
+  byte mask=1<<(index);
+  return byteValue&mask;
+}
+
+
+byte GetByteValue(int eepromPosition)
+{
+  byte byteValue=EEPROM.read(eepromPosition);
+  return byteValue;
+}
+
+int IsValid(position *pos)
+{
+  if(pos->x<1 || pos->x>23) return 0;
+  if(pos->y<1 || pos->y>63) return 0;
+  return 1;
+}
+
+int GetPositionInEEPROM(position *pos)
+{
+  return 18+(pos->x)*8+floor((double)pos->y/8.0);
+}
+
+int freeRam () {
+  extern int __heap_start, *__brkval; 
+  int v; 
+  int fr = (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
+  return fr;
+}
+
+void swap (int *a, int *b)
+{
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void randomize ()
+{
+    for (int i = 3; i > 0; i--)
+    {
+        int j = random(0, 327676)%4;
+        swap(&dx[i], &dx[j]);
+        swap(&dy[i], &dy[j]);
+        swap(&ix[i], &ix[j]);
+        swap(&iy[i], &iy[j]);
+    }
+}
+
+void RandomizeSeekerDirections()
+{
+  for (int i = 3; i > 0; i--)
+    {
+        int j = random(0, 327676)%4;
+        swap(&sx[i], &sx[j]);
+        swap(&sy[i], &sy[j]);
+    }
+}
+
+void bfs(position *pos)
+{
+  Queue *queue=new Queue();
+  queue->Push(pos);
+  int eepromPosition,intermediarEepromPosition;
+  byte byteValue,intermediarByteValue;
+  bool bitValue,intermediarBitValue;
+  position *auxPosition,*intermediarPosition,*aux_position;
+  while(queue->IsEmpty()==false)
+  {
+    auxPosition=queue->Pop();
+    randomize();
+    for(int i=0;i<4;i++)
+    {
+      aux_position=new position();
+      aux_position->x=auxPosition->x+dx[i];
+      aux_position->y=auxPosition->y+dy[i];
+      if(IsValid(aux_position)==true)
+      {
+        eepromPosition=GetPositionInEEPROM(aux_position);
+        byteValue=GetByteValue(eepromPosition);
+        bitValue=GetBitValue(byteValue,aux_position->y%8);
+        if(bitValue==0)
+        {                                                                  
+          intermediarPosition=new position();
+          intermediarPosition->x=aux_position->x+ix[i];
+          intermediarPosition->y=aux_position->y+iy[i];   
+          intermediarEepromPosition=GetPositionInEEPROM(intermediarPosition);
+          intermediarByteValue=GetByteValue(intermediarEepromPosition);
+          intermediarBitValue=GetBitValue(intermediarByteValue,intermediarPosition->y%8);
+            
+          if(intermediarBitValue==0)
+          {
+            ModifyByte(eepromPosition,byteValue,(aux_position->y)%8,1);
+            intermediarByteValue=GetByteValue(intermediarEepromPosition);
+            ModifyByte(intermediarEepromPosition,intermediarByteValue,(intermediarPosition->y)%8,1);
+            queue->Push(aux_position);
+          }
+          else free(aux_position);           
+          free(intermediarPosition);
+        }
+        else if(random(0,4)==1)
+        {
+          intermediarPosition=new position();
+          intermediarPosition->x=aux_position->x+ix[i];
+          intermediarPosition->y=aux_position->y+iy[i];   
+          intermediarEepromPosition=GetPositionInEEPROM(intermediarPosition);
+          intermediarByteValue=GetByteValue(intermediarEepromPosition);
+          intermediarBitValue=GetBitValue(intermediarByteValue,intermediarPosition->y%8);
+            
+          if(intermediarBitValue==0)
+          {
+            ModifyByte(intermediarEepromPosition,intermediarByteValue,(intermediarPosition->y)%8,1);
+            queue->Push(aux_position);
+          }
+          else free(aux_position);           
+          free(intermediarPosition);
+        }
+        else free(aux_position);
+      }
+      else free(aux_position);
+    }
+    free(auxPosition);
+  }
+  free(queue);
+}
+
+void PrintCharValue(position *pos)
+{
+  bool neighbours[4];
+  position neighbour;
+  int eepromPosition;
+  byte treasureX,treasureY,firstX,firstY,secondX,secondY,thirdX,thirdY,fourthX,fourthY,wumpusX,wumpusY,byteValue;
+  bool bitValue;
+  treasureX=EEPROM.read(6);
+  treasureY=EEPROM.read(7);
+  firstX=EEPROM.read(8);
+  firstY=EEPROM.read(9);
+  secondX=EEPROM.read(10);
+  secondY=EEPROM.read(11);
+  thirdX=EEPROM.read(12);
+  thirdY=EEPROM.read(13);
+  fourthX=EEPROM.read(14);
+  fourthY=EEPROM.read(15);
+  wumpusX=EEPROM.read(16);
+  wumpusY=EEPROM.read(17);
+  for(int i=0;i<4;i++)
+  {
+    neighbour.x=pos->x+nx[i];
+    neighbour.y=pos->y+ny[i];
+    eepromPosition=GetPositionInEEPROM(&neighbour);
+    byteValue=GetByteValue(eepromPosition);
+    bitValue=GetBitValue(byteValue,neighbour.y%8);
+    neighbours[i]=bitValue;
+  }
+  if(pos->x==firstX && pos->y==firstY && (pos->x!=0 && pos->y!=0 ))
+  {
+    Serial.print("♥");
+  }
+  else if(pos->x==secondX && pos->y==secondY && (pos->x!=0 && pos->y!=0 ))
+  {
+    Serial.print("♦");
+  }
+  else if(pos->x==thirdX && pos->y==thirdY && (pos->x!=0 && pos->y!=0 ))
+  {
+    Serial.print("♣");
+  }
+  else if(pos->x==fourthX && pos->y==fourthY && (pos->x!=0 && pos->y!=0 )) 
+  {
+    Serial.print("♠");
+  }
+  else if(pos->x==wumpusX && pos->y==wumpusY) 
+  {
+    Serial.print("Ö");
+  }
+  else if(pos->x==treasureX && pos->y==treasureY) Serial.print("G");
+  else if(neighbours[0]==1&&neighbours[1]==1&&neighbours[2]==0&&neighbours[3]==1)
+  {
+    Serial.print("╣");
+  }
+  else if(neighbours[0]==0&&neighbours[1]==1&&neighbours[2]==0&&neighbours[3]==1)
+  {
+    Serial.print("║");
+  }
+  else if(neighbours[0]==1&&neighbours[1]==0&&neighbours[2]==0&&neighbours[3]==1) 
+  {
+    Serial.print("╗");
+  }
+  else if(neighbours[0]==1&&neighbours[1]==1&&neighbours[2]==0&&neighbours[3]==0) 
+  {
+    Serial.print("╝");
+  }
+  else if(neighbours[0]==0&&neighbours[1]==1&&neighbours[2]==1&&neighbours[3]==0)
+  {
+    Serial.print("╚");
+  }
+  else if(neighbours[0]==0&&neighbours[1]==0&&neighbours[2]==1&&neighbours[3]==1) 
+  {
+    Serial.print("╔");
+  }
+  else if(neighbours[0]==1&&neighbours[1]==1&&neighbours[2]==1&&neighbours[3]==0) 
+  {
+    Serial.print("╩");
+  }
+  else if(neighbours[0]==1&&neighbours[1]==0&&neighbours[2]==1&&neighbours[3]==1) 
+  {
+    Serial.print("╦");
+  }
+  else if(neighbours[0]==0&&neighbours[1]==1&&neighbours[2]==1&&neighbours[3]==1) 
+  {
+    Serial.print("╠");
+  }
+  else if(neighbours[0]==1&&neighbours[1]==0&&neighbours[2]==1&&neighbours[3]==0) 
+  {
+    Serial.print("═");
+  }
+  else if(neighbours[0]==1&&neighbours[1]==1&&neighbours[2]==1&&neighbours[3]==1) 
+  {
+    Serial.print("╬");
+  }
+  else if((neighbours[0]==0&&neighbours[2]==1)||(neighbours[0]==1&&neighbours[2]==0))
+  {
+    Serial.print("═");
+  }
+  else if((neighbours[1]==0&&neighbours[3]==1)||(neighbours[1]==1&&neighbours[3]==0))
+  {
+    Serial.print("║");
+  }
+}
+
+void PrintMatrix()
+{
+  position aux_position;
+  int eepromPosition;
+  byte byteValue;
+  bool bitValue;
+  byte firstSeekerTreasure=EEPROM.read(2);
+  byte secondSeekerTreasure=EEPROM.read(3);
+  byte thirdSeekerTreasure=EEPROM.read(4);
+  byte fourthSeekerTreasure=EEPROM.read(5);
+  for(int i=0;i<=24;i++)
+  {
+    for(int j=0;j<=64;j++)
+    {
+      aux_position.x=i;
+      aux_position.y=j;
+      eepromPosition=GetPositionInEEPROM(&aux_position);
+      byteValue=GetByteValue(eepromPosition);
+      bitValue=GetBitValue(byteValue,aux_position.y%8);
+      if(bitValue!=0)
+      {
+        PrintCharValue(&aux_position);
+      }
+      else 
+      {
+        Serial.print("█");
+      }
+    }
+    if (i==0) 
+    {
+      Serial.print("     Clasament:");
+      
+      
+    }
+    if(i==2)
+    {
+      Serial.print("     ");
+      Serial.print("Primul cautator: ");
+      Serial.print(firstSeekerTreasure);
+    }
+    if(i==3)
+    {
+      Serial.print("     ");
+      Serial.print("Al doilea cautator: ");
+      Serial.print(secondSeekerTreasure);
+    }
+    if(i==4)
+    {
+      Serial.print("     ");
+      Serial.print("Al treilea cautator: ");
+      Serial.print(thirdSeekerTreasure);
+    }
+    if(i==5)
+    {
+      Serial.print("     ");
+      Serial.print("Al patrulea cautator: ");
+      Serial.print(fourthSeekerTreasure);
+    }
+    Serial.println(char(13));
+  }
+}
+
+void SetTreasurePosition()
+{
+    position pos;
+    int eepromPosition;
+    byte byteValue;
+    bool bitValue;
+    pos.x=random(1,24);
+    pos.y=random(1,64);
+    eepromPosition=GetPositionInEEPROM(&pos);
+    byteValue=GetByteValue(eepromPosition);
+    bitValue=GetBitValue(byteValue,pos.y%8);
+    while(bitValue==0)
+    {
+      pos.x=random(1,24);
+      pos.y=random(1,64);
+      eepromPosition=GetPositionInEEPROM(&pos);
+      byteValue=GetByteValue(eepromPosition);
+      bitValue=GetBitValue(byteValue,pos.y%8);
+    }
+    EEPROM.write(6,(byte)pos.x);
+    EEPROM.write(7,(byte)pos.y);     
+}
+
+void SetFirstSeekerPosition()
+{
+    position pos;
+    int eepromPosition;
+    byte byteValue,treasureX,treasureY;
+    bool bitValue,ok=0;
+    pos.x=random(1,24);
+    pos.y=random(1,64);
+    treasureX=EEPROM.read(6);
+    treasureY=EEPROM.read(7);
+    eepromPosition=GetPositionInEEPROM(&pos);
+    byteValue=GetByteValue(eepromPosition);
+    bitValue=GetBitValue(byteValue,pos.y%8);
+    if(pos.x!=treasureX && pos.y != treasureY) ok=1;
+    else ok=0;
+    while(bitValue==0 || ok==0)
+    {
+      pos.x=random(1,24);
+      pos.y=random(1,64);
+      eepromPosition=GetPositionInEEPROM(&pos);
+      byteValue=GetByteValue(eepromPosition);
+      bitValue=GetBitValue(byteValue,pos.y%8);
+      if(pos.x!=treasureX && pos.y != treasureY) ok=1;
+      else ok=0;
+    }
+    EEPROM.write(8,(byte)pos.x);
+    EEPROM.write(9,(byte)pos.y);   
+}
+
+void SetSecondSeekerPosition()
+{
+    position pos;
+    int eepromPosition;
+    byte byteValue,treasureX,treasureY,firstX,firstY;
+    bool bitValue,ok=0;
+    pos.x=random(1,24);
+    pos.y=random(1,64);
+    treasureX=EEPROM.read(6);
+    treasureY=EEPROM.read(7);
+    firstX=EEPROM.read(8);
+    firstY=EEPROM.read(9); 
+    eepromPosition=GetPositionInEEPROM(&pos);
+    byteValue=GetByteValue(eepromPosition);
+    bitValue=GetBitValue(byteValue,pos.y%8);
+    if(pos.x!=treasureX && pos.y != treasureY && pos.x!=firstX && pos.y!=firstY) ok=1;
+    else ok=0;
+    while(bitValue==0 || ok==0)
+    {
+      pos.x=random(1,24);
+      pos.y=random(1,64);
+      eepromPosition=GetPositionInEEPROM(&pos);
+      byteValue=GetByteValue(eepromPosition);
+      bitValue=GetBitValue(byteValue,pos.y%8);
+      if(pos.x!=treasureX && pos.y != treasureY && pos.x!=firstX && pos.y!=firstY) ok=1;
+      else ok=0;
+    }
+    EEPROM.write(10,(byte)pos.x);
+    EEPROM.write(11,(byte)pos.y); 
+}
+
+void SetThirdSeekerPosition()
+{
+    position pos;
+    int eepromPosition;
+    byte byteValue,treasureX,treasureY,firstX,firstY,secondX,secondY;
+    bool bitValue,ok=0;
+    pos.x=random(1,24);
+    pos.y=random(1,64);
+    treasureX=EEPROM.read(6);
+    treasureY=EEPROM.read(7);
+    firstX=EEPROM.read(8);
+    firstY=EEPROM.read(9);
+    secondX=EEPROM.read(10);
+    secondY=EEPROM.read(11);
+    eepromPosition=GetPositionInEEPROM(&pos);
+    byteValue=GetByteValue(eepromPosition);
+    bitValue=GetBitValue(byteValue,pos.y%8);
+    if(pos.x!=treasureX && pos.y != treasureY && pos.x!=firstX && pos.y!=firstY && pos.x!=secondX && pos.y!=secondY) ok=1;
+    else ok=0;
+    while(bitValue==0 || ok==0)
+    {
+      pos.x=random(1,24);
+      pos.y=random(1,64);
+      eepromPosition=GetPositionInEEPROM(&pos);
+      byteValue=GetByteValue(eepromPosition);
+      bitValue=GetBitValue(byteValue,pos.y%8);
+      if(pos.x!=treasureX && pos.y != treasureY && pos.x!=firstX && pos.y!=firstY && pos.x!=secondX && pos.y!=secondY) ok=1;
+      else ok=0;
+    }
+    EEPROM.write(12,(byte)pos.x);
+    EEPROM.write(13,(byte)pos.y); 
+}
+
+void SetFourthSeekerPosition()
+{
+    position pos;
+    int eepromPosition;
+    byte byteValue,treasureX,treasureY,firstX,firstY,secondX,secondY,thirdX,thirdY;
+    bool bitValue,ok=0;
+    pos.x=random(1,24);
+    pos.y=random(1,64);
+    treasureX=EEPROM.read(6);
+    treasureY=EEPROM.read(7);
+    firstX=EEPROM.read(8);
+    firstY=EEPROM.read(9);
+    secondX=EEPROM.read(10);
+    secondY=EEPROM.read(11);
+    thirdX=EEPROM.read(12);
+    thirdY=EEPROM.read(13);
+    eepromPosition=GetPositionInEEPROM(&pos);
+    byteValue=GetByteValue(eepromPosition);
+    bitValue=GetBitValue(byteValue,pos.y%8);
+    if(pos.x!=treasureX && pos.y != treasureY && pos.x!=firstX && pos.y!=firstY && pos.x!=secondX && pos.y!=secondY && pos.x!=thirdX && pos.y!=thirdY) ok=1;
+    else ok=0;
+    while(bitValue==0 || ok==0)
+    {
+      pos.x=random(1,24);
+      pos.y=random(1,64);
+      eepromPosition=GetPositionInEEPROM(&pos);
+      byteValue=GetByteValue(eepromPosition);
+      bitValue=GetBitValue(byteValue,pos.y%8);
+      if(pos.x!=treasureX && pos.y != treasureY && pos.x!=firstX && pos.y!=firstY && pos.x!=secondX && pos.y!=secondY && pos.x!=thirdX && pos.y!=thirdY) ok=1;
+      else ok=0;
+    }
+    EEPROM.write(14,(byte)pos.x);
+    EEPROM.write(15,(byte)pos.y); 
+}
+
+void SetWumpusPosition()
+{
+  position pos;
+    int eepromPosition;
+    byte byteValue,treasureX,treasureY,firstX,firstY,secondX,secondY,thirdX,thirdY,fourthX,fourthY;
+    bool bitValue,ok=0;
+    pos.x=random(1,24);
+    pos.y=random(1,64);
+    treasureX=EEPROM.read(6);
+    treasureY=EEPROM.read(7);
+    firstX=EEPROM.read(8);
+    firstY=EEPROM.read(9);
+    secondX=EEPROM.read(10);
+    secondY=EEPROM.read(11);
+    thirdX=EEPROM.read(12);
+    thirdY=EEPROM.read(13);
+    fourthX=EEPROM.read(14);
+    fourthY=EEPROM.read(15);
+    eepromPosition=GetPositionInEEPROM(&pos);
+    byteValue=GetByteValue(eepromPosition);
+    bitValue=GetBitValue(byteValue,pos.y%8);
+    if(pos.x!=treasureX && pos.y != treasureY && pos.x!=firstX && pos.y!=firstY && pos.x!=secondX && pos.y!=secondY && pos.x!=thirdX && pos.y!=thirdY && pos.x!=fourthX && pos.y!=fourthY) ok=1;
+    else ok=0;
+    while(bitValue==0 || ok==0)
+    {
+      pos.x=random(1,24);
+      pos.y=random(1,64);
+      eepromPosition=GetPositionInEEPROM(&pos);
+      byteValue=GetByteValue(eepromPosition);
+      bitValue=GetBitValue(byteValue,pos.y%8);
+      if(pos.x!=treasureX && pos.y != treasureY && pos.x!=firstX && pos.y!=firstY && pos.x!=secondX && pos.y!=secondY && pos.x!=thirdX && pos.y!=thirdY && pos.x!=fourthX && pos.y!=fourthY) ok=1;
+      else ok=0;
+    }
+    EEPROM.write(16,(byte)pos.x);
+    EEPROM.write(17,(byte)pos.y); 
+}
+
+
+void CreateMatrix()
+{
+  position *auxPosition=new position;
+  auxPosition->x=random(1,24);
+  auxPosition->y=random(1,64);
+
+  if(auxPosition->x%2==0)
+  {
+    if(auxPosition->x==0) auxPosition->x=auxPosition->x+1;
+    else auxPosition->x=auxPosition->x-1;
+  }
+  if(auxPosition->y%2==0)
+  {
+    if(auxPosition->y==0) auxPosition->y=auxPosition->y+1;
+    else auxPosition->y=auxPosition->y-1;
+  }
+
+  Serial.println("Initial values:");
+  Serial.println(auxPosition->x);
+  Serial.println(auxPosition->y);
+  int eepromPosition=GetPositionInEEPROM(auxPosition);
+  byte byteValue=GetByteValue(eepromPosition);
+  ModifyByte(eepromPosition,byteValue,auxPosition->y%8,1);
+  bfs(auxPosition);
+  SetTreasurePosition();
+  SetFirstSeekerPosition();
+  SetSecondSeekerPosition();
+  SetThirdSeekerPosition();
+  SetFourthSeekerPosition();
+  SetWumpusPosition();
+}
+
+void setup() {
+  Serial.begin(115200);
+  while (!Serial) {
+    ;
+  }
+  randomSeed(analogRead(0));
+  Serial.println("Serial opened");
+  byte isInitialized=EEPROM.read(0);
+  byte isFinished=EEPROM.read(1);
+  if(isInitialized==0) 
+  {
+    Serial.println("Not initilized");
+    for(int i=6;i<EEPROM.length();i++)
+    {
+      EEPROM.write(i,0);    
+    }
+    CreateMatrix();
+    EEPROM.write(0,1); //index , value
+    PrintMatrix();
+    delay(5000);
+    Serial.write(27);       // ESC command
+    Serial.print("[2J");    // clear screen command
+    Serial.write(27);
+    Serial.print("[H");     // cursor to home command
+    
+  }
+  else if (isFinished==1)
+  {
+    EEPROM.write(1,0);
+    EEPROM.write(0,0);    
+  } 
+}
+
+void loop() {
+  bool isFinished=EEPROM.read(1);
+  if(isFinished==0)
+  {
+    int auxDistance;
+    randomSeed(analogRead(0));
+    position firstSeekerPosition,secondSeekerPosition,thirdSeekerPosition,fourthSeekerPosition,wumpusPosition,treasurePosition;
+    position auxFirstSeekerPosition,auxSecondSeekerPosition,auxThirdSeekerPosition,auxFourthSeekerPosition,auxWumpusPosition;
+    bool firstMove=random(1,4)%2,secondMove=random(1,4)%2,thirdMove=random(1,4)%2,fourthMove=random(1,4)%2;
+    bool hasFirstMoved=false,hasSecondMoved=false,hasThirdMoved=false,hasFourthMoved=false,hasWumpusMoved=false;
+    int eepromPosition;
+    byte byteValue;
+    bool bitValue;
+    
+    treasurePosition.x=EEPROM.read(6);
+    treasurePosition.y=EEPROM.read(7);
+    firstSeekerPosition.x=EEPROM.read(8);
+    firstSeekerPosition.y=EEPROM.read(9);
+    secondSeekerPosition.x=EEPROM.read(10);
+    secondSeekerPosition.y=EEPROM.read(11);
+    thirdSeekerPosition.x=EEPROM.read(12);
+    thirdSeekerPosition.y=EEPROM.read(13);
+    fourthSeekerPosition.x=EEPROM.read(14);
+    fourthSeekerPosition.y=EEPROM.read(15);
+    wumpusPosition.x=EEPROM.read(16);
+    wumpusPosition.y=EEPROM.read(17);
+
+    if(firstSeekerPosition.x!=0 && firstSeekerPosition.y!=0)
+    {
+      RandomizeSeekerDirections();
+      for(int i=0;i<4;i++)
+      {
+        if(firstMove && !hasFirstMoved)
+        {
+          auxFirstSeekerPosition.x=firstSeekerPosition.x+sx[i];
+          auxFirstSeekerPosition.y=firstSeekerPosition.y+sy[i];
+          eepromPosition=GetPositionInEEPROM(&auxFirstSeekerPosition);
+          byteValue=GetByteValue(eepromPosition);
+          bitValue=GetBitValue(byteValue,auxFirstSeekerPosition.y%8);
+          
+          if(IsValid(&auxFirstSeekerPosition) && (auxFirstSeekerPosition.x!=secondSeekerPosition.x || auxFirstSeekerPosition.y!=secondSeekerPosition.y) \
+          && (auxFirstSeekerPosition.x!=thirdSeekerPosition.x || auxFirstSeekerPosition.y!=thirdSeekerPosition.y)  && (auxFirstSeekerPosition.x!=fourthSeekerPosition.x || auxFirstSeekerPosition.y!=fourthSeekerPosition.y) && bitValue==1\
+          && (auxDistance=GetDistance(&auxFirstSeekerPosition,&treasurePosition)) <= firstDistanceToTreasure
+          )
+          {
+            firstDistanceToTreasure=auxDistance;
+            if(auxFirstSeekerPosition.x==wumpusPosition.x && auxFirstSeekerPosition.y==wumpusPosition.y)
+            {
+                EEPROM.write(8,0);
+                EEPROM.write(9,0);
+                hasFirstMoved=true;
+            }
+            else  if(auxFirstSeekerPosition.x==treasurePosition.x && auxFirstSeekerPosition.y==treasurePosition.y)
+            {
+                byte treasuresCount=EEPROM.read(2);
+                treasuresCount++;
+                EEPROM.write(8,auxFirstSeekerPosition.x);
+                EEPROM.write(9,auxFirstSeekerPosition.y);
+                EEPROM.write(2,treasuresCount);
+                EEPROM.write(1,1);
+                hasFirstMoved=true;  
+            }
+            else
+            {
+            firstSeekerPosition.x = auxFirstSeekerPosition.x;
+            firstSeekerPosition.y=auxFirstSeekerPosition.y;
+            EEPROM.write(8,auxFirstSeekerPosition.x);
+            EEPROM.write(9,auxFirstSeekerPosition.y);
+            hasFirstMoved=true;
+            }
+          }
+        }
+      }
+    } 
+  
+    if(secondSeekerPosition.x!=0 && secondSeekerPosition.y!=0)
+    {
+      RandomizeSeekerDirections();
+      for(int i=0;i<4;i++)
+      {
+        if(secondMove && !hasSecondMoved)
+        {
+          auxSecondSeekerPosition.x=secondSeekerPosition.x+sx[i];
+          auxSecondSeekerPosition.y=secondSeekerPosition.y+sy[i];
+          eepromPosition=GetPositionInEEPROM(&auxSecondSeekerPosition);
+          byteValue=GetByteValue(eepromPosition);
+          bitValue=GetBitValue(byteValue,auxSecondSeekerPosition.y%8);
+          if(IsValid(&auxSecondSeekerPosition) && (auxSecondSeekerPosition.x!=firstSeekerPosition.x || auxSecondSeekerPosition.y!=firstSeekerPosition.y) \
+          && (auxSecondSeekerPosition.x!=thirdSeekerPosition.x || auxSecondSeekerPosition.y!=thirdSeekerPosition.y)  && (auxSecondSeekerPosition.x!=fourthSeekerPosition.x || auxSecondSeekerPosition.y!=fourthSeekerPosition.y) && bitValue==1\
+          && ((auxDistance=GetDistance(&auxSecondSeekerPosition,&treasurePosition))<= secondDistanceToTreasure)
+          )
+          {
+            if(auxSecondSeekerPosition.x==wumpusPosition.x && auxSecondSeekerPosition.y==wumpusPosition.y)
+            {
+                EEPROM.write(10,0);
+                EEPROM.write(11,0);
+                hasSecondMoved=true;            
+            }
+            else  if(auxSecondSeekerPosition.x==treasurePosition.x && auxSecondSeekerPosition.y==treasurePosition.y)
+            {
+                byte treasuresCount=EEPROM.read(3);
+                treasuresCount++;
+                EEPROM.write(3,treasuresCount);
+                EEPROM.write(1,1);
+                EEPROM.write(10,auxSecondSeekerPosition.x);
+                EEPROM.write(11,auxSecondSeekerPosition.y);
+                hasSecondMoved=true; 
+            }
+            else
+            {
+              secondSeekerPosition.x = auxSecondSeekerPosition.x;
+              secondSeekerPosition.y=auxSecondSeekerPosition.y;
+              EEPROM.write(10,secondSeekerPosition.x);
+              EEPROM.write(11,secondSeekerPosition.y);
+              hasSecondMoved=true;
+            }
+            secondDistanceToTreasure=auxDistance;
+          }
+        }
+      }
+    }
+  
+    if(thirdSeekerPosition.x!=0 && thirdSeekerPosition.y!=0)
+    {
+      RandomizeSeekerDirections();
+      for(int i=0;i<4;i++)
+      {
+        if(thirdMove && !hasThirdMoved)
+        {
+          auxThirdSeekerPosition.x=thirdSeekerPosition.x+sx[i];
+          auxThirdSeekerPosition.y=thirdSeekerPosition.y+sy[i];
+          eepromPosition=GetPositionInEEPROM(&auxThirdSeekerPosition);
+          byteValue=GetByteValue(eepromPosition);
+          bitValue=GetBitValue(byteValue,auxThirdSeekerPosition.y%8);
+          if(IsValid(&auxThirdSeekerPosition) && (auxThirdSeekerPosition.x!=firstSeekerPosition.x || auxThirdSeekerPosition.y!=firstSeekerPosition.y) \
+          && (auxThirdSeekerPosition.x!=secondSeekerPosition.x || auxThirdSeekerPosition.y!=secondSeekerPosition.y)  && (auxThirdSeekerPosition.x!=fourthSeekerPosition.x || auxThirdSeekerPosition.y!=fourthSeekerPosition.y) && bitValue==1\
+          && ((auxDistance=GetDistance(&auxThirdSeekerPosition,&treasurePosition))<= thirdDistanceToTreasure)
+          )
+          {
+            if(auxThirdSeekerPosition.x==wumpusPosition.x && auxThirdSeekerPosition.y==wumpusPosition.y)
+            {
+                EEPROM.write(12,0);
+                EEPROM.write(13,0);
+                hasThirdMoved=true;             
+            }
+            else  if(auxThirdSeekerPosition.x==treasurePosition.x && auxThirdSeekerPosition.y==treasurePosition.y)
+            {
+                byte treasuresCount=EEPROM.read(4);
+                treasuresCount++;
+                EEPROM.write(4,treasuresCount);
+                EEPROM.write(1,1);  
+                EEPROM.write(12,auxThirdSeekerPosition.x);
+                EEPROM.write(13,auxThirdSeekerPosition.y);
+                hasThirdMoved=true;
+            }
+            else
+            {
+                thirdSeekerPosition.x = auxThirdSeekerPosition.x;
+                thirdSeekerPosition.y=auxThirdSeekerPosition.y;
+                EEPROM.write(12,thirdSeekerPosition.x);
+                EEPROM.write(13,thirdSeekerPosition.y);
+                hasThirdMoved=true;
+            }
+            thirdDistanceToTreasure=auxDistance;
+          }
+        }
+      }
+    }
+  
+    if(fourthSeekerPosition.x!=0 && fourthSeekerPosition.y!=0)
+    {
+      RandomizeSeekerDirections();
+      for(int i=0;i<4;i++)
+      {
+        if(fourthMove && !hasFourthMoved)
+        {
+          auxFourthSeekerPosition.x=fourthSeekerPosition.x+sx[i];
+          auxFourthSeekerPosition.y=fourthSeekerPosition.y+sy[i];
+          eepromPosition=GetPositionInEEPROM(&auxFourthSeekerPosition);
+          byteValue=GetByteValue(eepromPosition);
+          bitValue=GetBitValue(byteValue,auxFourthSeekerPosition.y%8);
+          if(IsValid(&auxFourthSeekerPosition) && (auxFourthSeekerPosition.x!=firstSeekerPosition.x || auxFourthSeekerPosition.y!=firstSeekerPosition.y) \
+          && (auxFourthSeekerPosition.x!=secondSeekerPosition.x || auxFourthSeekerPosition.y!=secondSeekerPosition.y)  && (auxFourthSeekerPosition.x!=thirdSeekerPosition.x || auxFourthSeekerPosition.y!=thirdSeekerPosition.y) && bitValue==1 \
+          && ((auxDistance=GetDistance(&auxFourthSeekerPosition,&treasurePosition))<= fourthDistanceToTreasure)
+          )
+          {
+            if(auxThirdSeekerPosition.x==wumpusPosition.x && auxThirdSeekerPosition.y==wumpusPosition.y)
+            {
+                EEPROM.write(14,0);
+                EEPROM.write(15,0);
+                hasFourthMoved=true;    
+            }
+            else  if(auxFourthSeekerPosition.x==treasurePosition.x && auxFourthSeekerPosition.y==treasurePosition.y)
+            {
+                byte treasuresCount=EEPROM.read(5);
+                treasuresCount++;
+                EEPROM.write(5,treasuresCount);
+                EEPROM.write(1,1);  
+                EEPROM.write(14,auxFourthSeekerPosition.x);
+                EEPROM.write(15,auxFourthSeekerPosition.y);
+                hasFourthMoved=true;
+            }
+            else
+            {
+              fourthSeekerPosition.x = auxFourthSeekerPosition.x;
+              fourthSeekerPosition.y=auxFourthSeekerPosition.y;
+              EEPROM.write(14,auxFourthSeekerPosition.x);
+              EEPROM.write(15,auxFourthSeekerPosition.y);
+              hasFourthMoved=true;
+            }
+            fourthDistanceToTreasure=auxDistance;
+          }
+        }
+      }
+    }
+    RandomizeSeekerDirections();
+    for(int i=0;i<4;i++)
+    {
+      if(!hasWumpusMoved)
+      {
+        auxWumpusPosition.x=wumpusPosition.x+sx[i];
+        auxWumpusPosition.y=wumpusPosition.y+sy[i];
+        eepromPosition=GetPositionInEEPROM(&auxWumpusPosition);
+        byteValue=GetByteValue(eepromPosition);
+        bitValue=GetBitValue(byteValue,auxWumpusPosition.y%8);
+        if(IsValid(&auxWumpusPosition) && bitValue==1)
+        {
+          wumpusPosition.x = auxWumpusPosition.x;
+          wumpusPosition.y=auxWumpusPosition.y;
+          EEPROM.write(16,wumpusPosition.x);
+          EEPROM.write(17,wumpusPosition.y);
+          hasWumpusMoved=true;
+          if(wumpusPosition.x==firstSeekerPosition.x && wumpusPosition.y==firstSeekerPosition.y)
+          {
+            EEPROM.write(8,0);
+            EEPROM.write(9,0);  
+          }
+          if(wumpusPosition.x==secondSeekerPosition.x && wumpusPosition.y==secondSeekerPosition.y)
+          {
+            EEPROM.write(10,0);
+            EEPROM.write(11,0);  
+          }
+          if(wumpusPosition.x==thirdSeekerPosition.x && wumpusPosition.y==thirdSeekerPosition.y)
+          {
+            EEPROM.write(12,0);
+            EEPROM.write(13,0);  
+          }
+          if(wumpusPosition.x==fourthSeekerPosition.x && wumpusPosition.y==fourthSeekerPosition.y)
+          {
+            EEPROM.write(14,0);
+            EEPROM.write(15,0);  
+          }
+        }
+      }
+    }
+  
+    if ((firstSeekerPosition.x==0&&firstSeekerPosition.y==0)&&(secondSeekerPosition.x==0&&secondSeekerPosition.y==0)&&(thirdSeekerPosition.x==0&&thirdSeekerPosition.y==0)&&(fourthSeekerPosition.x==0&&fourthSeekerPosition.y==0)) 
+    {
+      EEPROM.write(1,1);
+    }
+    
+    PrintMatrix();
+    Serial.println(freeRam());
+    delay(5000);
+    Serial.write(27);       // ESC command
+    Serial.print("[2J");    // clear screen command
+    Serial.write(27);
+    Serial.print("[H");     // cursor to home command
+    }
+    else
+    {
+    EEPROM.write(1,0);
+    for(int i=6;i<EEPROM.length();i++)
+    {
+      EEPROM.write(i,0);    
+    }
+    CreateMatrix();
+    EEPROM.write(0,1); //index , value
+    PrintMatrix();
+    delay(5000);
+    Serial.write(27);       // ESC command
+    Serial.print("[2J");    // clear screen command
+    Serial.write(27);
+    Serial.print("[H");     // cursor to home command
+    }   
+}
+</code></pre>
+

@@ -1,0 +1,273 @@
+<h2>Introducere</h2>
+<p>[[Fișier:image1.jpg|250px|right]]</p>
+<p>Protocolul Inter  Integrated  Circuit  (I2C) este  un  protocol creat  pentru  a  permite mai multor circuite integrate “slave” sa comunice cu unul sau mai mute cipuri “master”. Acest tip de comunicare poate fi folosit doar pe distante mici de </p>
+<p>comunicare si asemenea  protocolului  UART are  nevoie  doar  de  2  fire  de  semnal  pentru  a trimite/primii informatii.</p>
+
+
+
+
+
+<h2>Scurt istoric</h2>
+<p>Protocolul I2C a fost dezvoltat in 1982 de ''Philips'' pentru diferite cipuri ''Philips''. Specificatiile originale permiteau comunicarea doar pe 100kHz si doar pe 7 biti de adresa, limitand numarul dispozitivelor conectate la bus, la 112. In 1992 spatiul de adrese a fost extins la 10 biti si comunicarea se realiza pe 500kHz. In prezent exista trei moduri aditionale: ''fast plus (1MHz)'', ''high-speed (3.4MHz)'' si ''ultra-fast (5MHz)''. </p>
+
+<p>In plus, in 1995 ''Intel'' a introdus o noua varianta de I2C, numita ''"System Management Bus" (SMBus)'', care este mult mai bine controlata si realizata cu intentia de  a maximiza predictabilitatea comunicarii dintre suporturile IC si placile de baza ale PC-urilor.  Cea mai notabila diferenta dintre SMBus si I2C este ca prima limiteaza viteza de la 10kHz la 100kHz, iar  a doua poate suporta dispozitive de la 0kHz la 5MHz.</p>
+
+
+
+<h2>De ce sa utilizam I2C?</h2>
+
+<h3>Ce e in neregula cu porturile seriale?</h3>
+<p>[[Fișier:image2.png|400px|right]] </p>
+
+<p>Deoarece ''porturile seriale sunt asincrone'', dispozitivele ce utilizeaza porturile seriale trebuie sa aiba ceasuri ce au o rata apropiata de transmisie a datei si au comunicarea ''UART'' la baza, un tip de comunicare complex si dificil de implementat.</p>
+
+<p>Un alt minus in acest tip de comunicare este acela ca comunicarea este permisa doar intre doua dispozitive. Chiar daca este posibil sa conectam mai multe dispozitive la un singur port serial, apar conflicte la bus ("bus contention") deoarece doua dispozitive tind sa conduca aceeasi linie in acelasi timp si dispozitivele se pot strica.</p>
+
+<p>In cele din urma, rata datelor reprezinta o problema. Teoretic nu este nicio limita in ''comunicarea seriala asincrona'', dar practic in ''comunicarea UART'', dispozitivele suporta o rata de transfer fixata si cea mai mare rata este de aproximativ 230400 biti/secunda.</p>
+
+<h3>Ce e in neregula cu SPI?</h3>
+<p>[[Fișier:image3.png|400px|right]]</p>
+
+<p>Cel mai mare minus pe care il are un ''SPI'' este numarul mare de pini de care este nevoie. Pentru conectarea unui singur "master" cu un singur "slave" la un bus SPI, este nevoie de 4 linii, iar fiecare "slave" pe care-l conectam dupa, necesita un cip aditional ce selecteaza un pin I/O de pe dispozitivul folosit ca "master". Prin urmare, in acest tip de comunicare este realizabila conectarea a mai multor dispozitive "slave" la un singur dispozitiv "master", dar cu toate acestea, din cauza numarului mare de pini utilizati, transmiterea semnalelor este dificila, inceata.</p>
+
+<p>''SPI'' este totusi bun din cauza implementarii usoare si a  ratei de transmitere a datelor ( transmitere si receptionare simultana ) prin conexiunea full-duplex, suportand o rata de tramisie de 10 milioane de biti/secunda. </p>
+
+<h3>Raspunsul===</h3>
+
+<p>[[Fișier:image4.png|400px|right]]</p>
+
+<p>''I2C'' necesita doua fire care si comunicarea seriala asincrona, cu  diferenta ca acest tip de comunicare poate suporta pana la 1008 dispozitive de tip "slave". Mai mult decat atat, in comunicarea de tip I2C pot exista mai multe dispozitive de tip "master" la un bus, lucru  nepermis in comunicarea ''SPI''. </p>
+
+<p>Rata datelor nu este foarte buna, fiind asemanatoare cu cea de la ''portul serial''; cele mai multe dintre ''I2C-uri'' comunica cu  o rata de transmisie cuprinsa intre 100kHz si 400kHz. </p>
+
+<p>In ceea ce priveste implementarea, aceasta este mai complexa decat in cazul implementarii ''SPI'', dar mult mai usoara decat in cazul ''comunicarii asincrone, cu UART''.</p>
+
+
+
+<h2>I2C la nivelul hardware</h2>
+
+<p>Fiecare bus ''I2C'' este compus din doua semnale: ''SCL'' (semnalul de ceas)  si ''SDA'' ( semnalul de date). Semnalul de ceas este intotdeauna generat de bus-ul masterul curent. Fiecare bus ''I2C'' poate suporta pana la 112 dispozitive, iar toate dispozitivele trebuie sa distribuie ''GND''.</p>
+ 
+<p>Spre deosebire de alte metode de comunicare, precum ''UART'', magistrala ''I2C'' este de tip “open drain”, ceea ce inseamna ca poate trage o anumita linie de semnal in 0 logic, dar nu o pot conduce spre 1  logic.  Asadar,  se  elimina  problema  de  "bus  contention”,  unde un  dispozitiv  incearca sa traga una dintre linii in starea "high” in timp ce altul o aduce in "low”, eliminand posibilitatea  de a distruge componente. Fiecare linie de semnal are un rezistor pull-up pe ea, pentru a putea readuce semnalul pe "high” cand nici un alt dispozitiv nu cere „low”. </p>
+
+<p>[[Fișier:image5.png|800px|centre]]</p>
+
+<p>In imaginea alaturata se remarca folosirea a doua rezistente pe liniile de semnal.  Selectia rezistentelor variaza odata cu dispozitivele care folosesc busul, dar o regula buna este de a incepe cu rezistente de 4.7k si cu scaderea lor daca e necesar.</p>
+
+
+
+<h2>Protocolul de comunicare I2C</h2>
+<p>[[Fișier:image6.png|1000px|centre]]</p>
+
+<p>Mesajele transmise sunt impartite in doua tipuri de cadre (frames): cadre de date (contin mesaje pe 8 biti directionate de la dispozitivul de tip "master" la cel de tip "slave" si invers) si cadre de adresa (contine adresa dispozitivul de tip "slave", la care dispozitivul de tip "master" trimite mesajul).</p>
+
+<p>Datele sunt puse pe linia SDA dupa ce SCL ajunge la nivel "low" si sunt esantionate cand SCL ajunge "high". Timpul intre nivelul de ceas si operatiile de citire/scriere este definit de dispozitivele conectate pe magistrala si va varia de la cip la cip.</p>
+
+<h3>Conditia de start</h3>
+<p>Pentru a initia cadrul de adresa, dispozitivul "master" lasa SCL "high" si pune SDA pe "low", astfel toate dispozitivele "slave" sunt pregatite pentru a receptiona date. </p>
+
+<p>Daca doua sau mai multe dispozitive "master" doresc sa-si asume bus-ul la un moment dat, primul dispozitiv care ajunge de la "high" la "low" primul, va prelua controlul bus-ului.</p>
+
+<h3>Cadrul de adresa</h3>
+<p>Cadrul de adresa este mereu primul atunci cand o noua comunicare incepe. Mai intai se vor trimite sincron bitii adresei (primul fiind cel mai semnificativ), apoi se va transmite un semnal de tip R/W pe biti. Bitul 9 al cadrului este reprezentat de bitul NACK/ACK. Acesta este cazul pentru ambele cadre (de adrese si de date).</p>
+
+<p>Dupa ce primii 8 biti ai cadrului sunt transmisi, dispozitivului receptor ii este dat controlul asupra SDA-ului. Daca acest dispozitiv nu schimba in 0 logic linia SDA inainte  de al noualea puls de ceas, se poate deduce ca acesta nu a primit datele, ori nu a stiut sa interpreteze mesajul receptionat. In acest caz, schimbul de date se opreste si ramane la latitudinea dispozitivului "master" cum  va proceda mai departe. </p>
+
+<h3>Cadrul de date</h3>
+<p>Dupa ce cadrul de adresa a fost tramsis, datele/mesajele pot incepe a  fi trasmise. Dispozitivul "master" va continua sa genereze impulsuri de ceas la un interval regulat, iar datele vor fi plasate pe SDA, fie de dispozitivul "master" fie de cel "slave", in functie de bitii R/W transmisi in cadrul anterior. Numarul de cadre de date este arbitar.</p>
+
+<h3>Conditia de oprire</h3>
+<p>De indata ce toate cadrele au fost trimise, dispozitivul "master" va genera o conditie de oprire. Conditiile de oprire sunt definite de tranzitia de la "low" la "high" ( 0 -> 1 ) pe SDA, dupa p tranzitie 0 -> 1 pe SCL cu SCL pe "high".</p>
+
+<p>In timpul operatiei de scriere, valoarea din SDA nu ar trebuie sa se schimbe cand SCL este "high" pentru a evita conditiile false de oprire.</p>
+
+
+
+<h2>Exemplu de comunicare I2C</h2>
+<h3>Comunicarea dintre un dispoztiv "master" si unul "slave"</h3>
+<p>[[Fișier:image7.png]]</p>
+
+<p>{| class="table1 style="margin-left: auto; margin-right: auto; border: none;"</p>
+<p>|-</p>
+<p>! Master</p>
+<p>! Slave</p>
+<p>|-</p>
+<p>| <code></p>
+<p> #include <Wire.h></p>
+<p> void setup()</p>
+<p> {</p>
+<p>   Wire.begin(); </p>
+<p> }</p>
+<p> void loop()</p>
+<p> {</p>
+<p>  Wire.beginTransmission(1);</p>
+<p>  Wire.write('H');</p>
+<p>  Wire.endTransmission();</p>
+ 
+<p>  delay(500);</p>
+<p>  </p>
+<p>  Wire.beginTransmission(1);</p>
+<p>  Wire.write('L');</p>
+<p>  Wire.endTransmission();</p>
+ 
+<p>  delay(500);</p>
+<p>  </p>
+<p>  Wire.beginTransmission(2);</p>
+<p>  Wire.write('H');</p>
+<p>  Wire.endTransmission();</p>
+ 
+<p>  delay(500);</p>
+<p>  </p>
+<p>  Wire.beginTransmission(2);</p>
+<p>  Wire.write('L');</p>
+<p>  Wire.endTransmission();</p>
+ 
+<p>  delay(500);</p>
+<p> }</p>
+<p></code></p>
+<p>| <code></p>
+<p> #include <Wire.h></p>
+<p> const byte slaveId = 1;</p>
+<p> void setup()</p>
+<p> {</p>
+<p>  Wire.begin(slaveId); </p>
+<p>  Wire.onReceive(receiveEvent);</p>
+ 
+<p>  pinMode(13,OUTPUT);</p>
+<p>  digitalWrite(13,LOW);    </p>
+<p> }</p>
+<p> void loop()</p>
+<p> {</p>
+<p> }</p>
+<p> void receiveEvent(int howMany)</p>
+<p> {</p>
+<p>  char inChar;</p>
+<p>  </p>
+<p>  while(Wire.available() > 0)</p>
+<p>  {</p>
+<p>    inChar = Wire.read();  </p>
+<p>    </p>
+<p>    if (inChar == 'H')</p>
+<p>    {</p>
+<p>      digitalWrite(13, HIGH);</p>
+<p>    }</p>
+<p>    else if (inChar == 'L')</p>
+<p>    {</p>
+<p>      digitalWrite(13, LOW);</p>
+<p>    }</p>
+<p>  }</p>
+<p> }</p>
+<p></code></p>
+<p>|}</p>
+
+<h3>Comunicarea dintre un dispoztiv "master" si doua "slave"</h3>
+<p>[[Fișier:image8.png|400px|centre]]</p>
+
+<p>{| class="table1 style="margin-left: auto; margin-right: auto; border: none;"</p>
+<p>|-</p>
+<p>! Master</p>
+<p>! Slave1</p>
+<p>! Slave2</p>
+<p>|-</p>
+<p>| <code></p>
+<p> #include <Wire.h></p>
+<p> void setup()</p>
+<p> {</p>
+<p>   Wire.begin(); </p>
+<p> }</p>
+<p> void loop()</p>
+<p> {</p>
+<p>  Wire.beginTransmission(1);</p>
+<p>  Wire.write('H');</p>
+<p>  Wire.endTransmission();</p>
+ 
+<p>  delay(500);</p>
+<p>  </p>
+<p>  Wire.beginTransmission(1);</p>
+<p>  Wire.write('L');</p>
+<p>  Wire.endTransmission();</p>
+ 
+<p>  delay(500);</p>
+<p>  </p>
+<p>  Wire.beginTransmission(2);</p>
+<p>  Wire.write('H');</p>
+<p>  Wire.endTransmission();</p>
+ 
+<p>  delay(500);</p>
+<p>  </p>
+<p>  Wire.beginTransmission(2);</p>
+<p>  Wire.write('L');</p>
+<p>  Wire.endTransmission();</p>
+ 
+<p>  delay(500);</p>
+<p> }</p>
+<p></code></p>
+<p>| <code></p>
+<p> #include <Wire.h></p>
+<p> const byte slaveId = 1;</p>
+<p> void setup()</p>
+<p> {</p>
+<p>  Wire.begin(slaveId); </p>
+<p>  Wire.onReceive(receiveEvent);</p>
+<p>  Serial.begin(9600);</p>
+ 
+<p>  pinMode(13,OUTPUT);</p>
+<p>  digitalWrite(13,LOW);    </p>
+<p> }</p>
+<p> void loop()</p>
+<p> {</p>
+<p> }</p>
+<p> void receiveEvent(int howMany)</p>
+<p> {</p>
+<p>  char inChar;</p>
+<p>  </p>
+<p>  while(Wire.available() > 0)</p>
+<p>  {</p>
+<p>    inChar = Wire.read();  </p>
+<p>    </p>
+<p>    if (inChar == 'H')</p>
+<p>    {</p>
+<p>      digitalWrite(13, HIGH);</p>
+<p>    }</p>
+<p>    else if (inChar == 'L')</p>
+<p>    {</p>
+<p>      digitalWrite(13, LOW);</p>
+<p>    }</p>
+<p>    else</p>
+<p>    {</p>
+<p>      Serial.println("Different from H and L");</p>
+<p>  }</p>
+<p> }</p>
+<p></code></p>
+<p>| <code></p>
+<p> #include <Wire.h></p>
+<p> const byte slaveId = 2;</p>
+<p> void setup()</p>
+<p> {</p>
+<p>  Wire.begin(slaveId); </p>
+<p>  Wire.onReceive(receiveEvent);</p>
+<p>  Serial.begin(9600);   </p>
+<p> }</p>
+<p> void loop()</p>
+<p> {</p>
+<p> }</p>
+<p> void receiveEvent(int howMany)</p>
+<p> {</p>
+<p>  char inChar;</p>
+<p>  </p>
+<p>  while(Wire.available() > 0)</p>
+<p>  {</p>
+<p>    inChar = Wire.read();  </p>
+<p>    </p>
+<p>    Serial.println(inChar);</p>
+<p>  }</p>
+<p> }</p>
+<p></code></p>
+<p>|}</p>
+
+
+<h2>Concluzii==</h2>
+<p>Foarte  multi senzori utilizeaza ''I2C'' pentru a comunica, cum ar fi: barometrele, senzorii de temperatura, sonarele...</p>
+<p>Este de precizat faptul ca ''I2C'' nu sunt destinate pentru cabluri cu lungime mare, in general cablurile de peste 2 metri putand cauza probleme.</p>
+
+<p>''I2C'' este un tip de comunicare complex, dar este foarte folositor.</p>

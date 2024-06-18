@@ -1,0 +1,356 @@
+<h2> Ecrane LCD cu TouchScreen </h2>
+
+<p>[[Fișier:Mcufriend.png|thumb|upleft|300px|alt=Librarie-mcufriend|Mcufriend]]</p>
+<p>[[Fișier:cisc.jpg|thumb|upleft|300px|alt=Adafruit gfx|Adafruit gfx]]</p>
+<p>[[Fișier:Touch.jpg|thumb|upleft|300px|alt=Instalre librarie TouchScreen|Instalare librarie TouchScreen]]</p>
+<p>[[Fișier:risc.jpg|thumb|upleft|300px|alt=Corectie librarie|Corectie Librarie]]</p>
+
+<p>Ecranele LCD cu TouchScreen pot fi folosite oriunde este nevoie de interactiune cu utilizatorul, ele oferind practic feedback, descriind intr-un mod elegant starea in care se afla systemul. Ecranele pot fi conectate la un procesor:</p>
+
+<ul>
+<li> fie direct (caz in care procesorul are grija sa mentina activa imaginea pe ecran)</li>
+<li> fie prin intermediul altor procesoare (caz in care avem nevoie de un driver prin care sa comunicam cu procesorul ecranului).</li>
+</ul>
+
+
+<p>Prima varianta este mai greoi de gestionat. Totusi, pentru cei care doresc sa vada ce presupune, aici avem niste resurse:</p>
+
+<p>https://www.instructables.com/id/TV-Out-with-Arduino/</p>
+
+<p>https://maker.pro/arduino/tutorial/how-to-connect-an-arduino-to-a-tv</p>
+
+<p>https://www.instructables.com/id/Arduino-Basic-PC-With-VGA-Output/</p>
+
+<p>A 2-a varianta este ceva mai simpla, deoarece LCD-ul cu care lucram, are propriul procesor care gestioneaza afisarea. Acest procesor are grija ca imaginea sa fie reafisata astfel incat sa nu ne dam seama de multiplexarea care se face (refresh rate). De asemenea aceste procesoare dedicate au si o memorie RAM pe care de fapt o scriem, atunci cand trimitem date la LCD.</p>
+
+<h2> Setup LCD </h2>
+<p>LCD-ul cu care vom lucra la acest laborator are urmatoarele caracteristici:</p>
+<ul>
+<li> Rezoltuie : 320x240</li>
+<li> Dimensiune: 2.4 inch</li>
+<li> Adancime culoare: 18-bit (262.000 culori)</li>
+<li> SDCard: DA</li>
+<li> TouchScreen: DA</li>
+<li> Driver: SPFD5408</li>
+</ul>
+
+
+<p>Exista sute de procesoare care pot gestiona un LCD. Desi toate respecta niste specificatii comune, fiecare producator isi permite totusi sa descrie intr-un mod particular felul in care se realizeaza conexiunea la LCD.</p>
+<p>LCD-ul cu care lucram noi, foloseste un procesor SPFD5408, acest lucru este necesar pentru a instala corect librariile care implementeaza mini-drivere pentru aceste ecrane.</p>
+
+<p>Libraria necesara pentru a lucra cu aceste ecrane, se numeste MCUFRIEND si se instaleaza din Arduino->Sketch->Include Library->Manage Libraries (poza 1).</p>
+
+<p>Deoarece aceasta librarie este construita peste o librarie Adafruit, mai instalam si aceasta dependita care nu se instaleaza automat (poza 2).</p>
+
+<p>Pentru a putea folosi TouchScreen-ul, instalam tot de la Adafruit libraria pentru TouchScreen (poza 3).</p>
+
+<p>Implementarea driver-ului este posibil sa aiba o problema cu textul pe care il afisam (nu si cu grafica - linii, puncte ......). Pentru a verifica acest lucru, folosim exemplul de mai jos. Daca nu vedeti initial textul clar, aplicati modificarea din poza 4, inlocuind fisierul din libraria voastra cu cel de pe googledrive:</p>
+
+<p><span style="font-weight:bold; background-color:yellow"> [https://drive.google.com/open?id=1uNP4nQDvkCMCxPqMYQS79p6ss2em5s7g Descarcati Fisierele necesare + continut SDCARD de aici]. </span></p>
+
+<p>Urmatorul exemxplu demonstreaza utilizarea font-urilor ():</p>
+
+
+<pre><code class="language-c"> 
+#include <Adafruit_GFX.h>
+#include <MCUFRIEND_kbv.h>
+MCUFRIEND_kbv tft;
+ 
+#include <SPI.h>
+#include <SD.h>
+ 
+#define BLACK   0x0000
+#define BLUE    0x001F
+#define RED     0xF800
+#define GREEN   0x07E0
+#define CYAN    0x07FF
+#define MAGENTA 0xF81F
+#define YELLOW  0xFFE0
+#define WHITE   0xFFFF
+ 
+void setup(void)
+{
+    Serial.begin(9600);
+    if (!SD.begin(10)) {
+      Serial.println("OopS Eroare!");
+      while (1);
+    }
+    Serial.println("All OK!");
+    tft.reset();
+    uint16_t identifier = tft.readID();
+    Serial.println(identifier, HEX);
+    tft.begin(identifier);
+    tft.setRotation(1);   //LANDSCAPE (0 = PORTRAIT)
+    tft.fillScreen(BLACK);  
+}
+ 
+void loop(void)
+{
+  tft.fillScreen(BLACK);    
+  tft.setCursor(0, 0);      //pozitia cursorului pentru text
+ 
+  tft.setTextSize(3);       //intre 1 si 5
+  tft.println("");
+  tft.setTextColor(GREEN);
+  tft.print("     P");
+  tft.setTextColor(WHITE);
+  tft.println("ROBLEME    ");
+  tft.println("         +       ");  
+  tft.setTextColor(RED);
+  tft.print("      AR");
+  tft.setTextColor(WHITE);
+  tft.println("DUINO    ");
+  tft.println("         +       ");
+  tft.print("      DS");
+  tft.setTextColor(YELLOW);
+  tft.println("FUM      ");
+  tft.setTextColor(WHITE);
+  tft.println("         =       ");
+  tft.setTextColor(GREEN);
+  tft.print("     P");
+  tft.setTextColor(RED);
+  tft.print("AR");
+  tft.setTextColor(YELLOW);
+  tft.print("FUM");  
+  delay(5000);
+</code></pre>
+
+
+<p>Urmatorul exemplu demonstreaza utilizarea primitivelor grafice:</p>
+
+
+<pre><code class="language-c">
+#include <Adafruit_GFX.h>
+#include <MCUFRIEND_kbv.h>
+MCUFRIEND_kbv tft;
+
+#include <SPI.h>
+#include <SD.h>
+
+#define BLACK   0x0000
+#define BLUE    0x001F
+#define RED     0xF800
+#define GREEN   0x07E0
+#define CYAN    0x07FF
+#define MAGENTA 0xF81F
+#define YELLOW  0xFFE0
+#define WHITE   0xFFFF
+
+void setup(void)
+{
+    Serial.begin(9600);
+    if (!SD.begin(10)) {
+      Serial.println("OopS Eroare!");
+      while (1);
+    }
+    Serial.println("All OK!");
+    tft.reset();
+    uint16_t identifier = tft.readID();
+    Serial.println(identifier, HEX);
+    tft.begin(identifier);
+    tft.setRotation(1);   //LANDSCAPE (0 = PORTRAIT)
+    tft.fillScreen(BLACK);  
+}
+
+void loop(void)
+{
+  tft.fillScreen(BLACK);    
+  
+  int w = tft.width();      //lungime ecran
+  int h = tft.height();     //latime ecran
+
+  tft.drawLine(0, 0, w-1, h-1, YELLOW);   //diagonala 1
+  tft.drawLine(w-1, 0, 0, h-1, YELLOW);   //diagonala 2
+
+  tft.drawFastHLine(0, h/2, w, RED);        //orizontala
+  tft.drawFastVLine(w/2, 0, h, RED);        //verticala
+
+  tft.drawRect(w/4, h/4, w/2, h/2, BLUE);   //dreptunchi
+  tft.drawCircle(w/2, h/2, h/3, WHITE);     //cerc gol
+  tft.fillCircle(w/2, h/2, 20, GREEN);      //cerc plin
+
+  delay(5000);
+
+  tft.fillScreen(WHITE);    
+  tft.setCursor(0, 0);
+  tft.drawRoundRect(30,30, w-60, h-60, 20, tft.color565(255, 0, 0));
+  tft.fillRoundRect(50,50, w-100, h-100, 10, tft.color565(0, 0, 255));
+
+  tft.drawPixel(w/2-1, h/2-1, BLACK);
+  tft.drawPixel(w/2+1, h/2+1, BLACK);
+  tft.drawPixel(w/2-1, h/2+1, BLACK);
+  tft.drawPixel(w/2+1, h/2-1, BLACK);
+
+  delay(5000);
+}
+</code></pre>
+
+
+<p>Urmatorul exemplu demonstreaza utilizarea TouchScreen-ului:</p>
+
+
+<pre><code class="language-c">
+#include <Adafruit_GFX.h>
+#include <MCUFRIEND_kbv.h>
+MCUFRIEND_kbv tft;
+#include <TouchScreen.h>
+#define MINPRESSURE 200
+#define MAXPRESSURE 1000
+
+#define BLACK   0x0000
+#define BLUE    0x001F
+#define RED     0xF800
+#define GREEN   0x07E0
+#define CYAN    0x07FF
+#define MAGENTA 0xF81F
+#define YELLOW  0xFFE0
+#define WHITE   0xFFFF
+
+const int XP = 7, XM = A1, YP = A2, YM = 6;
+const int TS_LEFT = 170, TS_RIGHT = 950, TS_TOP = 900, TS_BOT = 180;
+
+TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
+Adafruit_GFX_Button on_btn, off_btn;
+
+int pixel_x, pixel_y;
+
+bool Touch_getXY(void)
+{
+    TSPoint p = ts.getPoint();
+    pinMode(YP, OUTPUT);    
+    pinMode(XM, OUTPUT);
+    digitalWrite(YP, HIGH);  
+    digitalWrite(XM, HIGH);
+    bool pressed = (p.z > MINPRESSURE && p.z < MAXPRESSURE);
+    if (pressed) {
+        pixel_x = map(p.y, TS_LEFT, TS_RIGHT, 0, tft.width()); //.kbv makes sense to me
+        pixel_y = map(p.x, TS_TOP, TS_BOT, 0, tft.height());
+    }
+    return pressed;
+}
+
+void setup(void)
+{
+    Serial.begin(9600);
+    uint16_t ID = tft.readID();
+    Serial.print("TFT ID = 0x");
+    Serial.println(ID, HEX);
+    tft.begin(ID);
+    tft.setRotation(1);            
+    tft.fillScreen(BLACK);
+    on_btn.initButton(&tft,  60, 200, 100, 40, WHITE, CYAN, BLACK, "ON", 2);
+    off_btn.initButton(&tft, 180, 200, 100, 40, WHITE, CYAN, BLACK, "OFF", 2);
+    on_btn.drawButton(false);
+    off_btn.drawButton(false);
+    tft.fillRect(40, 80, 160, 80, RED);
+}
+
+void loop(void)
+{
+    bool down = Touch_getXY();
+    on_btn.press(down && on_btn.contains(pixel_x, pixel_y));
+    off_btn.press(down && off_btn.contains(pixel_x, pixel_y));
+    if (on_btn.justReleased())
+        on_btn.drawButton();
+    if (off_btn.justReleased())
+        off_btn.drawButton();
+    if (on_btn.justPressed()) {
+        on_btn.drawButton(true);
+        tft.fillRect(40, 80, 160, 80, GREEN);
+    }
+    if (off_btn.justPressed()) {
+        off_btn.drawButton(true);
+        tft.fillRect(40, 80, 160, 80, RED);
+    }
+}
+</code></pre>
+
+
+<p>Urmatorul exemplu demonstreaza utilizarea cardului micro-SD (se recomanda folosirea bibliotecii SDFAT pentru lucrul cu cardul si nu cea default din Arduino):</p>
+
+
+<pre><code class="language-c">
+#include <Adafruit_GFX.h>
+#include <MCUFRIEND_kbv.h>
+MCUFRIEND_kbv tft;
+
+#include <SPI.h>
+#include <SD.h>
+
+#define BLACK   0x0000
+#define BLUE    0x001F
+#define RED     0xF800
+#define GREEN   0x07E0
+#define CYAN    0x07FF
+#define MAGENTA 0xF81F
+#define YELLOW  0xFFE0
+#define WHITE   0xFFFF
+
+void setup(void)
+{
+    Serial.begin(9600);
+    if (!SD.begin(10)) {
+      Serial.println("initialization failed!");
+      while (1);
+    }
+    Serial.println("initialization done.");
+    tft.reset();
+    uint16_t identifier = tft.readID();
+    Serial.println(identifier, HEX);
+    tft.begin(identifier);
+    tft.setRotation(1);
+}
+
+void loop(void)
+{
+  File root;
+  root = SD.open("/");
+  File entry =  root.openNextFile();
+
+  tft.fillScreen(0);
+  tft.setCursor(0, 0);
+  tft.setTextSize(2);
+
+  tft.setTextColor(WHITE);
+  tft.println("Pe card avem fisierele:");
+  tft.setTextSize(1);     
+  tft.setTextColor(GREEN);
+  while(entry)
+  {
+    Serial.print(entry.name());
+    tft.println(entry.name());
+    delay(300);
+    entry.close();
+    entry =  root.openNextFile();
+  }
+  delay(5000);
+}
+</code></pre>
+
+
+<p>Pe google drive exista un exemplu de BMP slide-show care afiseaza in ordine BMP-urile din folderul prezent in aceeasi locatie.</p>
+
+<h6> Problema 1 (3pt / 7pt) </h6>
+<p>Trimiteti comenzi pe serial, pentru a putea desena pe LCD linii, dreptunghiuri si cercuri. Se va trimite tipul figurii si parametri pentru desenare. De exemplu: "cerc 100, 120, 40" va desena un cerc cu centrul in x=100, y=120 avand o raza R=40. sau "dreptunghi 10, 30, 70, 199" va desena un dreptunghi avand doua colturi opuse la coordonatele 10,30 respectiv 70,199, etc.</p>
+
+<p>Formele desenate anterior nu se vor sgterge ci vor ramane pe ecran.</p>
+
+<p>Daca dupa desenare veti putea muta formele cu operatii de tip drag & drop realizate cu ajutorul touch-ului ecranului, veti mai primi 4 puncte.</p>
+
+<h6> Problema 2 (4pt/8pt) </h6>
+<p>Construiti un ceas, nu neaparat sa mearga la secunda ci cu un delay oarecare.</p>
+<p>Pentru 4p se va implementa un ceas digital, dar nu folosind fonturi standard, ci cifrele vor fi construite din linii / dreptunghiuri. Digitii vor avea culoare albastra, iar prin portul serial trebuie sa putem trimite viteza cu care trec secundele. Se va afisa HH:MM:SS.</p>
+<p>Pentru 8p se va implementa un ceas anlaogic. Cadrul trebuie sa fie un cerc plin albastru. Din 5 in 5 minute, se vor afisa circular cu alb minutele in cifre, iar deasupra lor va fi un punct galben. Intre puncte se vor trasa linii oblice din minut in minut. Ceasul trebuie sa aiba orar, minutar si secundar, care se vor misca corect. Trebuie sa puteti trimite pe portul serial, viteza cu care se misca acele.</p>
+
+<h6> Problema 3 (10pt) </h6>
+<p>Pe baza exemplului cu Touch, construiti o aplicatie calculator care sa aiba macar cifrele 0-9(3p) si operatori pentru adunare(1), scadere(1), inmultire(1) si = [aplicare calcul] (4p). Rezultatul se va afisa pe serial.</p>
+
+<h6> Problema 4 (6pt / 10pt) </h6>
+<p>Pe baza operatiilor din laboratorul anterior, implementati o interfata grafica minimala, pentru navigarea pe SD-CARD.</p>
+<p>Afisarea fisierelor ls (2p).</p>
+<p>Deschiderea / parasirea unui director cd (2p).</p>
+<p>Afisarea continutului unui fisier cat (2p).</p>
+<p>Comenzile le puteti trimite fie prin Touch, fie de la serial. Pentru cei care folosesc Touch-ul, se nai dau 4p.</p>
+
+<h6> Problema 5 (15pt) </h6>
+<p>Folosind ca suport un demo Paint, implementati o aplicatie care sa salveze ceea ce s-a desenat intr-un format de fisier descris de voi. Trebuie de asemenea sa puteti incarca pe ecran acel fisier, de pe SD-CARD, astfel incat fisierul sa arata la fel ca atunci cand l-ati salvat.</p>

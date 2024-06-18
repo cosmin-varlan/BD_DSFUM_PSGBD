@@ -1,0 +1,33 @@
+<p>Sa se creeze o serie de functii pentru lucruri cu sirurile de caractere.</p>
+
+<p>Va trebui sa implementati (macar) urmatoarele functii:</p>
+
+<ul>
+<li> strlen(sir) - va primi ca parametru un sir de caractere si va intoarce lungimea sa (prin cautarea caracterului null aflat la sfarsitul sirului).</li>
+<li> strcpy(sird,sirs,mem)  - va primi ca parametri sirul destinatie, sirul sursa si maximul de memorie alocat pentru sirul destinatie. Functia va copia sirul sursa in sirul destinatie doar daca aceasta copiere nu are ca rezultat un sir de lungime mai mare decat memoria alocata sirului destinatie. (de exemplu, daca sirul destinatie a vost declarat ca char s[10] atunci apelul strcpy(s, "Acesta este un test cu mai mult de 10 caractere", 10) nu va realiza copierea).  Functia va returna valoarea 0 daca nu a reusit sa faca copierea respectiv valoare 1 daca atunci cand copierea s-a realizat cu succes. Nu uitati ca in sirul destinatie trebuie inserat (la sfarsit) si caractereul null.</li>
+<li> strcat(sird,sirs,mem) - primeste ca parametri destinatie, sursa, memorie alocata destinatiei - face alipirea sirului sursa la sirul destinatie numai daca aceasta alipire nu depaseste memoria maxima alocata pentru sirul destinatie. Functia returneaza 0 sau 1 avand aceeasi semnificatie ca mai sus.</li>
+<li> strsearch(sir1, sir2) - cauta sirul sir2 in sir1. In cazul in care acesta este gasit, se returneaza pozitia la care incepe sir2 in sir1. Daca sirul nu este gasit se va returna valoarea -1. Atentie: comportamentul acestei functii este schimbat fata de strstr din c/c++ in sensul ca strstr returna un pointer catre sir2, in cazul acesta pointerul poate fi refacut adunand la sir1 valoarea returnata de sir2.</li>
+<li> getword(sird, mem, sirs, spatii, poz) - returneaza in sirul destinatie al poz-ulea cuvant nevid din sirs. Cuvintele pot fi despartite de oricare din simbolurile aflate in sirul spatii. Daca aceasta copiere nu poate avea loc din cauza ca memoria (mem) asociata sirului destinatie este prea mica, functia va returna 0. Daca functia nu poate copia sirul din cauza ca nu exista al poz-ulea cuvant in sirul sirs atunci cand cuvintele sunt despartite de caracterele din sirul spatii, atunci functia va returna -1. Atunci cand copierea cuvantului cautat a avut loc, functia va returna valoarea 1 si sirul cautat va fi copiat in sird. Valoarea poz poate fi un numar intre 0 si numarul de cuvinte din sirs (cuvinte despartite de simbolurile din "spatii").</li>
+</ul>
+
+
+ 
+<p>Exemple de apeluri si rezultatelele lor:</p>
+<p> getword(s, 20, "Salut, acesta... este un test! ", ", .!",1) </p>
+<p> - functia va returna 1 si ca copia in s cuvantul "acesta".</p>
+
+<p> getword(s, 20, "Salut, acesta... este un test! ", ", .!",5) </p>
+<p> - functia va returna -1 pentru ca sunt doar 4 cuvinte conform specificatiilor.</p>
+
+<p> getword(s, 4, "Salut, acesta... este un test! ", ", .!",2) </p>
+<p> - functia va returna 0 pentru ca "este" are 4 caractere si mai are nevoie de inca unu pentru terminator (deci 5 in total) si nu poate incapea in memoria de 4 data.</p>
+
+<ul>
+<li> strlwr(sir) - transforma toare caracterele din sir in caractere mici (A-Z devine a-z; in rest raman neschimbate). Schimbarea va fi efectuata direct in sir.</li>
+<li> strupr(sir) - transforma toare caracterele din sir in caractere mari (a-z devine A-Z; in rest raman neschimbate). Schimbarea va fi efectuata direct in sir.</li>
+<li> atoi(sir) - primeste in variabila sir o valoare numerica intreaga (poate fi si negativa) si returneaza valoarea ca numar intreg (nu long long, ci doar int). </li>
+<li> strserial(dest, mem) - copie sirul transmis din consola seriala in sirul "dest" daca memoria pentru aceasta copiere este suficienta. Returneaza 1 daca s-a reusit aceasta copiere, 0 in caz contrar.</li>
+</ul>
+
+
+

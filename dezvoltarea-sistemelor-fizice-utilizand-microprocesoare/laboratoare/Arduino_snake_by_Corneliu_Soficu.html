@@ -1,0 +1,564 @@
+<p>Snake pentru Arduino cu ecran 16x2 LCD folosing libraria LiquidCrystal.h</p>
+
+<p>Poate fi jucat clasicul joc Snake, varianta simpla, fara pereti. </p>
+<p>Dificultatea creste, marindu-se viteza snake-ului la fiecare punct obtinut. </p>
+<p>Jocul se opreste in momentul in care snake-ul se loveste de el insusi.</p>
+
+<p>Pentru a muta snake-ul se folosesc butoanele de pe shield: UP, DOWN, LEFT, RIGHT</p>
+<p>Daca acelasi buton este apasat de mai multe ori, directia snake-ului nu se va schimba.</p>
+<p>Similar si daca se apasa un buton in directia opusa deplasarii snake-ului.</p>
+
+<p>Pentru a prelua valoarea butonului, se folosesc intervale definite in cod, verificate cu output-ul</p>
+<p>functiei analogRead();</p>
+
+<p>Pentru a putea prelua corect valoarea butoanelor, trebuie modificate urmatoarele macro-uri </p>
+<p>in functie de configuratia ecranului folosit:</p>
+
+<p>#define UP_BUTTON_LOWER_BOUND 1</p>
+<p>#define UP_BUTTON_UPPER_BOUND 99</p>
+
+<p>#define DOWN_BUTTON_LOWER_BOUND 100</p>
+<p>#define DOWN_BUTTON_UPPER_BOUND 255</p>
+
+<p>#define LEFT_BUTTON_LOWER_BOUND 256</p>
+<p>#define LEFT_BUTTON_UPPER_BOUND 408</p>
+
+<p>#define RIGHT_BUTTON_LOWER_BOUND 0</p>
+<p>#define RIGHT_BUTTON_UPPER_BOUND 0</p>
+
+<p>Acelasi lucru ar trebui facut si pentru macro-ul #define BUTTON A0 astfel incat sa fie specificat</p>
+<p>pinul la care sunt conectate butoanele.</p>
+
+<p>Inbunatatiri posibile:</p>
+<ul>
+<li> Debouncing la butoane;</li>
+<li> Mai multe niveluri posibile, ex: cu pereti;</li>
+</ul>
+
+
+<p><source lang="c"></p>
+<ul>
+<li></li>
+<li> Made by Corneliu-Dumitru Soficu </li>
+<li> 06 November 2017</li>
+</ul>
+
+
+<p>#include <LiquidCrystal.h></p>
+
+<p>#define BUTTON A0</p>
+
+<ul>
+<li> Liquid crystal configuration variables */</li>
+</ul>
+
+
+<p>#define RS 8</p>
+<p>#define ENABLE 9</p>
+<p>#define D4 4</p>
+<p>#define D5 5</p>
+<p>#define D6 6</p>
+<p>#define D7 7</p>
+
+<p>#define BUTTON A0</p>
+
+<ul>
+<li> Bounds for buttons analog read</li>
+<li> Must be modified according to </li>
+<li> specific configuration</li>
+</ul>
+
+
+<p>#define UP_BUTTON_LOWER_BOUND 1</p>
+<p>#define UP_BUTTON_UPPER_BOUND 99</p>
+
+<p>#define DOWN_BUTTON_LOWER_BOUND 100</p>
+<p>#define DOWN_BUTTON_UPPER_BOUND 255</p>
+
+<p>#define LEFT_BUTTON_LOWER_BOUND 256</p>
+<p>#define LEFT_BUTTON_UPPER_BOUND 408</p>
+
+<p>#define RIGHT_BUTTON_LOWER_BOUND 0</p>
+<p>#define RIGHT_BUTTON_UPPER_BOUND 0</p>
+
+<ul>
+<li> Posibble directions for snake movement */</li>
+</ul>
+
+
+<p>enum ButtonType</p>
+{
+<p>    up,</p>
+<p>    down,</p>
+<p>    left,</p>
+<p>    right,</p>
+<p>    none</p>
+<p>};</p>
+
+<p>LiquidCrystal lcd(RS, ENABLE, D4, D5, D6, D7);</p>
+
+<p>int gameSpeed;</p>
+<p>boolean gameOver;</p>
+
+<ul>
+<li> Matrix used for each individual pixel representation */</li>
+</ul>
+
+
+<p>boolean x[16][80];</p>
+
+<ul>
+<li> Byte representation for a single row */</li>
+</ul>
+
+
+<p>byte myChar[8];</p>
+
+<ul>
+<li> Special flag used to print the snake or the food */</li>
+</ul>
+
+
+<p>boolean special;</p>
+
+<ul>
+<li> Current button input */</li>
+</ul>
+
+
+<p>int btn;</p>
+
+<ul>
+<li> Snake element representation using a simple linked list </li>
+<li> containing the row and col position in the 16 x 80 pixel matrix,</li>
+<li> the direction of movement and the next body part of the snake.</li>
+</ul>
+
+
+<p>struct partdef</p>
+{
+<p>    int row, column, dir;</p>
+<p>    struct partdef *next;</p>
+<p>};</p>
+<p>typedef partdef part;</p>
+
+<ul>
+<li> Head and tail of snake */</li>
+</ul>
+
+
+<p>part *head, *tail;</p>
+
+<p>int i, j, collected = 0;</p>
+
+<ul>
+<li> Coordinates for snake food */</li>
+</ul>
+
+
+<p>long pc, pr;</p>
+
+<ul>
+<li>  Function for creating a new food pixel */</li>
+</ul>
+
+
+<p>void newPoint()</p>
+{
+
+<p>    part *p;</p>
+<p>    p = tail;</p>
+<p>    boolean newp = true;</p>
+
+<p>    /* Generates random coordinates for the food pixel</p>
+<ul>
+<li> until the first available one is found</li>
+</ul>
+
+
+<p>    while (newp)</p>
+<p>    {</p>
+<p>        pr = random(16);</p>
+<p>        pc = random(80);</p>
+<p>        newp = false;</p>
+<p>        while (p->next != NULL && !newp)</p>
+<p>        {</p>
+<p>            if (p->row == pr && p->column == pc)</p>
+<p>                newp = true;</p>
+<p>            p = p->next;</p>
+<p>        }</p>
+<p>    }</p>
+
+<p>    if (collected < 13)</p>
+<p>    {</p>
+<p>        growSnake();</p>
+<p>    }</p>
+}
+
+<ul>
+<li> Draws the current state of the matrix at each loop() iteration */</li>
+</ul>
+
+
+<p>void drawMatrix()</p>
+{
+
+<p>    /* Variable used for special character registration */</p>
+<p>    int cc = 0;</p>
+
+<p>    if (!gameOver)</p>
+<p>    {</p>
+<p>        /* Food pixel is turned on */</p>
+<p>        x[pr][pc] = true;</p>
+
+<p>        /* Each row */</p>
+<p>        for (int r = 0; r < 2; r++)</p>
+<p>        {   </p>
+<p>            /* Each cell */</p>
+<p>            for (int c = 0; c < 16; c++)</p>
+<p>            {</p>
+<p>                special = false;</p>
+<p>                /* Each sub row */</p>
+<p>                for (int i = 0; i < 8; i++)</p>
+<p>                {</p>
+<p>                    /* Byte representation of the pixel row in the cell */</p>
+<p>                    byte b = B00000;</p>
+
+<p>                    /* Checks for each sub column of the cell */</p>
+<p>                    if (x[r * 8 + i][c * 5 + 0])</p>
+<p>                    {</p>
+<p>                        b += B10000;</p>
+<p>                        special = true;</p>
+<p>                    }</p>
+<p>                    if (x[r * 8 + i][c * 5 + 1])</p>
+<p>                    {</p>
+<p>                        b += B01000;</p>
+<p>                        special = true;</p>
+<p>                    }</p>
+<p>                    if (x[r * 8 + i][c * 5 + 2])</p>
+<p>                    {</p>
+<p>                        b += B00100;</p>
+<p>                        special = true;</p>
+<p>                    }</p>
+<p>                    if (x[r * 8 + i][c * 5 + 3])</p>
+<p>                    {</p>
+<p>                        b += B00010;</p>
+<p>                        special = true;</p>
+<p>                    }</p>
+<p>                    if (x[r * 8 + i][c * 5 + 4])</p>
+<p>                    {</p>
+<p>                        b += B00001;</p>
+<p>                        special = true;</p>
+<p>                    }</p>
+<p>                    myChar[i] = b;</p>
+
+
+<p>                }</p>
+
+<p>                if (special)</p>
+<p>                {</p>
+<p>                    /* Registers the snake or food representation of the cell as a special character and prints it */</p>
+<p>                    lcd.createChar(cc, myChar);</p>
+<p>                    lcd.setCursor(c, r);</p>
+<p>                    lcd.write(byte(cc));</p>
+<p>                    cc++;</p>
+<p>                }</p>
+
+<p>                else</p>
+<p>                {</p>
+<p>                    /* Prints whitespace if there is not snake part or food in the cell */</p>
+<p>                    lcd.setCursor(c, r);</p>
+<p>                    lcd.print(' ');</p>
+<p>                }</p>
+<p>            }</p>
+<p>        }</p>
+<p>    }</p>
+}
+
+<ul>
+<li> Deletes the snake, used on game reset */</li>
+</ul>
+
+
+<p>void freeList()</p>
+{
+<p>    part *p, *q;</p>
+<p>    p = tail;</p>
+<p>    while (p != NULL)</p>
+<p>    {</p>
+<p>        q = p;</p>
+<p>        p = p->next;</p>
+<p>        free(q);</p>
+<p>    }</p>
+<p>    head = tail = NULL;</p>
+}
+
+<ul>
+<li> Creates a new snake part, copies the tail data in the new node and assignes a new tail */ </li>
+</ul>
+
+
+<p>void growSnake()</p>
+{
+<p>    part *p;</p>
+<p>    p = (part *)malloc(sizeof(part));</p>
+<p>    p->row = tail->row;</p>
+<p>    p->column = tail->column;</p>
+<p>    p->dir = tail->dir;</p>
+<p>    p->next = tail;</p>
+<p>    tail = p;</p>
+}
+
+<ul>
+<li> Rewrites the matrix content according to the new snake direction */</li>
+</ul>
+
+
+<p>void moveHead()</p>
+{
+<p>    /* Modifies the head row and column according to direction */</p>
+<p>    switch (head->dir)</p>
+<p>    {</p>
+<p>    case up:</p>
+<p>        head->row--;</p>
+<p>        break;</p>
+<p>    case down:</p>
+<p>        head->row++;</p>
+<p>        break;</p>
+<p>    case right:</p>
+<p>        head->column++;</p>
+<p>        break;</p>
+<p>    case left:</p>
+<p>        head->column--;</p>
+<p>        break;</p>
+<p>    default:</p>
+<p>        break;</p>
+<p>    }</p>
+
+<p>    /* At end of screen, snake goes to the other side */</p>
+<p>    if (head->column >= 80)</p>
+<p>        head->column = 0;</p>
+<p>    if (head->column < 0)</p>
+<p>        head->column = 79;</p>
+<p>    if (head->row >= 16)</p>
+<p>        head->row = 0;</p>
+<p>    if (head->row < 0)</p>
+<p>        head->row = 15;</p>
+
+
+<p>    /* Checks for snake collision with itself */</p>
+<p>    part *p;</p>
+<p>    p = tail;</p>
+<p>    while (p != head && !gameOver)</p>
+<p>    {</p>
+<p>        if (p->row == head->row && p->column == head->column)</p>
+<p>            gameOver = true;</p>
+<p>        p = p->next;</p>
+<p>    }</p>
+
+<p>    /* Updates the matrix snake representation */</p>
+<p>    x[head->row][head->column] = true;</p>
+
+<p>    /* Checks for snake eating the food */</p>
+<p>    if (head->row == pr && head->column == pc)</p>
+<p>    {</p>
+<p>        collected++;</p>
+<p>        if (gameSpeed < 25)</p>
+<p>            gameSpeed += 3;</p>
+<p>        newPoint();</p>
+<p>    }</p>
+}
+
+<ul>
+<li> Moves the snake by updating the snake elements from tail to head */</li>
+</ul>
+
+
+<p>void moveAll()</p>
+{
+<p>    part *p;</p>
+<p>    p = tail;</p>
+<p>    x[p->row][p->column] = false;</p>
+<p>    while (p->next != NULL)</p>
+<p>    {</p>
+<p>        p->row = p->next->row;</p>
+<p>        p->column = p->next->column;</p>
+<p>        p->dir = p->next->dir;</p>
+<p>        p = p->next;</p>
+<p>    }</p>
+<p>    moveHead();</p>
+}
+
+<ul>
+<li> Creates a custom sized snake, by allocating new nodes and linking them together */</li>
+</ul>
+
+
+<p>void createSnake(int n) // n = size of snake</p>
+{
+<p>    for (i = 0; i < 16; i++)</p>
+<p>        for (j = 0; j < 80; j++)</p>
+<p>            x[i][j] = false;</p>
+
+<p>    part *p, *q;</p>
+<p>    tail = (part *)malloc(sizeof(part));</p>
+
+<p>    /* Positions the snake at the 7th pixel row and starting from the 39th pixel column*/</p>
+<p>    tail->row = 7;</p>
+<p>    tail->column = 39 + n / 2;</p>
+
+<p>    tail->dir = left;</p>
+<p>    q = tail;</p>
+<p>    x[tail->row][tail->column] = true;</p>
+<p>    for (i = 0; i < n - 1; i++)</p>
+<p>    {</p>
+<p>        p = (part *)malloc(sizeof(part));</p>
+<p>        p->row = q->row;</p>
+<p>        p->column = q->column - 1;</p>
+<p>        x[p->row][p->column] = true;</p>
+<p>        p->dir = q->dir;</p>
+<p>        q->next = p;</p>
+<p>        q = p;</p>
+<p>    }</p>
+<p>    if (n > 1)</p>
+<p>    {</p>
+<p>        p->next = NULL;</p>
+<p>        head = p;</p>
+<p>    }</p>
+<p>    else</p>
+<p>    {</p>
+<p>        tail->next = NULL;</p>
+<p>        head = tail;</p>
+<p>    }</p>
+}
+
+<ul>
+<li> Starts the game */</li>
+</ul>
+
+
+<p>void startF()</p>
+{
+<p>    gameOver = false;</p>
+<p>    gameSpeed = 3;</p>
+<p>    freeList();</p>
+<p>    createSnake(3);</p>
+<p>    countDown(3);</p>
+}
+
+<ul>
+<li> Registers button press from the buttonBin from 4 multiplexed buttons */</li>
+</ul>
+
+
+<p>int getButtonPress(int buttonPin)</p>
+{
+
+<p>    //TODO: Button Debouncing</p>
+
+<p>    int sensorValue = analogRead(buttonPin);</p>
+
+<p>    ButtonType btn = none;</p>
+
+<p>    if (sensorValue >= UP_BUTTON_LOWER_BOUND && sensorValue <= UP_BUTTON_UPPER_BOUND)</p>
+<p>    {</p>
+<p>        btn = up;</p>
+<p>    }</p>
+
+<p>    else if (sensorValue >= DOWN_BUTTON_LOWER_BOUND && sensorValue <= DOWN_BUTTON_UPPER_BOUND)</p>
+<p>    {</p>
+<p>        btn = down;</p>
+<p>    }</p>
+
+<p>    else if (sensorValue >= LEFT_BUTTON_LOWER_BOUND && sensorValue <= LEFT_BUTTON_UPPER_BOUND)</p>
+<p>    {</p>
+<p>        btn = left;</p>
+<p>    }</p>
+
+<p>    else if (sensorValue >= RIGHT_BUTTON_LOWER_BOUND && sensorValue <= RIGHT_BUTTON_UPPER_BOUND)</p>
+<p>    {</p>
+<p>        btn = right;</p>
+<p>    }</p>
+
+<p>    return btn;</p>
+}
+
+<p>void setup()</p>
+{
+
+<p>    gameSpeed = 3;</p>
+<p>    lcd.begin(16, 2);</p>
+<p>    startF();</p>
+}
+
+<ul>
+<li> Simple countdown before game start or reset */</li>
+</ul>
+
+
+<p>void countDown(int time)</p>
+{
+<p>    for (int i = time; i > 0; i--)</p>
+<p>    {</p>
+<p>        lcd.setCursor(7, 0);</p>
+<p>        lcd.print(i);</p>
+<p>        delay(1000);</p>
+<p>    }</p>
+<p>    lcd.clear();</p>
+}
+
+<ul>
+<li> Prints score and restores to initial state */</li>
+</ul>
+
+
+<p>void resetGame()</p>
+{
+<p>    delay(3000);</p>
+<p>    lcd.clear();</p>
+<p>    lcd.home();</p>
+<p>    lcd.print("Score: ");</p>
+<p>    lcd.setCursor(7, 0);</p>
+<p>    lcd.print(collected);</p>
+<p>    delay(3000);</p>
+<p>    lcd.clear();</p>
+<p>    startF();</p>
+}
+
+<p>void loop()</p>
+{
+<p>    </p>
+<p>    /* Registers button input and assignes new direction to snake head */</p>
+<p>    btn = getButtonPress(BUTTON);</p>
+<p>    if (btn != none)</p>
+<p>    {</p>
+<p>        if (btn == up && head->dir != down)</p>
+<p>        {</p>
+<p>            head->dir = up;</p>
+<p>        }</p>
+<p>        if (btn == down && head->dir != up)</p>
+<p>        {</p>
+<p>            head->dir = down;</p>
+<p>        }</p>
+<p>        if (btn == right && head->dir != left)</p>
+<p>        {</p>
+<p>            head->dir = right;</p>
+<p>        }</p>
+<p>        if (btn == left && head->dir != right)</p>
+<p>        {</p>
+<p>            head->dir = left;</p>
+<p>        }</p>
+<p>    }</p>
+
+<p>    /* Delay used for game difficulty */</p>
+<p>    delay(1000 / gameSpeed);</p>
+
+<p>    moveAll();</p>
+<p>    drawMatrix();</p>
+
+<p>    if (gameOver)</p>
+<p>    {</p>
+<p>        resetGame();</p>
+<p>    }</p>
+}
+<p></source></p>

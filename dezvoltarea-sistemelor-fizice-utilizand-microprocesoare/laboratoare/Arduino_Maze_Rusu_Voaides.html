@@ -1,0 +1,188 @@
+<p>Jocul a fost conceput pentru un LCD 16x2, utilizand libraria LiquidCrystal.h, fiind necesare 4 butoane: UP,</p>
+<p>DOWN LEFT si RIGHT.</p>
+
+
+<p>Obiectivul este destul de simplu: omuletul trebuie sa evite inimile din calea sa pentru a ajunge la iesire.</p>
+<p>Cand acesta o gaseste, adica paraseste ecranul prin extremitatea dreapta, ai castigat. Omuletul se poate</p>
+<p>misca apasand unul dintre butoanele UP, DOWN, LEFT sau RIGHT pentru care s-au preluat o valoare</p>
+<p>inferioara si una superioara a curentului ca sa intelegem ce buton a fost apasat.</p>
+
+
+<p>Ce poate fi imbunatatit:</p>
+<ul>
+<li> Harta sa nu fie limitata doar de ecran, ci sa fie una mai lunga. Adica in timp ce omuletul se deplaseaza, LCD-ul sa descopere putin cate putin din harta;</li>
+<li> Proiectile care sa incerce sa opreasca caracterul sa avanseze. Astfel putem oferi si o stare finala nefavorabila (in cazul in care omuletul e lovit), nu numai una castigatoare;</li>
+</ul>
+
+
+<p><source lang="c"></p>
+<ul>
+<li>  Realizat de Rusu Andrei Mircea si Voaides Alexandru</li>
+<li>  Anul 3, Grupa B4</li>
+</ul>
+
+
+<p>#include <LiquidCrystal.h></p>
+
+<p>const int rs = 8, en = 9, d4 = 4, d5 = 5, d6 = 6, d7 = 7;</p>
+<p>LiquidCrystal lcd(rs, en, d4, d5, d6, d7);</p>
+
+<p>// the custom characters</p>
+<p>byte heart[8] = {</p>
+<p>  0b00000,</p>
+<p>  0b01010,</p>
+<p>  0b11111,</p>
+<p>  0b11111,</p>
+<p>  0b11111,</p>
+<p>  0b01110,</p>
+<p>  0b00100,</p>
+<p>  0b00000</p>
+<p>};</p>
+
+<p>byte armsDown[8] = {</p>
+<p>  0b00100,</p>
+<p>  0b01010,</p>
+<p>  0b00100,</p>
+<p>  0b00100,</p>
+<p>  0b01110,</p>
+<p>  0b10101,</p>
+<p>  0b00100,</p>
+<p>  0b01010</p>
+<p>};</p>
+
+<p>byte armsUp[8] = {</p>
+<p>  0b00100,</p>
+<p>  0b01010,</p>
+<p>  0b00100,</p>
+<p>  0b10101,</p>
+<p>  0b01110,</p>
+<p>  0b00100,</p>
+<p>  0b00100,</p>
+<p>  0b01010</p>
+<p>};</p>
+
+<p>int gameMatrix[2][16] = </p>
+{
+<p>  0, 1 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0, 0 , 0, 0, 1, 1,</p>
+<p>  2, 0 , 0 , 1 , 0 , 1 , 0 , 0 , 0 , 0 , 1, 1 , 1, 0, 0, 0</p>
+<p>}; // 0 for empty, 1 for obstacles, 2 for the player</p>
+
+<p>int playerL=1; // current player line</p>
+<p>int playerC=0; // current player column</p>
+
+<p>bool gameWon = 0;</p>
+<p>bool gameWonShown = 0;</p>
+
+<p>int lcd_key;</p>
+
+<p>void setup() {</p>
+<p>  // initialize LCD and set up the number of columns and rows</p>
+<p>  lcd.begin(16, 2);</p>
+
+<p>  lcd.createChar(0, heart);</p>
+<p>  lcd.createChar(1, armsDown);</p>
+<p>  lcd.createChar(2, armsUp);</p>
+
+<p>  lcd.setCursor(0, 0);</p>
+<p>  printMatrix();</p>
+}
+
+<p>void printMatrix()</p>
+{
+<p>  lcd.clear();</p>
+<p>  lcd.setCursor(0, 0);</p>
+<p>  </p>
+<p>  for (int i=0;i<=1;i++)</p>
+<p>    for (int j=0;j<=15;j++)</p>
+<p>      {</p>
+<p>        lcd.setCursor(j,i);</p>
+<p>        if (gameMatrix[i][j]==1)</p>
+<p>          lcd.write((byte)0); // heart "obstacle"</p>
+<p>        else if (gameMatrix[i][j]==2)</p>
+<p>          {</p>
+<p>            if (i==0)</p>
+<p>              lcd.write(2); // hands up when "in-air"</p>
+<p>            else lcd.write(1); // hands down when "on earth"</p>
+<p>          }</p>
+<p>        else lcd.write("");</p>
+<p>      }</p>
+}
+
+<p>int read_LCD_buttons()</p>
+{
+<p>  int sensorValue = analogRead(A0);</p>
+<p>  delay(80);</p>
+<p>  sensorValue = analogRead(A0);</p>
+<p>  return sensorValue;</p>
+}
+
+<p>// empty current player location and move the new location in the game matrix</p>
+<p>void moveToLocation(int playerNewL, int playerNewC)</p>
+{
+<p>  gameMatrix[playerL][playerC] = 0;</p>
+<p>  gameMatrix[playerNewL][ playerNewC] = 2;</p>
+<p>  playerL=playerNewL;</p>
+<p>  playerC=playerNewC;</p>
+<p>  printMatrix();</p>
+}
+
+<p>void loop() {</p>
+
+<p>   if (!gameWon)</p>
+<p>   { </p>
+<p>     if (!gameWonShown) // if already won, show message only if not already shown</p>
+<p>     {</p>
+<p>       lcd.clear();</p>
+<p>       lcd.print("YOU WON");</p>
+<p>       gameWonShown = true;</p>
+<p>     }</p>
+<p>   }</p>
+<p>   else{</p>
+<p>    </p>
+<p>    lcd_key = read_LCD_buttons();</p>
+<p>   </p>
+<p>    if(lcd_key < 1000)</p>
+<p>    {</p>
+<p>      //LEFT</p>
+<p>      if(lcd_key > 405 && lcd_key < 413)</p>
+<p>      {</p>
+<p>        if(playerC >= 1)</p>
+<p>        {</p>
+<p>          if (gameMatrix[playerL][ playerC - 1] != 1) moveToLocation(playerL, playerC - 1);</p>
+<p>        }</p>
+<p>      }</p>
+<p>   </p>
+<p>      //DOWN</p>
+<p>      if(lcd_key > 252 && lcd_key < 259)</p>
+<p>      {</p>
+<p>        if(playerL== 0)</p>
+<p>        {</p>
+<p>          if (gameMatrix[playerL + 1][ playerC] != 1) moveToLocation(playerL +1, playerC);</p>
+<p>        }</p>
+<p>      }</p>
+<p>   </p>
+<p>      //UP</p>
+<p>      if(lcd_key > 96 && lcd_key < 104)</p>
+<p>      {</p>
+<p>        if(playerL == 1)</p>
+<p>        {</p>
+<p>          if (gameMatrix[playerL -1][ playerC] != 1) moveToLocation(playerL -1, playerC);</p>
+<p>        }</p>
+<p>      }</p>
+<p>   </p>
+<p>      //RIGHT</p>
+<p>      if(lcd_key >= 0 && lcd_key < 6)</p>
+<p>      {</p>
+<p>        if(playerC <= 14)</p>
+<p>        {</p>
+<p>          if (gameMatrix[playerL][ playerC + 1] != 1)</p>
+<p>               moveToLocation(playerL, playerC+1);        </p>
+<p>        }</p>
+<p>        else if (playerC==15) // if on the last column and trying to move right, the game is won</p>
+<p>          gameWon=true;</p>
+<p>      }</p>
+<p>    }</p>
+<p>   }</p>
+<p>   </p>
+}
+<p></source></p>

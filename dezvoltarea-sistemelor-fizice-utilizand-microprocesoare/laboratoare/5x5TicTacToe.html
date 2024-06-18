@@ -1,0 +1,249 @@
+<p>Programati un Arduino pentru a juca X si 0 pe o suprafata de 5x5. Castiga cel care completeaza 4 pozitii consecutive (linie, coloana sau diagonala). Primiti punctele daca Arduino joaca decent. </p>
+
+<p>Pentru a trimite coordonatele in care utilizatorul doreste sa faca mutarea se va folosi portul serial. Configuratia va fi afisata pe portul serial dupa fiecare mutare.</p>
+
+
+
+<pre><code class="language-c">
+
+#include <string.h>
+#define MAX_DEPTH 3
+
+char t[] = {'.', 'X', 'O'};
+int x, y, mv[30], lgmv;
+int color = 1;
+int ard = 0, user = 0;
+int init_color = 1, fm, nrm;
+struct mat
+{ 
+  char v[5][5];
+
+  mat()
+  {
+    memset(v, 0, sizeof(v));
+  }
+
+  int set(int x, int y, int color)
+  {
+    v[x][y] = color;
+  }
+
+  void print()
+  {
+    Serial.println(" 01234");
+    for(int i = 0; i < 5; i++)
+    {
+      Serial.print(i);
+      for(int j = 0; j < 5; j++)
+        Serial.print(t[v[i][j]]);
+      Serial.println();
+    }
+    Serial.println("======");
+  }
+
+  int eval(int color)
+  {
+    int nr[] = {0, 0, 0, 0, 0, 0};
+    int fre[] = {0, 0, 0, 0, 0, 0};
+    int free3 = 0;
+
+    for(int i = 0; i < 2; i++)
+      for(int j = 0; j < 5; j++) {
+        int nc = 0, n0 = 0;
+        for(int k = 0; k <= 3; k++)
+        {
+          if(v[i + k][j] == color) nc++;
+          else if(v[i + k][j] == 3 - color) 
+          {
+            n0++;
+            break;
+          }
+        }
+        if(n0 == 0)
+          nr[nc]++;  
+      }
+
+    for(int i = 0; i < 5; i++)
+      for(int j = 0; j < 2; j++) {
+        int nc = 0, n0 = 0;
+        for(int k = 0; k <= 3; k++)
+        {
+          if(v[i][j + k] == color) nc++;
+          else if(v[i][j + k] == 3 - color)
+          {
+            n0++;
+            break;
+          }
+        }
+        if(n0 == 0)
+          nr[nc]++;
+      }
+      
+    for(int i = 0; i < 2; i++)
+      for(int j = 0; j < 2; j++) {
+        int nc = 0, n0 = 0;
+        for(int k = 0; k <= 3; k++)
+        {
+          if(v[i + k][j + k] == color) nc++;
+          else if(v[i + k][j + k] == 3 - color) {
+            n0++;
+            break;
+          }
+        }
+        if(n0 == 0)
+          nr[nc]++;
+      }
+
+       
+    for(int i = 0; i < 2; i++)
+      for(int j = 3; j < 5; j++) {
+        int nc = 0, n0 = 0;
+        for(int k = 0; k <= 3; k++)
+        {
+          if(v[i + k][j - k] == color) nc++;
+          else if(v[i + k][j - k] == 3 - color) {
+            n0++;
+            break;
+          }
+        }
+        if(n0 == 0)
+          nr[nc]++;
+      }
+    return nr[4] * 1000 + nr[3] * 160 + nr[2] * 8 + nr[1];
+  }
+} cstate;
+
+
+int dfs(mat state, int color, int depth)
+{
+  int val = state.eval(init_color) - state.eval(3 - init_color);
+  //int val = state.eval(color) - state.eval(3 - color);
+  //int val = state.eval(color);
+  
+  if(depth == MAX_DEPTH) return val;
+  if(val >= 320) return val;
+
+  int ans = (depth % 2 == 1 ? 1000000 : -1000000);
+
+  for(int i = 0; i < 5; i++)
+      for(int j = 0; j < 5; j++) {
+        if(state.v[i][j] == 0)
+        {
+          mat state_to = state;
+          state_to.set(i, j, color);
+          int rez = dfs(state_to, 3 - color, depth + 1);
+          if(depth == 1)
+          {
+            if(rez == ans)
+            {
+              mv[lgmv++] = i * 5 + j;
+            }
+            if(rez < ans){
+              mv[0] = i * 5 + j;
+              lgmv = 1;
+              ans = rez;
+            }
+          }
+          else
+          ans = (depth % 2 == 1 ? min(ans, rez) : max(ans, rez));
+        }
+      }
+  return ans;
+}
+
+
+void setup() {
+  Serial.begin(115200);
+  color = init_color;
+  /*
+  cstate.set(2, 2, 1);
+  cstate.print();
+  */
+  cstate.print();
+}
+
+void print_score()
+{
+  Serial.print("User:    ");
+  Serial.println(user);
+  Serial.print("Arduino: ");
+  Serial.println(ard);
+  }
+
+void reset()
+{
+  print_score();
+  init_color = 3 - init_color;
+  color = init_color;
+  cstate = mat();
+  fm = 1;
+  nrm = 0;
+}
+
+void loop() 
+{
+  // put your main code here, to run repeatedly:
+
+
+  if(fm == 1 && color == 2)
+  {
+    cstate.set(2, 2, 1);
+    cstate.print();
+    fm = 0;
+    nrm++;
+  }
+  
+  //if(true)
+  if(Serial.available() > 0)
+  { 
+
+    //cin >> x >> y;
+    x = Serial.parseInt();
+    y = Serial.parseInt();
+    cstate.set(x, y, color);
+    cstate.print();
+    Serial.println(cstate.eval(color));
+    //cout << cstate.eval(color) << '\n';
+    nrm++;
+    if(cstate.eval(color) > 1000)
+    {
+      Serial.println("=====\nUser Wins\n=====");
+      //cout << "=====\nUser Wins\n=====";
+      user++;
+      reset();
+    }
+    else if(nrm == 25){
+      Serial.println("=====\nDraw\n=====");
+      //cout << "=====\nDraw!\n=====";
+      reset();
+    }
+    else
+    {
+    color = 3 - color;
+    int r = dfs(cstate, color, 1);
+    //Serial.println(mv[0]);
+    //Serial.println(r);
+    int index = rand() % lgmv;
+    cstate.set(mv[0] / 5, mv[0] % 5, color);
+    lgmv = 0;
+    cstate.print();
+    nrm++;
+      if(cstate.eval(color) > 1000)
+      {
+        Serial.println("=====\nArduino Wins\n=====");
+        //cout << "=====\nArduino Wins\n=====";
+        ard++;
+        reset();
+      }
+      else if(nrm == 25){
+        Serial.println("=====\nDraw\n=====");
+        //cout << "=====\nDraw!\n=====";
+        reset();
+      }
+      else 
+      color = 3 - color;
+    }  
+  }
+ }
+</code></pre>
+

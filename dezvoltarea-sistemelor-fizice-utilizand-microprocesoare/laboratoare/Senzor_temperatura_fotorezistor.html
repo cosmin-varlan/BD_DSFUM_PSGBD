@@ -1,0 +1,49 @@
+
+<h2> Fotorezistenta </h2>
+
+<p>Conducţia electrica intr-un semiconductor are loc datorită mişcării purtătorilor de sarcina (electroni si goluri). </p> <p>Prin fenomenul de fotoconducţie se înţelege creşterea conducţiei unui material  datorita generării de purtători de sarcină suplimentari sub influenţa radiaţiei luminoase.</p>
+<p>Printr-un semiconductor supus unei diferenţe de potenţial U va trece un curent electric slab (de întuneric), care creşte, atunci când semiconductorul este iluminat, datorită '''fotoconducţiei'''. Intensitatea fotocurentului, diferită de cea a curentului de întuneric, depinde de temperatură, tensiunea electrică aplicată şi de durata iluminării. Conductibilitatea electrică totală σt este datorată electronilor (de concentraţie n) şi golurilor (de concentratie p), si avand mobilităţile μ n, respectiv μp :</p>
+
+<p><code><b> σt = σ = μn n + μp </b></code></p>
+
+<p>La intuneric conductibilitatea se datorează purtătorilor de sarcina de echilibru (electroni de concentratie n = n0 si goluri de concentratie p = p0), conductibilitatea totală fiind numită si conductibilitatea de întuneric . σ0 întuneric|</p>
+
+<p><code><b> σi = σ0 = μn n0 + μp p0 </b></code></p>
+
+<p>Prin iluminare, concentraţia de electroni creşte de la n0 la n, iar cea de goluri de la p0 la p.  </p>
+
+<p><code><b> σ iluminare = σi+σf </b></code></p>
+
+<p>unde σf este conductibilitatea datorită iluminării, sau fotoconductibilitatea, datorata crearii excesului de purtători Δn, respective Δp. </p>
+
+<p>Intensitatea curentului electric de fotoconductie (fotorăspuns) este direct proporţională cu numărul total de fotoni absorbiţi (G) în volumul probei semiconductoare luminate şi cu sarcina electronului. Factorul de proportionalitate A se numeşte “coeficient de amplificare” de conducţie:   </p>
+<p><code> <b> ΔI= AGe </b> </code></p>
+
+
+
+<p>Pentru conectarea la un Arduino, ne trebuie un resistor de aprox. 10k ohmi. Conectam un terminal la linia de plus, iar celalalt terminal la minus si, cu un alt fir, la un pin analog pe Arduino. Terminalul cu minus va avea doua conexiuni, una pentru a inchide circuitul iar cealalta pentru citire.</p>
+
+<p>'''Schema exemplu [https://blog.udemy.com/wp-content/uploads/2014/05/LDR1-1-620x436.png aici].'''</p>
+
+<p>'''Cod sursa [https://github.com/Micro-Gear/deluxe aici], in fisierul theremin.'''</p>
+
+<p>Vom imbina fotorezistenta cu un buzzer pentru a simula o teremina, un instrument muzical pe care il controlam din miscarile mainii.</p>
+
+
+<h2> Senzori temperatura </h2>
+
+
+<p>Masurarea temperaturii se face cu ajutorul senzorilor de temperatura.</p>
+<p>Sint de doua tipuri:</p>
+<p><ul></p>
+<p><li>in contact cu obiectul de masurat </li></p>
+<p><li>fara contact cu obiectul de masurat</li></p>
+<p></ul></p>
+
+<p>Senzorii de masurare cu contact se pot imparti in categorii:</p>
+<p><ul><li>nonelectrici: mecanici(bazati pe dilatarea corpurilor, cel mai cunoscut fiind clasicul termometru cu </p>
+<p>mercur sau alcool) sau chimici</li></p>
+<p><li>electrici : termocupluri, termorezistente, jonctiuni p-n, etc. </li></p>
+<p></ul></p>
+<p>In cazul accesului dificil sau al temperaturilor foarte mari , se folosesc pirometre, senzori in infrarosu,</p>
+<p>senzori cu fibre optice, etc</p>

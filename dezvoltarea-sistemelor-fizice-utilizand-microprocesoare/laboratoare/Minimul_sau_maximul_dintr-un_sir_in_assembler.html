@@ -1,0 +1,30 @@
+
+
+<pre><code class="language-C">
+volatile byte a[10] = {5,3,1,9,2,8,7,6,12,4};
+volatile byte dim=10;
+volatile byte val=0;
+
+void setup() {
+    Serial.begin(9600);
+    asm volatile(
+      "ld  __tmp_reg__, Z+ \n"      // bag prima vloare intr-un registru temporar si mut pointerul (Z) pe urmatoarea valoare din sier
+      "mov r24, __tmp_reg__ \n"  // prima valoare o pun ca minim (valoarea minima va fi retinuta in r24)
+      "1:                   \n"                  // aici va incepe bucla
+      "ld __tmp_reg__, Z+   \n"      // incarc urmatoarea valoare in registru temporar
+      "cp __tmp_reg__, r24  \n"     // compar valoarea noua cu ce am in registru r24
+      "brlo 2f              \n"               // daca vrem sa aflam maxim (sau brle 2f daca vrem minimul)
+      "mov r24, __tmp_reg__ \n"   // rescriem valoarea din registrul 24 cu cea exitenta in registrul temporar - pentru ca e noua valoare (nu a sarit instructiunea anterioara)
+      "2:                   \n"                
+      "dec %2               \n"            // decrementez numarul de elemente ramase
+      "breq 3f              \n"             // daca s-a ajuns la 0 elemente ramase, sar la final
+      "rjmp 1b              \n"             // reiau procesul pentru urmatorul numar
+      "3:    \n"
+      "mov %0, r24  \n"
+      :"=r" (val): "z" (a), "r"(dim) : "memory", "r24"
+    );
+    Serial.println(val);
+}
+void loop() {}
+</code></pre>
+
