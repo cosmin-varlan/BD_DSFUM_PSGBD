@@ -1,54 +1,136 @@
-<h2> Ce este Arduino si cum sa NU il omori </h2>
+<h2> Ce este Arduino și cum să NU îl omori </h2>
 
-<p>[[Fișier:Arduino-layout.png|thumb|upright|400px|alt=Arduino Layout.|Arduino Layout.]]</p>
 
-<p>Arduino este o platforma utilizata pentru a programa o serie de procesoare din familia Atmel. Arduino utilizeaza procesoare de tip SoC (System on a Chip), specificatiile fiecarui tip de Arduino putand fi gasite la adresa https://www.arduino.cc/en/Products/Compare . </p>
+<p>Arduino este o platformă utilizată pentru a programa o serie de 
+  procesoare din familia Atmel. Arduino utilizează procesoare de tip 
+  SoC (System on a Chip), specificațiile fiecărui tip de Arduino putând
+  fi găsite <a href="https://www.arduino.cc/en/Products/Compare" target="_blank">aici</a>. </p>
 
-<p>In cadrul laboratoarelor materiei DSFUM vor fi utilizate o serie de copii ale platformei Arduino Uno, copiile sunt luate din China si, cu exceptia unui modul de incarcare a programelor pe care chinezii au gasit de cuviinta sa il inlocuiasca cu unul cosntruit de ei, modul de functionare si specificatiile sunt identice. Asadar procesorul ce va fi utilizat este unul de tip ATmega328P, functioneaza la un voltaj de 5V (desi voltajul de intrare pentru Arduino poate fi intre intre 7V si 12V) si are 16Mhz. Desi pare putin, cei 16Mhz sunt suficienti pentru a face programe foarte complexe insa nu va vor da atat de multa libertate ca si procesorul unui PC: de data aceasta va trebui ca sa optimizati codul la maxim, altfel aveti sanse ca programul fie sa nu incapa in memoria RAM (2Kb) sau sa nu ruleze la o viteza satisfacatoare (sper ca stiti cum sta treaba cu complexitatea algoritmilor).</p>
+  <img src="imagini/arduino_front_vectoprial.webp" style="float:right; width:350px; padding:5px;">
 
-<p>Deoarece am intalnit studenti carora sa le fie frica de Arduino, trebuie sa mentionam faptul ca voltajul care ar putea fi periculos pentru om este de peste 24V (desi abia peste 50V poate deveni fatal) - deci puteti lucra cu Arduino fara sa aveti vreo temere ca ati putea sa va curentati. Mai degraba ati putea voi sa faceti un rau Arduino-ului daca nu puneti firele cum trebuie sau daca il puneti intr-un transformator inadecvat (peste 12V). In acest laborator veti conecta Arduino la porturile USB ale calculatoarelor si cum acestea furnizeaza 5V (500mA), curentul funrizat este suficient pentru ca Arduino sa functioneze. Exista unele dispozitive care se pot atasa Arduinoului si care au nevoie de curenti mai mari de 5V dar despre acestea vom discuta intr-un laborator viitor. Pentru inceput iata cateva restrictii de care va rugam sa tineti cont pentru a nu arde placile Arduino pe care le avem in dotare:</p>
+<p>Procesorul ce va fi utilizat este unul de tip 
+   ATmega328P, funcționează la uo tensiune de 5V (deși tensiunea de 
+   intrare pentru platforma Arduino poate fi între 7V și 12V) și are 
+   16Mhz. Deși pare puțin, cei 16Mhz sunt suficienți pentru a face 
+   programe foarte complexe însă nu vă vor da atât de multa libertate 
+   ca și procesorul unui PC: de data aceasta va trebui să optimizați 
+   codul la maxim, altfel aveți șanse ca programul fie să nu încapă 
+   în memoria RAM (2Kb) sau să nu ruleze la o viteză satisfacatoare 
+   (sper că știți cum stă treaba cu complexitatea algoritmilor).</p>
+
+
+<p>Deoarece am întâlnit studenți cărora să le fie frică că se vor 
+  electrocuta dacă nu vor greși ceva în timpul acestui laborator, trebuie
+  să menționăm faptul că tensiunea care ar putea fi periculoasă pentru 
+  om este de peste 24V (deși abia peste 50V poate deveni fatală) - 
+  deci puteți lucra cu Arduino fără să aveți vreo temere că ați putea 
+  să vă electrocutați. Mai degrabă ați putea voi să faceți un rău 
+  Arduino-ului dacă nu puneți firele cum trebuie sau dacă îl puneți 
+  într-un transformator inadecvat (peste 12V). In acest laborator 
+  veți conecta Arduino la porturile USB ale calculatoarelor și cum 
+  acestea furnizează 5V (500mA), avem suficientă putere pentru ca 
+  Arduino să funcționeze. Există unele dispozitive care se pot atașa 
+  Arduino-ului și care au nevoie de mai mult de 5V, dar despre acestea 
+  vom discuta într-un laborator viitor. Pentru început iată câteva 
+  restricții de care vă rugăm să țineți cont pentru a nu arde plăcile 
+  Arduino pe care le avem în dotare:</p>
 
 <ul>
-<li> <b>Nu alimentati Arduino decat de la portul USB al unui calculator sau a laptopului personal.</b> - desi alimentarea din exterior cu votaje cuprinse intre 7V si 12V pe portul special conceput pentru alimentare nu ar trebui sa ridice nici o problema si Arduino ar putea rula programul ce deja este incarcat pe el, recomandam sa nu alimentati din exterior aceste dispozitive pentru ca s-ar putea ca transformatorul pe care il aveti sa nu furnizeze curentul exact in intervalul precizat sau s-ar putea ca acesta sa nu fie foarte bine filtrat (si sa aiba varfuri de tensiune de peste 12V care desi nu dureaza decat o fractiune de secunda, sunt suficiente pentru a arde Arduinoul). </li>
-<li> <b>Aveti grija la obiectele metalice pe care le aveti pe banca.</b> - partea "dorsala" a Arduino nu este izolata in nici un fel. Din acest motiv, atingerea sa de obiecte de metal poate provoca scurtcircuitari si puteti avea sansa sa va ardeti atat Arduino-ul cat si portul USB (daca nu chiar toata placa de baza) a calculatorului unde este conectat.</li>
-<li> <b>Nu scurtcircuitati Arduino in mod voit.</b> - Nu puneti fire cu ambele capete in Arduino (de exemplu daca un fir este pus pe un pin care este setat cu LOW si cu celalalt capat intr-un pin HIGH, curentul existent in pinul HIGH se va scurge in LOW si va veti putea intalni cu aceleasi efecte neplacute ca si la punctul precedent.</li>
-<li> <b>Daca frige, nu e de bine.</b> - Scoteti rapid Arduinoul din portul USB si chemati profesorul cu care faceti laborator sa gasiti care este cauza.</li>
+   <li> <b>Nu alimentați Arduino decât de la portul USB al unui calculator 
+        sau a laptopului personal.</b> - deși alimentarea din exterior cu 
+        o tensiune cuprinsă între 7V și 12V pe portul special conceput pentru 
+        alimentare nu ar trebui să ridice nici o problemă și Arduino ar 
+        putea rula programul ce deja este încărcat pe el, recomandăm să
+        nu alimentați din exterior aceste dispozitive pentru că s-ar putea 
+        ca transformatorul pe care îl aveți să nu furnizeze curentul exact 
+        în intervalul precizat sau s-ar putea ca acesta să nu fie foarte 
+        bine filtrat (și să aiba vârfuri de tensiune de peste 12V care deși 
+        nu durează decât o fracțiune de secunda, sunt suficiente pentru a 
+        arde Arduino-ul). </li>
+   <li> <b>Aveți grijă la obiectele metalice pe care le aveți pe bancă.</b> 
+        - partea "dorsală" a Arduino nu este izolată în nici un fel. Din 
+        acest motiv, atingerea sa de obiecte de metal poate provoca 
+        scurtcircuitări și puteți avea șansa să vă ardeți atât Arduino-ul 
+        cât și portul USB (dacă nu chiar toata placa de baza) a calculatorului 
+        unde este conectat.</li>
+   <li> <b>Nu scurtcircuitați Arduino în mod voit.</b> - Nu puneți fire 
+        cu ambele capete în Arduino (de exemplu dacă un fir este pus pe 
+        un pin care este setat cu LOW și cu celalalt capăt într-un pin 
+        HIGH, tensiunea din pinul HIGH se va scurge în LOW și vă 
+        veți putea întâlni cu aceleași efecte neplăcute ca și la punctul 
+        precedent.</li>
+   <li> <b>Dacă frige, nu e de bine.</b> - Scoteți rapid Arduino-ul din 
+        portul USB și chemați profesorul cu care faceți laboratorul pentru
+        a detecta care este cauza. Arduino are o serie de protecții ca să
+        nu vă ardă portul USB, dar nu încercați să îi testați aceste protecții.</li>
 </ul>
 
+<p>Deși cele de mai sus sunt menite să vă sperie puțin, un Arduino nu 
+  este atât de scump (aprox. 30 lei) deci arderea lui nu este o dramă atât 
+  de mare. De asemenea, porturi USB arse din cauza unui Arduino nu prea 
+  am văzut (dar nu e imposibil).</p>
 
-<p>Desi cele de mai sus sunt menite sa va sperie putin, un Arduino nu este atat de scump (aprox. 30 lei) deci arderea lui nu este o drama atat de mare. De asemenea, porturi USB arse din cauza unui Arduino nu prea am vazut (dar nu e imposibil).</p>
+<h3> De unde cumpăr un Arduino ?</h3>
 
-<h2> De unde cumpar un Arduino </h2>
+<p>Câteva linkuri cu magazine online din Romania:</p>
+<ul>
+  <li><a href="https://ardushop.ro" target="_blank">ArduShop</a></li>
+  <li><a href="https://www.robomania.ro/" target="_blank">Robomania</a></li>
+  <li><a href="https://www.optimusdigital.ro" target="_blank">OptimusDigital</a></li>
+  <li><a href="https://www.robofun.ro" target="_blank">RoboFun</a></li>
+</ul>
 
-<p>Cateva linkuri cu magazine online din Romania:</p>
+<p>Sau, dacă vreți, puteți cumpăra Arduino-uri și alte componente de la 
+  frații noștrii kinezi care sunt pe tot ebayul (vedeți totuși ca persoana 
+  de la care cumpărați să aiba un procent mare de reviewuri pozitive sau 
+  să fie certificată de catre ebay). Situri precum alibaba, aliexpress, 
+  deal extreme, etc. va pun la dispoziție și ele componente + Arduino. 
+  Vă recomandăm să vă cumpărați strict ce va trebuie și nu pachete întregi 
+  de senzori pe care ulterior să nu îi folosiți. </p>
 
-<p>https://ardushop.ro</p>
+<p>Puteti încerca și la colegii care au făcut Arduino anul trecut.</p>
+<!--
+<h3>Instalarea driverelor </h3>
 
-<p>https://www.robomania.ro/</p>
-
-<p>https://www.optimusdigital.ro</p>
-
-<p>https://www.robofun.ro - aici sunt mai scumpe, dar originale</p>
-
-<p>Sau, daca vreti, puteti cunmpara Arduino-uri si alte componente de la fratii nostrii kinezi care sunt pe tot ebayul (vedeti totusi ca persoana de la care cumparati sa aiba un procent mare de reviewuri pozitive sau sa fie certificata de catre ebay). Situri precum alibaba, aliexpress, deal extreme, etc. va pun la dispozitie si ele componente + Arduino. Va recomandam sa va cumparati strict ce va trebuie si nu pachete intregi de senzori pe care ulterior sa nu aveti unde sa ii folositi. </p>
-
-<p>Puteti incerca si la colegii care au facut Arduino anul trecut.</p>
-
-<h2> Instalarea driverelor </h2>
-
-<p>Pentru arduinourile care nu sunt originale (in speta cele de la chinezi sau care sunt de pe siturile romanesti la preturi mai mici), veti avea nevoie de un driver pentru componenta care incarca programul in procesorul Arduino-ului. Acesta poate fi gasit pe pagina cursului sau direct la adresa: https://profs.info.uaic.ro/~vcosmin/pagini/resurse_arduino/Drivers_CH341G/ </p>
+<p>Pentru arduinourile care nu sunt originale (in speta cele de la 
+  chinezi sau care sunt de pe siturile romanesti la preturi mai mici), 
+  veti avea nevoie de un driver pentru componenta care incarca programul 
+  in procesorul Arduino-ului. Acesta poate fi gasit pe pagina cursului 
+  sau direct la adresa: https://profs.info.uaic.ro/~vcosmin/pagini/resurse_arduino/Drivers_CH341G/ </p>
 
 <p>Pentru a instala driverul intai conectati placa Arduino la calculator apoi indicati locatia in care ati dezarhivat driverul. In caz ca nu funcioneaza in acest mod, in cadrul driverului veti gasi si un executabil care va face o instalare fortata (dar tot aveti nevoie sa conectati in prealabil arduinoul si sa il tineti conectat pe durata instalarii - pentru ca installerul sa detecteze care tip de arduino il aveti conectat). Arduinourile pe care le avem in dotare nu functioneaza cu MacOS (din cate stim), studentii care au acest sistem de operare instalat pe laptopuri sunt invitati sa lucreze la calculatoarele existente in laborator.</p>
+-->
+<h3>Mini ghid pentru a începe lucrul cu Arduino: </h3>
 
-<h2> Lucrurile de baza pe care trebuie sa le stiti despre Arduino </h2>
+<p>Arduino a fost construit special pentru a fi utilizat în educație, 
+  în special pentru școlile tehnice orientate spre electronică. Ușurința
+  cu care acesta se programează, a dus la utilizarea sa pe scară largă
+  în tot felul de proiecte și proiecțele home-made, de senzori de 
+  temperatură până la controlarea motoarelor dintr-o imprimantă 3D.
+  Platforma Arduino poate fi alimentată la portul USB al oricărui 
+  calculator (sau chiar și de către un încărcător ce oferă un port USB). 
+  Poate fi programat cu ajutorul unui limbaj foarte asemănător cu 
+  limbajul C ale cărui specificații le găsiți pe situl arduino.cc, 
+  situl oficial al platformei Arduino (mai exact <a href="https://www.arduino.cc/en/Reference/HomePage" target="_blank">aici</a> ).</p>
 
-<p>Arduino a fost construit special pentru a fi utilizat in educatie, in special pentru scolile tehnice orientate spre electronica. Platforma Arduino se poate fi alimentata la portul USB al oricarui calculator (sau chiar si de catre un incarcator ce ofera un port USB). Poate fi programat cu ajutorul unui limbaj foarte asemanator cu limbajul C ale carui specificatii le gasiti pe situl arduino.cc, situl oficial al platformei Arduino (mai exact la https://www.arduino.cc/en/Reference/HomePage ).</p>
+<p>La arduino pot fi conectați diverși senzori și actuatori. Prin 
+  intermediul senzorilor sunt preluate informații din mediul înconjurător, 
+  iar actuatorii sunt utilizați pentru a-l modifica într-un anume fel 
+  (de exemplu putem prelua printr-un senzor de lumina faptul că afară 
+  s-a întunecat și putem închide un releu conectat la becul din 
+  sufragerie pentru a-l aprinde). Pentru atașarea echipamentelor 
+  hardware, Arduino UNO oferă un numar de 14 conexiuni digitale 
+  (numerotate de la 0 la 13) și 6 conexiuni analogice (numerotate de la 0 la 5). 
+  De obicei conexiunile digitale sunt utilizate pentru a conecta 
+  actuatorii iar cele anlogice pentru a conecta senzorii (deși aceasta 
+  nu este o regula).</p>
 
-<p>La arduino pot fi conectati diversi senzori si actuatori. Prin intermediul senzorilor sunt preluate informatii din mediul inconjurator, iar actuatorii sunt utilizati pentru a-l modifica intr-un anume fel (de exemplu putem prelua printr-un senzor de lumina faptul ca afara s-a intunecat si putem inchide un releu conectat la becul din sufragerie pentru a-l aprinde). Pentru atasarea echipamentelor hardware, Arduino UNO ofera un numar de 14 conexiuni digitale (numerotate de la 0 la 13) si 6 conexiuni analogice (numerotate de la 0 la 5). De obicei conexiunile digitale sunt utilizate pentru a conecta actuatorii iar cele anlogice pentru a conecta senzorii (desi aceasta nu este o regula).</p>
-
-<p>La fel ca orice calculator (ma intreb daca stiati asta), Arduino functioneaza intr-o bucla infinita. Cand este alimentat (sau dupa ce un program nou a fost uploadat), se executa o sectiune de setari dupa care se intra automat intr-o zona denumita loop. Structura cea mai simpla a unui program ce poate fi rulat de catre Arduino este asadar:</p>
-
-
+<p>La fel ca orice calculator, Arduino 
+  funcționează într-o buclă infinită. Când este alimentat (sau după 
+  ce un program nou a fost uploadat), se execută o secțiune de setări 
+  după care se intră automat într-o zonă denumită loop. Structura 
+  cea mai simplă a unui program ce poate fi rulat de către Arduino 
+  este așadar:</p>
 
 <pre><code class="language-c">
 void setup() { 
@@ -61,35 +143,57 @@ void loop() {
 }
 </code></pre>
 
+<p>Dacă vreți să programați Arduino, puteți să o faceți în limbajul C. 
+  Pentru a interacționa cu mediul fizic, există o serie de comenzi specifice
+  Arduino pe care le puteți găsi <a href="https://www.arduino.cc/reference/en/" target="_blank">aici</a>.</p>
 
-<p>De vazut in timpul laboratorului 1: https://www.arduino.cc/en/Reference/HomePage !!!</p>
+<h3>IDE</h3>
 
-<p>== IDE ==</p>
+<p>Exista mai multe IDEuri pentru programarea platformei Arduino 
+  (nici nu e de mirare dacă ținem cont că totul aici se desfașoară
+  în curtea curentului OpenSource), cel pe care o să îl utilizăm 
+  în cadrul acestui laborator este cel oficial, aflat pe pagina 
+  arduino.cc (mai exact, <a href="https://www.arduino.cc/en/software">aici</a>).</p>
 
-<p>[[Fișier:Interfata_ide_0.png|thumb|upright|600px|alt=Arduino IDE.|Arduino IDE.]]</p>
+<p>Deoarece acest IDE a trecut prin foarte multe iterații și suntem 
+  convinși că nu este ultima variantă cea curentă, nu vom pune imagini cu
+  interfața IDEului. Totuși sperăm ca cele mai importante dintre meniuri
+  să fie încă disponibile. Vă enumerăm în cele ce urmează câteva dintre
+  acestea, pe care le considerăm mai interesante:
+</p>
 
-<p>Exista mai multe IDEuri pentru programarea platformei Arduino (nici nu e de mirare daca tinem cont ca totul aici se desfasoara in curtea curentului OpenSource), cel pe care o sa il utilizam in cadrul acestui curs este cel oficial, aflat pe pagina arduino.cc (mai exact la https://www.arduino.cc/en/Main/Software).</p>
-
-<p>Cele mai importante / interesante locatii din aceasta interfata, pe care va invitam sa le gasiti si voi, le consideram a fi:</p>
 <ul>
-<li> Meniul <b>File -> Example</b>: contine exemple / coduri sursa pentru majoritatea echipamentelor existente (senzori, actuatori, shielduri, etc). </li>
-<li> Meniul <b>File -> Preferences</b>: setati dimensiunea fontului, ce sa se afiseze atunci cand se compileaza programul sau numerotarea liniilor de cod. </li>
-<li> Meniul <b>Sketch -> Verify/Compile</b>: verifica programul pe care l-ati scris. Este disponibil si din primul buton in forma de cerc aflat imediat sub meniu.</li>
-<li> Meniul <b>Sketch -> Upload</b>: verifica programul si daca este corect il uploadeaza in memoria Flash a procesorului Atmel dupa care va fi executat.</li>
-<li> Meniul <b>Sketch -> Include Library</b>: Pentru a vedea care sunt bibliotecile disponibile sau a adauga o noua biblioteca.</li>
-<li> Meniul <b>Tools -> Auto Format</b>: Pentru a formata codul (indenta corect) - sper ca nu mai e nevoie totusi sa mai folositi asta in anul III.</li>
-<li> Meniul <b>Tools -> Serial Monitor</b>: Deschide o fereastra ce permite transmiterea de date in mod serial catre Arduino sau receptionarea acestora. Poate fi deschis si din butonul din partea dreapta in forma de lupa. </li>
-<li> Din meniul <b>Tools</b> puteti de asemenea sa selectati tipul Arduinoului pe care il aveti, pe ce port este conectat si care este programatorul pe care il folositi (default pentru UNO ar trebui sa fie AVRISP mkII).</li>
+<li> Meniul <b>File -> Example</b>: conține exemple / coduri sursă pentru majoritatea echipamentelor existente (senzori, actuatori, shielduri, etc). Atunci când veți adăuga biblioteci noi IDEului, sunt șanse mari ca aici să se adauge exemple relevante pentru acele biblioteci.</li>
+<li> Meniul <b>File -> Preferences</b>: setați dimensiunea fontului, ce să se afișeze atunci când se compilează programul sau numerotarea liniilor de cod.  </li>
+<li> Meniul <b>Sketch -> Verify/Compile</b>: verifică programul pe care l-ați scris. Este disponibil și din primul buton în forma de cerc aflat imediat sub meniu. </li>
+<li> Meniul <b>Sketch -> Upload</b>: verifică programul și dacă este corect îl trimite în memoria Flash a procesorului Atmel după care va fi executat. </li>
+<li> Meniul <b>Sketch -> Include Library</b>: Pentru a vedea care sunt bibliotecile disponibile sau a adăuga o nouă biblioteca. </li>
+<li> Meniul <b>Tools -> Auto Format</b>: Pentru a formata codul (indenta corect) - sper că nu mai e nevoie totuși să mai folosiți asta în anul III. </li>
+<li> Meniul <b>Tools -> Serial Monitor</b>: Deschide o fereastră ce permite transmiterea de date în mod serial către Arduino sau recepționarea acestora. Poate fi deschisă și din butonul din partea dreapta-sus.  </li>
+<li> Din meniul <b>Tools</b> puteți de asemenea să selectați tipul Arduino-ului pe care îl aveți, pe ce port este conectat și care este programatorul pe care îl folosiți (default pentru UNO ar trebui să fie AVRISP mkII). </li>
 </ul>
 
 
-<h2> Exemple ==</h2>
+<h3>Exemple</h3>
 
-<p>=== Blink ===</p>
+<h4>Blink</h4>
 
-<p>Primul exemplu pe care il vom vedea in laboratorul 1 este Blink (din meniul File->Examples->Basics->Blink). Rolul acestui programel este de a porni si apoi opri ledul aflat pe placa Arduino si care este conectat la pinul 13. De obicei acest program este utilizat pentru a verifica buna comunicare intre un PC si platforma Arduino (puteti verifica faptul ca se uploadeaza un program, si ca acesta ruleaza corect - de obicei Arduinourile noi vin cu acest program preinstalat tocmai pentru ca este folosit pentru a verifica buna functionare). Valoarea LED_BUILTIN (care este o constanta) poate fi inlocuita cu 13 - pinul digital la care este conectat ledul. Deoarece atunci cand uploadati un program pe platforma Arduino acest lucru se intampla prin intemediul portului serial, puteti observa aprinderea intermitenta a doua leduri TX/RX aflata pe placa Arduino. Daca nu vedeti aceste doua leduri palpaind inseamna ca nu ati selectat corect portul la care este conectat Arduino sau nu ati instalat driverele.</p>
-
-
+<p>Primul exemplu pe care îl vom vedea în laboratorul 1 este Blink 
+  (din meniul File->Examples->Basics->Blink). Rolul acestui progrămel 
+  este de a porni și apoi opri ledul aflat pe placa Arduino și care 
+  este conectat la pinul 13. De obicei acest program este utilizat 
+  pentru a verifica buna comunicare între un PC și platforma Arduino 
+  (puteti verifica faptul ca se trimite un program, și că acesta 
+  rulează corect - de obicei Arduino-urile noi vin cu acest program 
+  preinstalat tocmai pentru că este folosit pentru a verifica buna 
+  funcționare). Valoarea LED_BUILTIN (care este o constanta) poate 
+  fi inlocuită cu 13 - pinul digital la care este conectat ledul. 
+  Deoarece atunci când uploadați un program pe platforma Arduino 
+  acest lucru se întâmplă prin intemediul portului serial, puteți 
+  observa aprinderea intermitentă a două leduri TX/RX aflata pe placa 
+  Arduino. Daca nu vedeți aceste două leduri pâlpâind înseamnă că 
+  nu ați selectat corect portul la care este conectat Arduino sau 
+  nu ați instalat driverele.</p>
 
 <pre><code class="language-c">
 void setup() {
@@ -104,12 +208,22 @@ void loop() {
 }
 </code></pre>
 
+<h4>Trimiterea de date către portul serial al calculatorului.</h4>
 
-<h3> Trimiterea de date catre portul serial al calculatorului. </h3>
-
-<p>Portul serial este probabil cel mai vechi existent. Prin el se trimit caractere unul dupa altul (asa cum sugereaza si denumirea: serial). Desi portul serial a fost modernizat si este acum cunoscut ca USB (Universal Serial Port), modul de transmitere este similar. Pentru ca cele doua dispozitive sa se sincvronizeze trebuie ca ambele sa stie viteza la care se realizeaza comunicarea. Aceasta viteza pentru portul serial se masoara in baud si indica numarul de coduri ce pot fi transmise intr-o secunda. Cu cat aceasta valoare este mai mare, cu atat comunicarea este mai rapida si instructiunea care trimite codul se va executa mai rapid. Pentru acest exemplu vom folosi un baud de 9600 (desi Arduino poate atinge 2.000.000 caractere pe secunda). In IDE vom scrie si apoi vom uploada urmatorul cod, explicatiile vor fi oferite de catre profesorul de la laborator:</p>
-
-
+<p>Portul serial este probabil cel mai vechi existent. 
+  Prin el se trimit caractere unul după altul (așa cum 
+  sugerează și denumirea: serial). Deși portul serial a fost 
+  modernizat și este acum cunoscut ca USB (Universal Serial Port),
+  modul de transmitere este similar. Pentru ca cele două dispozitive 
+  să se sincronizeze trebuie ca ambele să știe viteza la care se 
+  realizează comunicarea. Această viteză pentru portul serial se 
+  măsoara în baud și indică numărul de coduri ce pot fi transmise 
+  într-o secundă. Cu cât aceasta valoare este mai mare, cu atât 
+  comunicarea este mai rapidă și instrucțiunea care trimite codul 
+  se va executa mai rapid. Pentru acest exemplu vom folosi un baud 
+  de 9600 (deși Arduino poate atinge 2.000.000 caractere pe secunda). 
+  In IDE vom scrie și apoi vom încărca următorul cod, explicațiile 
+  vor fi oferite de către profesorul de la laborator:</p>
 
 <pre><code class="language-c">
 void setup() {
@@ -123,14 +237,19 @@ void loop() {
 }
 </code></pre>
 
+<p>Dacă ați văzut cum funcționeaza programul (utilizând Serial Monitor-ul 
+la un baud de 9600 - vezi mai sus cum se accesează), deschideți aplicația 
+putty pe care puteți să o descărcați de pe Internet. La connection type 
+selectați "Serial" apoi selectați portul la care este conectat Arduino 
+(poate fi văzut în colțul din dreapta jos al IDEului) și alegeți viteza 
+de 9600. După apăsarea butonului Open veți putea vizualiza informațiile 
+transmise de Arduino.</p>
 
-<p>Daca ati vazut cum functioneaza programul (utilizand Serial Monitor-ul la un baud de 9600 - vezi mai sus cum se acceseaza), deschideti aplicatia putty pe care puteti sa o descarcati de pe Internet, la connection type selectati "Serial" apoi selectati portul la care este conectat Arduino (poate fi vazut in coltul din dreapta jos al IDEului) si alegeti viteza de 9600. Dupa apasarea butonului Open veti putea vizualiza informatiile transmise de Arduino.</p>
+<h4>Recepționarea de informații din interfața serială (sau din putty).</h4>
 
-<h3> Receptionarea de informatii din interfata seriala (sau din putty). </h3>
-
-<p>Puteti sa utilizati fie Monitorul Serial din interfata IDEului fie aplicatya Putty pentru a observa modul de functionare a aplicatiei urmatoare.</p>
-
-
+<p>Puteți să utilizați fie Monitorul Serial din interfața IDEului fie 
+aplicația Putty pentru a observa modul de funcționare a aplicației 
+următoare.</p>
 
 <pre><code class="language-c">
 void setup() {
@@ -147,44 +266,36 @@ void loop() {
 }
 </code></pre>
 
+<h3>Exerciții</h3>
 
-<h2> Exercitii </h2>
 
-
-<h6> Problema 1 (10pt) </h6>
-<p>Realizati un program pentru Arduino care sa primeasca de la portul serial una din optiunile 1,2 sau 3. </p>
+<h5>Problema 1 </h5>
+<p>Realizati un program pentru Arduino care sa primească de la portul serial una din optiunile 1,2 sau 3.</p>
 <ul>
-<li> (3pt) Daca optiunea aleasa este 1 se va afisa pe portul serial cuvantul "pornit" si va aprinde ledul de la pinul 13.</li>
-<li> (3pt) Daca optiunea aleasa este 2 se va afisa pe portul serial cuvantul "oprit" si va stinge ledul de la pinul 13.</li>
-<li> (3pt) Daca optiunea aleasa este 3 se va afisa pe portul serial cuvantul "blink" si va aprinde intermitent ledul de la pinul 13 (asemenea aplicatiei blink).</li>
-<li> (1pt) Efectul trimiterii codului este imediat (instantaneu). Se va testa daca in timpul blinkului. in momentul aprinderii becului se introduce optiunea 1, ledul va ramane aprins respectiv daca in timpul blinkului, daca atunci cand ledul este stins se introduce optiunea 2, ledul ramane stins.</li>
+  <li>  Dacă opțiunea aleasă este 1 se va afișa pe portul serial cuvântul "pornit" și va aprinde ledul de la pinul 13.</li>
+  <li>  Dacă opțiunea aleasă este 2 se va afișa pe portul serial cuvântul "oprit" și va stinge ledul de la pinul 13.</li>
+  <li>  Dacă opțiunea aleasă este 3 se va afișa pe portul serial cuvântul "blink" și va aprinde intermitent ledul de la pinul 13 (asemenea aplicatiei blink).</li>  
 </ul>
+<p>Modificați partea de blink pentru a face blink la 10 secunde. De ce nu puteți activa foarte rapid vreuna din celelalte opțiuni dacă stare ledului din modul blink tocmai s-a schimbat ?</p>
+
+<!--
 
 
-<p><!--</p>
 
 
+<h3>Despre arhitectura procesorului ==
 
+Arhitecturile de calcul folosite de procesoarele existente pe piata in momentul de fata:
+* Arhitecturi CISC (Complex Instruction Set Computer) denumite si Von Neumann
+* Arhitecturi RISC (Reduced Instruction Set Computer) denumite si Harvard
 
-<h2> Despre arhitectura procesorului </h2>
+Arhitecturile CISC stau la baza procesoarelor INTEL/AMD si definesc procesoarele folosite de platfromele x86/x64
+Arhitecturile RISC stau la baza procesoarelor ARM ce sunt folosite de echipemente mobile si a altor variante industriale pe 8/16/32/64 biti
 
-<p>Arhitecturile de calcul folosite de procesoarele existente pe piata in momentul de fata:</p>
-<ul>
-<li> Arhitecturi CISC (Complex Instruction Set Computer) denumite si Von Neumann</li>
-<li> Arhitecturi RISC (Reduced Instruction Set Computer) denumite si Harvard</li>
-</ul>
+Diferenta dintre cele 2 arhitecturi sta atat in design-ul setului de instructiuni cat si in felul in care BUS-ul este folosit pentru a schimba intre RAM si procesor, date si instructiuni.
+* Daca la arhitecturile CISC seturile de instructiuni cuprind sute de instructiuni cu utilizare simpla (instr dest,sursa), la arhitecturile RISC avem zeci de instructiuni cu utilizare complexa (instructiunile sunt parametrizabile si au numar variabil de parametri)
+* Daca la arhitecturile CISC avem un BUS comun pentru DATE si COD arbitrat de un procesor numit CHIPSET, la arhitecturile RISC cele 2 BUS-uri sunt total diferite, fapt ce duce la cresterea vitezei de lucru a procesorului in anumite situatii
+* Daca la arhitecturile CISC procesorul fizic ca si capsula coincide cu CPU care doar face calcule, la arhitecturile RISC, procesorul fizic este numit SoC, iar procesorul care face calcule (CPU) impreuna cu cantitati mici de RAM (kB), cantiati mici de FlashDrive (kB) si periferice precum USB, LAN, module de comunicare seriala, paralele, sunt parte integrata a capsulei SoC (System on a Chip)
 
-
-<p>Arhitecturile CISC stau la baza procesoarelor INTEL/AMD si definesc procesoarele folosite de platfromele x86/x64</p>
-<p>Arhitecturile RISC stau la baza procesoarelor ARM ce sunt folosite de echipemente mobile si a altor variante industriale pe 8/16/32/64 biti</p>
-
-<p>Diferenta dintre cele 2 arhitecturi sta atat in design-ul setului de instructiuni cat si in felul in care BUS-ul este folosit pentru a schimba intre RAM si procesor, date si instructiuni.</p>
-<ul>
-<li> Daca la arhitecturile CISC seturile de instructiuni cuprind sute de instructiuni cu utilizare simpla (instr dest,sursa), la arhitecturile RISC avem zeci de instructiuni cu utilizare complexa (instructiunile sunt parametrizabile si au numar variabil de parametri)</li>
-<li> Daca la arhitecturile CISC avem un BUS comun pentru DATE si COD arbitrat de un procesor numit CHIPSET, la arhitecturile RISC cele 2 BUS-uri sunt total diferite, fapt ce duce la cresterea vitezei de lucru a procesorului in anumite situatii</li>
-<li> Daca la arhitecturile CISC procesorul fizic ca si capsula coincide cu CPU care doar face calcule, la arhitecturile RISC, procesorul fizic este numit SoC, iar procesorul care face calcule (CPU) impreuna cu cantitati mici de RAM (kB), cantiati mici de FlashDrive (kB) si periferice precum USB, LAN, module de comunicare seriala, paralele, sunt parte integrata a capsulei SoC (System on a Chip)</li>
-</ul>
-
-
-<p>[[Fișier:cisc.jpg]]       [[Fișier:risc.jpg]]</p>
-<p>--></p>
+[[Fișier:cisc.jpg]]       [[Fișier:risc.jpg]]
+-->
