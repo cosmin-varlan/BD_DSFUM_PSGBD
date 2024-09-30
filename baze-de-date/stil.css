@@ -103,4 +103,17 @@ padding:2px !important;
  background-color:lightgray;
 }
 
+tr:nth-child(even) {background-color: #C4E7E8;}
 
+th{background-color: #A8D3D4;}
+
+table, tr, td, th{
+   border:1px solid black;
+   padding: 5px;
+   vertical-align:top;
+}
+
+pre{
+border:1px dashed black;
+
+}
