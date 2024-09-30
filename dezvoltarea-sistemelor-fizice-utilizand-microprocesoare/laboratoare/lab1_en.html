@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>What is Arduino and How NOT to Kill It</title>
+</head>
+<body>
+<h2> What is Arduino and How NOT to Kill It </h2>
+
+<p>Arduino is a platform used to program a series of processors from the Atmel family. Arduino uses SoC (System on a Chip) processors, and the specifications of each type of Arduino can be found <a href="https://www.arduino.cc/en/Products/Compare" target="_blank">here</a>.</p>
+
+<img src="imagini/arduino_front_vectoprial.webp" style="float:right; width:350px; padding:5px;">
+
+<p>The processor to be used is an ATmega328P, which operates at 5V (although the input voltage for the Arduino platform can be between 7V and 12V) and has 16MHz. Although it seems small, the 16MHz is enough to run very complex programs but will not give you as much freedom as a PC processor: this time, you will need to optimize the code to the maximum, otherwise, the program may not fit in the RAM (2Kb) or run at a satisfactory speed (I hope you know how algorithm complexity works).</p>
+
+<p>Because I've encountered students who are afraid they might get electrocuted if they make a mistake during this lab, it is important to mention that the voltage that could be dangerous for humans is over 24V (although only above 50V can it become fatal) - so you can work with Arduino without fear of electrocution. You are more likely to harm the Arduino if you don't connect the wires correctly or if you use an inappropriate transformer (over 12V). In this lab, you will connect the Arduino to the USB ports of computers, which provide 5V (500mA), sufficient power for the Arduino to operate. Some devices can be attached to the Arduino that need more than 5V, but we'll discuss those in a future lab. Here are some restrictions to keep in mind to avoid damaging the Arduino boards we have:</p>
+
+<ul>
+   <li> <b>Power Arduino only from the USB port of a computer or your personal laptop.</b> - although external power with a voltage between 7V and 12V on the specially designed power port should not cause any problems, and Arduino could run the program already loaded on it, we recommend not to power these devices externally because your transformer might not provide the current exactly in the specified range, or it might not be well filtered (and could have voltage spikes over 12V which, although lasting only a fraction of a second, are enough to burn the Arduino). </li>
+   <li> <b>Be careful with metal objects on the table.</b> - the "back" of the Arduino is not isolated in any way. Therefore, touching it to metal objects can cause short circuits, and you may burn both the Arduino and the USB port (if not the entire motherboard) of the computer to which it is connected.</li>
+   <li> <b>Do not intentionally short-circuit the Arduino.</b> - Do not put wires with both ends in the Arduino (for example, if one end is on a pin set to LOW and the other end in a HIGH pin, the voltage from the HIGH pin will flow into LOW, and you may encounter the same unpleasant effects as the previous point.</li>
+   <li> <b>If it gets hot, that's not good.</b> - Quickly remove the Arduino from the USB port and call the lab instructor to detect the cause. Arduino has several protections so that it does not burn the USB port, but do not try to test these protections.</li>
+</ul>
+
+<p>Although the above points are meant to scare you a bit, an Arduino is not that expensive (approx. 30 lei), so burning it is not a big drama. Also, I haven't seen many USB ports burned because of an Arduino (but it is not impossible).</p>
+
+<h3> Where to Buy an Arduino?</h3>
+
+<p>Here are some links to online stores in Romania:</p>
+<ul>
+  <li><a href="https://ardushop.ro" target="_blank">ArduShop</a></li>
+  <li><a href="https://www.robomania.ro/" target="_blank">Robomania</a></li>
+  <li><a href="https://www.optimusdigital.ro" target="_blank">OptimusDigital</a></li>
+  <li><a href="https://www.robofun.ro" target="_blank">RoboFun</a></li>
+</ul>
+
+<p>Or, if you prefer, you can buy Arduinos and other components from our Chinese brothers all over eBay (make sure the seller has a high percentage of positive reviews or is certified by eBay). Sites like Alibaba, AliExpress, DealExtreme, etc., also offer components and Arduino. We recommend buying only what you need and not entire sensor packages that you might not use later.</p>
+
+<p>You can also try from colleagues who took the Arduino course last year.</p>
+
+<h3>Mini Guide to Getting Started with Arduino: </h3>
+
+<p>Arduino was specifically designed for educational use, especially for technical schools focused on electronics. Its ease of programming has led to its widespread use in all sorts of home-made projects, from temperature sensors to controlling motors in a 3D printer. The Arduino platform can be powered by the USB port of any computer (or even a charger with a USB port). It can be programmed using a language very similar to C, the specifications of which can be found on the official Arduino website <a href="https://www.arduino.cc/en/Reference/HomePage" target="_blank">here</a>.</p>
+
+<p>Various sensors and actuators can be connected to the Arduino. Sensors gather information from the environment, while actuators are used to modify it in some way (for example, a light sensor can detect when it gets dark outside and close a relay connected to the living room light to turn it on). For connecting hardware devices, the Arduino UNO offers 14 digital connections (numbered 0 to 13) and 6 analog connections (numbered 0 to 5). Usually, digital connections are used to connect actuators, while analog ones are used to connect sensors (though this is not a rule).</p>
+
+<p>Like any computer, Arduino operates in an infinite loop. When powered (or after a new program is uploaded), a setup section is executed, followed by automatic entry into a loop section. The simplest structure of a program that can be run by Arduino is therefore:</p>
+
+<pre><code class="language-c">
+void setup() { 
+    // instructions here are executed once at the beginning
+    // this section is used for settings (e.g., which pin is input and which is output)
+}
+void loop() {
+    // instructions here are executed in a loop, after the last instruction is repeated again
+    // this loop ends when the Arduino power is cut
+}
+</code></pre>
+
+<p>If you want to program Arduino, you can do it in C language. To interact with the physical environment, there are a series of specific Arduino commands that you can find <a href="https://www.arduino.cc/reference/en/" target="_blank">here</a>.</p>
+
+<h3>IDE</h3>
+
+<p>There are several IDEs for programming the Arduino platform (it's no surprise considering everything here happens in the OpenSource realm), the one we'll use in this lab is the official one, available on the arduino.cc page (more specifically, <a href="https://www.arduino.cc/en/software">here</a>).</p>
+
+<p>Since this IDE has gone through many iterations, and we are convinced that the current version is not the last, we will not include images of the IDE interface. However, we hope the most important menus are still available. Below are some of these menus, which we consider more interesting:</p>
+
+<ul>
+<li> The <b>File -> Example</b> menu: contains examples/source codes for most existing equipment (sensors, actuators, shields, etc.). When you add new libraries to the IDE, relevant examples for those libraries are likely to be added here.</li>
+<li> The <b>File -> Preferences</b> menu: set the font size, what to display when the program is compiled, or line numbering. </li>
+<li> The <b>Sketch -> Verify/Compile</b> menu: verifies the program you wrote. It is also available from the first round button immediately below the menu. </li>
+<li> The <b>Sketch -> Upload</b> menu: verifies the program and if correct, sends it to the Flash memory of the Atmel processor, where it will be executed. </li>
+<li> The <b>Sketch -> Include Library</b> menu: to see which libraries are available or to add a new library. </li>
+<li> The <b>Tools -> Auto Format</b> menu: to format the code (correct indentation) - hopefully, you don't need to use this in the third year. </li>
+<li> The <b>Tools -> Serial Monitor</b> menu: opens a window that allows serial data to be sent to or received from Arduino. It can also be opened from the button in the top-right corner. </li>
+<li> From the <b>Tools</b> menu, you can also select the type of Arduino you have, which port it is connected to, and which programmer you are using (default for UNO should be AVRISP mkII). </li>
+</ul>
+
+<h3>Examples</h3>
+
+<h4>Blink</h4>
+
+<p>The first example we will see in lab 1 is Blink (from the File->Examples->Basics->Blink menu). The role of this small program is to turn on and off the LED on the Arduino board, which is connected to pin 13. Usually, this program is used to check the communication between a PC and the Arduino platform (you can check that a program is sent and running correctly - new Arduinos usually come with this program pre-installed because it is used to verify proper operation). The value LED_BUILTIN (which is a constant) can be replaced with 13 - the digital pin to which the LED is connected. Since when you upload a program to the Arduino platform, this happens through the serial port, you can see the intermittent lighting of two TX/RX LEDs on the Arduino board. If you don't see these two LEDs flashing, it means you didn't select the correct port to which the Arduino is connected or you didn't install the drivers.</p>
+
+<pre><code class="language-c">
+void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);
+}
+
+void loop() {
+  digitalWrite(LED_BUILTIN, HIGH);  
+  delay(1000);                      
+  digitalWrite(LED_BUILTIN, LOW);    
+  delay(1000);                      
+}
+</code></pre>
+
+<h4>Sending Data to the Computer's Serial Port</h4>
+
+<p>The serial port is probably the oldest existing port. Characters are sent one after the other through it (as the name suggests: serial). Although the serial port has been modernized and is now known as USB (Universal Serial Port), the transmission method is similar. For the two devices to synchronize, they must both know the communication speed. This speed for the serial port is measured in baud and indicates the number of codes that can be transmitted in a second. The higher this value, the faster the communication, and the instruction sending the code will execute more quickly. For this example, we will use a baud of 9600 (although Arduino can reach 2,000,000 characters per second). In the IDE, we will write and then upload the following code, explanations will be given by the lab instructor:</p>
+
+<pre><code class="language-c">
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  for (int i=0; i<10; i++)
+     Serial.println(i);
+  delay (5000);
+}
+</code></pre>
+
+<p>If you have seen how the program works (using the Serial Monitor at a baud rate of 9600 - see above how to access it), open the Putty application, which you can download from the Internet. At connection type, select "Serial," then select the port to which Arduino is connected (it can be seen in the bottom right corner of the IDE) and choose the speed of 9600. After pressing the Open button, you will be able to view the information transmitted by Arduino.</p>
+
+<h4>Receiving Information from the Serial Interface (or from Putty)</h4>
+
+<p>You can use either the Serial Monitor from the IDE interface or the Putty application to observe how the following application works.</p>
+
+<pre><code class="language-c">
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  if (Serial.available()>0)
+  {
+    int sentByte = Serial.read();
+    Serial.print("Received character with ASCII code: ");
+    Serial.println(sentByte);
+  }
+}
+</code></pre>
+
+<h3>Exercises</h3>
+
+<h5>Problem 1</h5>
+<p>Create a program for Arduino to receive one of the options 1, 2, or 3 from the serial port.</p>
+<ul>
+  <li>If option 1 is chosen, the word "on" will be displayed on the serial port, and the LED on pin 13 will turn on.</li>
+  <li>If option 2 is chosen, the word "off" will be displayed on the serial port, and the LED on pin 13 will turn off.</li>
+  <li>If option 3 is chosen, the word "blink" will be displayed on the serial port, and the LED on pin 13 will blink (similar to the blink application).</li>  
+</ul>
+<p>Modify the blink part to blink every 10 seconds. Why can't you quickly activate any of the other options if the LED state in blink mode has just changed?</p>
+</body>
+</html>
