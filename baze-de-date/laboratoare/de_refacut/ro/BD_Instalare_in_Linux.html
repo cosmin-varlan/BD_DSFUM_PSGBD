@@ -1,0 +1,184 @@
+<p>= Pregatirea mediului de lucru (Linux/Mac) =</p>
+
+<p>Autor: Andrici Cezar Constantin ([mailto:cezar.andrici@gmail.com cezar.andrici@gmail.com])</p>
+
+<h2> Instalarea Oracle Express Edition 11g </h2>
+
+<p>In cazul in care veti utiliza laptopurile personale, va rugam sa instalati Oracle Express Edition 11g Release 2. Acest server de SQL este suficient pentru buna desfasurare a orelor de laborator, celelalte versiuni fiind mult mai stufoase si incluzand utilizari avansate (de exemplu distribuirea bazei de date in cloud sau accesarea acesteia utilizand mai multe procesoare).</p>
+
+<p>Instalarea nativa a Oracle Database Express Edition 11g poate fi greoaie, asa ca noi va recomandam instalarea folosind Docker.</p>
+
+<p>Nota autor: Tot ce e scris in acest document, sumarizeaza experienta multor studenti care au vrut sa lucreze pe Linux si au biruit. Mii de lacrimi au fost varsate din incapatanarea de a nu folosi Windows. Problemele provin din gasirea si instalarea tool-urilor necesare. Acest document incearca sa acopere toate problemele care au aparut in incercarea de a rezolva temele saptamanale, care pot fi rezolvate complet, fara vreun handicap, pe Linux. In cazul in care intampini o problema si gasesti o solutie, completeaza acest document contactand profesorul.</p>
+
+<h3> Instaleaza nativ </h3>
+
+<p>(NERECOMANDAT!!! Vedeti urmatoarea metoda)</p>
+
+<p>In primul rand trebuie sa intrati pe [http://www.oracle.com/technetwork/database/database-technologies/express-edition/downloads/index.html site-ul Oracle] si sa descarcati '''Oracle Database Express Edition 11g Release 2 for Linux x64'''. Veti avea nevoie de un cont creat pe situl Oracle.</p>
+
+<p>Mai departe puteti incerca urmatoarea serie de tutoriale:</p>
+
+<ul>
+<li> [https://www.tecmint.com/oracle-database-11g-release-2-installation-in-linux/ Pentru RHEL/CentOS 6.x/5.x/4.x]</li>
+<li> [https://askubuntu.com/questions/566734/how-to-install-oracle-11gr2-on-ubuntu-14-04 Pentru Ubuntu 14.04 si Ubuntu 16.04]</li>
+</ul>
+
+
+<h3> Instaleaza Oracle folosind Docker </h3>
+
+<p>Docker este o solutie de containerizare, ceea ce inseamna ca vom putea porni baza de date intr-un container (un fel de VM, dar nativ). Aceasta metoda este preferata deoarece inafara de Docker, nici un alt pachet nu se va mai instala pe calculator, deci singurile dificultati pe care le veti avea vor fi sa va obisnuiti cu Docker.</p>
+
+<h4> Instalarea </h4>
+
+<h5> Pasul 1. Instaleaza Docker </h5>
+
+<p>Urmati [https://docs.docker.com/install/#desktop tutorialul oficial].</p>
+
+<p>Pentru a fi siguri ca ati instalat Docker cum trebuie, urmatoarea comanda ar trebui sa va returneze <code>Hello from Docker!</code>:</p>
+
+<p><pre>sudo docker run hello-world</p>
+<p></pre></p>
+<p>Pentru moment, trebuie sa rulati toate comenzile de Docker ca super user, ceea ce poate fi neplacut. Urmati si acest [https://docs.docker.com/install/linux/linux-postinstall/ tutorial oficial] pentru cum sa rulati comenzi fara <code>sudo</code>.</p>
+
+<p>Acum ar trebui sa puteti rula comanda de mai sus, fara sudo:</p>
+
+<p><pre>docker run hello-world</p>
+<p></pre></p>
+<h5> Pasul 2. Descarcarea imaginea de Oracle Express Edition 11g </h5>
+
+<p>Descarcati imaginea folosind urmatoarea comanda.</p>
+
+<p><pre>docker pull sath89/oracle-xe-11g</p>
+<p></pre></p>
+
+<p>Editati fisierul <code>~/.bashrc</code> folosind comanda <code>nano ~/.bashrc</code> si adaugati urmatoarele linii la sfarsitul fisierului:</p>
+
+<p><pre>fii_bd() {</p>
+<p>  mkdir -p /home/$USER/oracle_11g/</p>
+<p>  docker run -d --name seminar_bazededate -v /home/$USER/oracle_11g:/data -p 8080:8080 -p 1521:1521 sath89/oracle-xe-11g;</p>
+<p>  docker start seminar_bazededate;</p>
+<p>  sleep 10;</p>
+<p>  docker exec -it seminar_bazededate sqlplus sys/oracle as sysdba</p>
+}
+<p></pre></p>
+<p>Rulati urmatoarea comanda pentru a reincarca fisierul <code>.bashrc</code>:</p>
+
+<p><pre>source .bashrc</p>
+<p></pre></p>
+<h4> Folosirea containerului de Oracle Express Edition 11g </h4>
+
+<p>De acum incolo, puteti folosi urmatoarele comenzi pentru a folosi aplicatia:</p>
+
+<p>Pentru a '''porni aplicatia''', rulati urmatoarea comanda (care a fost definita anterior in <code>.bashrc</code>). Veți fi plasat acum în SQLPLUS care înțelege doar comenzi SQL. Veti fi logat automat cu contul <code>sys</code> (care are parola <code>oracle</code>).</p>
+
+<p><pre>fii_bd</p>
+<p></pre></p>
+<p>De aici, puteti executa orice comanda SQL de pe acest Wiki fara probleme. Va recomand sa [https://profs.info.uaic.ro/~bd/wiki/index.php/Pregatirea_mediului_de_lucru creati contul de <code>STUDENT</code>, si sa ii oferiti permisiunile necesare], iar apoi sa folositi DataGrip (vedeti mai jos) pentru a popula baza de date si pentru a rula orice query-uri pe ea.</p>
+
+<p>Pentru a '''iesi din aplicatie''', apasati <code>Ctrl + D</code>.</p>
+
+<p>Pentru a '''opri aplicatia''', rulati comanda <code>docker stop seminar_bazededate</code>.</p>
+
+<p>In cazul in care vreti sa '''refaceti/stergeti containerul''', rulati comenzile:</p>
+
+<p><pre>docker stop seminar_bazededate;</p>
+<p>docker rm seminar_bazededate;</p>
+<p></pre></p>
+<p>iar apoi pentru al '''reconstrui''', rulati:</p>
+
+<p><pre>fii_bd</p>
+<p></pre></p>
+<h4> Lucrul cu fisiere </h4>
+
+<p>Sunt cateva teme care cer lucrul cu fisiere. Pentru acestea, trebuie sa intelegeti ca in interiorul unui container, [https://docs.docker.com/storage/volumes/ exista alt file system], decat cel de pe calculatorul vostru.</p>
+
+<p>Astfel, ca atunci cand creati un director, aveti grija sa fie in <code>/data</code>. Puteti folosi urmatoarea comanda SQL:</p>
+
+<p><pre>CREATE OR REPLACE DIRECTORY MYDIR as '/data/tema8';</p>
+<p></pre></p>
+<p>Orice fisier veti crea in <code>MYDIR</code> il veti regasi la voi pe sistem in path-ul <code>~/oracle_11g</code> si vice-versa.</p>
+
+<h4> Dezvoltarea unei aplicatii </h4>
+
+<p>Cateva teme mai complexe, necesita dezvoltarea unor aplicatii care sa se conecteze la baza de date. Pentru acestea, probabil veti folosi [https://oracle.github.io/python-cx_Oracle/ cx_Oracle pentru Python], sau [https://github.com/oracle/node-oracledb oracledb pentru Node], sau orice alta librarie pentru alte limbaje.</p>
+
+<p>Aceste librarii depind de Oracle Instant Client, care trebuie instalat. Din fericire acesta e foarte simplu de instalat folosind [https://oracle.github.io/odpi/doc/installation.html#linux tutorialul oficial].</p>
+
+<p>Exemplu de aplicatie Python:</p>
+
+
+
+<pre><code class="language-python">import cx_Oracle
+
+sid = cx_Oracle.makedsn('localhost', '1521', sid='XE')
+
+cstr = 'oracle://{user}:{password}@{sid}'.format(
+    user='STUDENT',
+    password='STUDENT',
+    sid=sid
+)
+
+db = cx_Oracle.connect(user='STUDENT', password='STUDENT', dsn='localhost/XE')
+
+if __name__ == '__main__':
+    cursor = db.cursor()
+    rows = cursor.execute('SELECT * FROM STUDENTI')
+
+    for row in rows:
+        print(row[0])
+
+    # Cum se apeleaza o functie
+    # result = cursor.callfunc('func2', cx_Oracle.STRING, [arg1, arg2])
+    # db.commit()
+
+    cursor.close()
+</code></pre>
+
+<h2> Instalarea SQL Developer </h2>
+
+<p>Nu s-a gasit nici o metoda omeneasca sa se faca acest lucru pe Linux, din fericire exista alternative la fel de bune, poate chiar mai bune. Vedeti mai jos.</p>
+
+<h2> Instalarea DataGrip </h2>
+
+<p>[https://www.jetbrains.com/datagrip/ DataGrip] este o alternativa la SQL Developer de la JetBrains (aceeasi companie care a facut si IntelliJ), care poate fi folosita cu success aici.</p>
+
+<h3> Pasul 1. Creare cont pe JetBrains </h3>
+
+<p>In caz ca nu aveti, [https://account.jetbrains.com/login creati-va un cont cu adresa de la facultate pe JetBrains], pentru avea licente gratuite.</p>
+
+<h3> Pasul 2. Instalati SnapCraft </h3>
+
+<p>[https://snapcraft.io/ SnapCraft] este un fel de Docker, dar pentru aplicatii cu GUI, descrierea lor fiind:</p>
+
+<p><pre>Snaps are containerised software packages that are simple to create and install. They auto-update and are safe to run. And because they bundle their dependencies, they work on all major Linux systems without modification.</p>
+<p></pre></p>
+<p>Sunt sanse foarte mari ca deja sa aveti SnapCraft instalat (vine preinstalat pe anumite distributii). Puteti verifica ruland comanda <code>snap --version</code>. In caz ca nu e instalat, urmati [https://docs.snapcraft.io/core/install tutorialul oficial] pentru instalarea SnapCraft.</p>
+
+<h3> Pasul 3. Instalati DataGrip </h3>
+
+<p><pre>snap install datagrip</p>
+<p></pre></p>
+<p>Asta e tot. (Puteti instala la fel de usor si intellij. Folositi comanda <code>snap find jetbrains</code> sa vedeti toate package-urile lor).</p>
+
+<h2> Folosirea DataGrip </h2>
+
+<p>DataGrip este instalata ca orice aplicatie normala. Puteti sa o porniti din meniu, sau ruland comanda <code>datagrip</code> in consola.</p>
+
+<h3> Conectarea la server </h3>
+
+<p>Dupa ce v-ati [https://profs.info.uaic.ro/~bd/wiki/index.php/Pregatirea_mediului_de_lucru creat contul de STUDENT] si v-ati oferit toate permisiunile, urmati acest [https://www.jetbrains.com/help/datagrip/connecting-to-a-database.html#oracle tutorial pentru a va conecta la baza de date].</p>
+
+<p>Veti folosi urmatorii parametri:</p>
+
+<p><pre>Name: PSGBD</p>
+<p>Host: localhost</p>
+<p>User: STUDENT</p>
+<p>Password: STUDENT</p>
+<p></pre></p>
+<h3> Vizualizarea Schemei Bazei de Date </h3>
+
+<p>Teoretic, ar trebui sa apara in stanga in mod automat un tool window in care sa vedeti <code>PSGBD</code>. In caz ca nu exista, consultati [https://www.jetbrains.com/help/datagrip/working-with-the-database-tool-window.html#d167399e2 documentatia aici].</p>
+
+<h3> Vizualizare DBMS_OUTPUT </h3>
+
+<p>In DataGrip nu functioneaza comanda SQL <code>set serveroutput on</code>. [https://www.jetbrains.com/help/datagrip/2018.1/writing-and-executing-sql-commands.html#d176078e609 Vedeti documentatia] pentru cum puteti vedea output-ul din <code>DBMS_OUTPUT</code>.</p>

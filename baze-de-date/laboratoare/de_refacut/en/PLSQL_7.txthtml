@@ -1,0 +1,263 @@
+
+<p>http://docs.oracle.com/cd/E11882_01/appdev.112/e25519/triggers.htm#LNPLS759</p>
+
+
+<h2> Using Triggers </h2>
+
+<p>Triggers are blocks of code which are automatically executed, usually when a DML operation is executed in the database. These have a name (identifier) and can be activated or deactivated by using it.</p>
+<p>When a trigger is created, the time when it will be automatically executed has to be specified as well. This execution is associated with a certain operation executed on a table, a view (triggers on tables/views are DMLs), a database schema (of DDL type) or even on the entire database (of type system). Together with the type of the operation which will launch the execution of the trigger, the time of the execution will also be specified: for example, if we wish to do a delete operation on a table and want the value that will be deleted to be copied into another bkup table, it is obvious to expect the execution of the trigger before the delete operation is used - this way we have access to the value that will be deleted and we can copy it to the bkup table.</p>
+
+<p>Here are the reasons why we would prefer to use a trigger:</p>
+<ul>
+<li> automatically generated values in a column</li>
+<li> creation of LOG's</li>
+<li> creation of statistics</li>
+<li> modifying data in a table when an operation is executed in a view</li>
+<li> integrity assurance between primary/foreign keys when the tables are not in the same tablespace ( for example the table Students is on a computer and the table Grades is on another one and when we add a new grade we want to check if the key exists in the table stored on the other computer)</li>
+<li> publication of events when certain operations are executed on the database ( for example the automatic display in the console when someone is trying to delete data from the database).</li>
+<li> forbidding DML operations in a set time interval (for example grades can be added only during exam day).</li>
+<li> forbidding incorrect transactions or restricting based on complex rules which can be obtained only from primary/foreign keys, uniqueness or other constraints at table level (for example we could allow to have more records with the same identifier with the condition that the sum of a specific field is smaller than a certain value).  </li>
+</ul>
+
+
+<h2> DML Triggers (with BEFORE / AFTER) </h2>
+
+<p>Operations of type delete, insert, update can be built. Taking into account the moment the trigger is executed relative to the moment when the operation is executed on the table, triggers can be BEFORE or AFTER.</p>
+
+<p>When we talk about BEFORE we can be referring to the moment of execution of the DML command or we can specify a greater granularity and execute the trigger before every row which will be changed by the DML operations. Likewise, a trigger which is executed for a certain row can have access to the pieces of information that existed in that row before (or will be added to it).</p>
+
+<p>Let's see a trigger which is executed before an insert, delete or update operations are used: </p>
+
+<pre><code class="language-sql">set serveroutput on;
+
+CREATE OR REPLACE TRIGGER dml_stud
+   BEFORE INSERT OR UPDATE OR DELETE ON students
+BEGIN
+  dbms_output.put_line('DML operation on students table !');
+  -- here you can see when the trigger is launched
+  CASE
+     WHEN INSERTING THEN DBMS_OUTPUT.PUT_LINE('INSERT');
+     WHEN DELETING THEN DBMS_OUTPUT.PUT_LINE('DELETE');
+     WHEN UPDATING THEN DBMS_OUTPUT.PUT_LINE('UPDATE');
+     -- WHEN UPDATING('NAME') THEN .... // see below triggers which are executed only when a given field is modified
+  END CASE;
+END;
+/
+
+delete from students where id=10000;
+
+<p>You can see the BEFORE/AFTER effect by compiling the following triggers:</p>
+
+<pre><code class="language-sql">set serveroutput on;
+
+CREATE OR REPLACE TRIGGER dml_stud1
+   BEFORE INSERT OR UPDATE OR DELETE ON students
+declare   
+   v_name students.lname%type;
+BEGIN  
+  select lname into v_name from students where id=200;
+  dbms_output.put_line('Before DML TRIGGER: ' || v_name);
+END;
+/
+
+CREATE OR REPLACE TRIGGER dml_stud2
+   AFTER INSERT OR UPDATE OR DELETE ON students
+declare   
+   v_name students.lname%type;
+BEGIN  
+  select lname into v_name from students where id=200;
+  dbms_output.put_line('After DML TRIGGER: ' || v_name);
+END;
+/
+
+<p>And then executing:   </p>
+<pre><code class="language-sql">
+update students set lname='NewName' where id=200;
+</code></pre>
+
+
+<p>These triggers will be executed even when an update is made on another field or on another ID (and will always display information related to the student with ID 200).</p>
+
+<p>In order to refer to the values in the current row a new trigger will be created and executed when the operation on the row is executed. Here's such an example which will display the old and the new grades every time an update is made, even if the result requires more than one row to be displayed).</p>
+
+<pre><code class="language-sql">set serveroutput on;
+CREATE OR REPLACE TRIGGER increase_grade
+  before UPDATE OF value ON grades   -- here it is executed only when the grade is modified !
+  FOR EACH ROW
+BEGIN
+  dbms_output.put_line('grade ID: ' || :OLD.id); -- you have access to other fields, not only those that have been modified...
+  dbms_output.put_line('previous grade: ' || :OLD.value);  
+  dbms_output.put_line('new grade: ' || :NEW.value);    
+
+  -- however it is not allowed to update if the value is lower (according to university regulations):
+  IF (:OLD.value>:NEW.value) THEN :NEW.value := :OLD.value;
+  end if;  
+END;
+/
+
+update grades set value =8 where id in (1,2,3,4);
+
+<p>In case the modification is made in a nested table from one of the fields, you can have access to the row which contains that nested table through :PARENT. When you execute an insert type operation the :OLD value is NULL (because it does not exist), same with :NEW in case of a delete type operation.</p>
+
+<p>As you have seen so far, in order to avoid lowering a grade, we modified the value from :NEW by adding something else instead of the true value. You cannot do this action for the :OLD value (it already exists in the table). Evidently, if the operation is delete, it is not possible to modify the :NEW value since it has to be NULL. </p>
+
+<p>Also, you can see that the trigger is built with BEFORE. You cannot modify the :NEW value in an AFTER type trigger (because the value has already been written in the table when the trigger is launched).</p>
+
+<p>If a change launches two triggers, a BEFORE one and an AFTER one, and the BEFORE trigger modifies the :NEW value, the AFTER trigger will view the modified value (also in :NEW).</p>
+
+<h2> Errors of type Mutating Table </h2>
+
+<p>When a DML operation is used and it involves executing a trigger, this trigger is not allowed to read data from the table which is currently modified. Trying to execute a select over this table will result in a Mutating Table error. Here's an example:</p>
+
+<pre><code class="language-sql">create or replace trigger mutate_example
+after delete on grades for each row
+declare 
+   v_left int;
+begin
+   dbms_output.put_line('Delete value with ID: '|| :OLD.id);
+   select count(*) into v_left from grades;
+   dbms_output.put_line('There are '|| v_left || ' values left.');
+end;
+/
+delete from note where id between 101 and 110;
+/
+
+<p>Evidently, the moment an exception is thrown, the DML modification will not be applied (you can check that nothing has actually been modified in the table and the grade with id 101 is still the same). </p>
+
+<p>There are to methods to avoid Mutating Table errors:</p>
+<ul>
+<li> Using compound triggers</li>
+<li> Using a temporary table</li>
+</ul>
+
+
+<p>A compound trigger is actually a composition of the four types of available triggers: BEFORE, BEFORE EACH ROW, AFTER EACH ROW, AFTER (this is also the order in which the triggers are executed in case more of them exist). The solution for the previous problem is to build a trigger which is supposed to show the number of rows left only at the end (only triggers of type "For each row" will create mutating tables). Here is how a compound trigger looks like:</p>
+
+<pre><code class="language-sql">set serveroutput on;
+
+CREATE OR REPLACE TRIGGER delete_grades 
+FOR DELETE ON GRADES
+COMPOUND TRIGGER
+  v_left INT;
+  
+  AFTER EACH ROW IS 
+  BEGIN
+     dbms_output.put_line('Delete grade with ID: '|| :OLD.id);
+  END AFTER EACH ROW;
+  
+  AFTER STATEMENT IS BEGIN
+     select count(*) into v_left from grades;
+     dbms_output.put_line('There are '|| v_left || ' grades left.');  
+  END AFTER STATEMENT ;
+END delete_grades;
+/
+delete from grades where id between 241 and 250;
+ 
+<p>If you have two triggers with the same type of launch (for example both are of type for each row), you can control the order in which these are executed with FOLLOWS or PRECEDES. </p>
+
+<p>In order to activate/deactivate a trigger you can modify it as follows:</p>
+
+<pre><code class="language-sql">ALTER TRIGGER DELETE_GRADES DISABLE; -- OR ENABLE
+
+<h2> Instead of type triggers </h2>
+
+<p>This type of triggers cannot be built for DML operations which are executed on tables but only if these operations affect a view. Let's create a view:</p>
+
+<pre><code class="language-sql">create view std as select * from students;
+
+<p>It is quite complicated to delete from the students table... but not if we use triggers. This trigger can be made directly on the table ( with BEFORE and AFTER) but this time we will build it over the view previously created. The trigger is meant to delete every information from the additional tables when we wish to delete a student:</p>
+
+<pre><code class="language-sql">CREATE OR REPLACE TRIGGER delete_student
+  INSTEAD OF delete ON std
+BEGIN
+  dbms_output.put_line('Deleting:' || :OLD.lname);
+  delete from grades where id_student=:OLD.id;
+  delete from friendships where id_student1=:OLD.id;
+  delete from friendships where id_student2=:OLD.id;
+  delete from friendships where id=:OLD.id;
+END;
+
+<p>And let's test the trigger by deleting a student:</p>
+<pre><code class="language-sql">delete from std where id=75;
+
+<h2> DDL triggers </h2>
+
+<p>According to the moment they are created, system triggers can be of type BEFORE, AFTER or INSTEAD.</p>
+
+<p>According to the event which can be treated, there are triggers which are executed when the schema is modified by the database or the instead of create type.</p>
+
+<p>Example: </p>
+
+<pre><code class="language-sql">CREATE OR REPLACE TRIGGER drop_trigger
+  BEFORE DROP ON student.SCHEMA
+  BEGIN
+    RAISE_APPLICATION_ERROR (
+      num => -20000,
+      msg => 'can''t touch this');
+  END;
+/
+
+DROP TABLE GRADES;
+
+<p>In Oracle triggers can be built to be activated when a create operation is executed:</p>
+
+<pre><code class="language-sql">CREATE OR REPLACE TRIGGER t
+  INSTEAD OF CREATE ON SCHEMA
+  BEGIN
+    EXECUTE IMMEDIATE 'CREATE TABLE T (n NUMBER, m NUMBER)';
+  END;
+/
+create table a(x number); -- this will actually create the table T.
+
+<p>The list of all DDL triggers can be seen here: https://docs.oracle.com/cd/E11882_01/appdev.112/e25519/triggers.htm#CHDGIJDB</p>
+
+<h2> System triggers </h2>
+
+<p>Apart from DDL type operations triggers, there are two types of triggers through which you can get diverse information when certain events occur in the system. For example you can create a log table in which you will write the IP address of the client which has connected to the database or their name. Let's create such a table in which we will store the list of users who log in onto the system and the time of their authentication (obviously, these have to be made from the sys account.... no one else should have access to the users which are authenticated in the DBMS.</p>
+
+<pre><code class="language-sql">create table authentications(lname varchar2(30), log_time timestamp);
+/
+CREATE OR REPLACE TRIGGER check_user
+  AFTER LOGON ON DATABASE
+DECLARE
+  v_name VARCHAR2(30);
+BEGIN
+  v_name := user_login_time;
+  INSERT INTO authentications VALUES(v_name, CURRENT_TIMESTAMP);
+END;
+/
+
+<p>after which try to log in as student, then as sys as sysdba and then check the contents of the authentication table.</p>
+
+<p>You can view more information in a trigger of type system. A complete list of variables which can be queried can be found here: https://docs.oracle.com/cd/E11882_01/appdev.112/e25519/triggers.htm#CHDCFDJG</p>
+
+<p>When you no longer need triggers, you can delete them by using DROP TRIGGER followed by the name of the trigger you wish to delete.</p>
+
+<h6> Homework </h6>
+
+<p>1. (4pt) </p>
+
+<p>Create two tables of your choice which will be connected by a primary/foreign key and a view on the full outer join between the two tables.</p>
+<p>Create triggers which will allow the user to  INSERT, UPDATE, DELETE on the view. When presenting the problem, your view should have at least 10 rows (so we can have something to delete).</p>
+
+<p>2. (2pt) </p>
+
+<p>Create a trigger which writes in a LOG table the number of grades which have been modified by an UPDATE command. Only increasing the grade value will be allowed. </p>
+
+<p>3. (4pt)</p>
+
+<p>Create a trigger through which any destructive operation on the database will be prevented:</p>
+<ul>
+<li> Deleting a column from a table</li>
+<li> Deleting a table</li>
+<li> Truncating a table</li>
+</ul>
+
+
+<p>In an additional table the time when the destructive operation was attempted and the name of the user who tried to do it will be inserted. (http://www.java2s.com/Code/Oracle/User-Previliege/Getcurrentusername.htm).</p>
+
+<p>PS. you will need two users with access in the same database schema (check this: https://profs.info.uaic.ro/~bd/wiki/index.php/Doi_utilizatori_cu_aceeasi_schema). </p>
+
+<p>PS2. if only one of the users starts the trigger that you have previously created, you will lose two points.</p>
+
+<p>Important: 3 files in the directory ....</p>

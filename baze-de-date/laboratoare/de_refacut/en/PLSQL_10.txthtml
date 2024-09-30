@@ -1,0 +1,462 @@
+<h2> UTL_TCP ==</h2>
+
+<p>Acest pachet este definit in fisierul utltcp.sql (care este gasit in acelasi fisier in care se afla si utlfile.sql).  Pachetul pune la dispozitie functionalitatile</p>
+<p>protocului TCP/IP pe partea de client prin deschiderea unui socket pentru a comunica cu un server prin orice protocol precum HTTP, SMTP, sau FTP. Cateva obiecte ce</p>
+<p>ne sunt la dispozitie in acest pachet sunt urmatoarele...</p>
+
+<h3> CONNECTION Record Type </h3>
+
+<p>This package is defined in the utltcp.sql (which is found in the same file as utlfile.sql). The package provides the TCP/IP functionalities on the client side by </p>
+<p>opening a socket to communicate with a server through any protocol such as HTTP, SMTP or FTP. Some objects which we can use in this package are...</p>
+
+<pre><code class="language-sql">TYPE connection IS RECORD (
+    remote_host    VARCHAR2(255),
+    remote_port    PLS_INTEGER,
+    local_host     VARCHAR2(255),
+    local_port     PLS_INTEGER,
+    charset        VARCHAR2(30),
+    newline        VARCHAR2(2),
+    tx_timeout     PLS_INTEGER,
+    private_sd     PLS_INTEGER);
+/
+
+<ul>
+<li> REMOTE_HOST : this parameter contains the remote host's name for the duration of the connection. This field is NULL if the connection is not estabilished.</li>
+<li> REMOTE_PORT : this parameter contains the remote host's port for the duration of the connection. This field is NULL if the connection is not estabilished.</li>
+<li> LOCAL_HOST : this parameter contains the name of the local host used for the connection. This field is NULL if the connection is not estabilished. Currently, this parameter is not supported.</li>
+<li> LOCAL_PORT : this parameter contains the port of the local host used for the connection. This field is NULL if the connection is not estabilished. Currently, this parameter is not supported.</li>
+<li> CHARSET : this parameter is used for character conversion.</li>
+<li> NEWLINE : this parameter contains the newline character sequence.</li>
+<li> TX_TIMEOUT : this parameter contains the timeout time in seconds before giving up the connection in the attempt time.</li>
+<li> PRIVATE_SD : this parameter is used for the internal use of the package and must not be manipulated.</li>
+</ul>
+
+
+<h3> OPEN_CONNECTION Function </h3>
+
+<p>This function opens a connection to the mentioned web service using the TCP/IP protocol. </p>
+<p>The connection opened by this function stays open and can be transffered between databases using shared server configuration. </p>
+<p>These connections must be explicitly closed. Leaving them open leads to undesired ressource usage. The functions prototype is as follows...</p>
+
+<pre><code class="language-sql">UTL_TCP.OPEN_CONNECTION (
+   remote_host      IN VARCHAR2,
+   remote_port      IN PLS_INTEGER,
+   local_host       IN VARCHAR2 DEFAULT NULL,
+   local_port       IN PLS_INTEGER DEFAULT NULL,
+   in_buffer_size   IN PLS_INTEGER DEFAULT NULL,
+   out_buffer_size  IN PLS_INTEGER DEFAULT NULL,
+   charset          IN VARCHAR2 DEFAULT NULL,
+   newline          IN VARCHAR2 DEFAULT CRLF,
+   tx_timeout       IN PLS_INTEGER DEFAULT NULL,
+   wallet_path      IN VARCHAR2 DEFAULT NULL,
+   wallet_password  IN VARCHAR2 DEFAULT NULL)
+ RETURN connection;
+
+<ul>
+<li> IN_BUFFER_SIZE : this parameter accepts the size of the input buffer to increase the performance of the execution of the information received from the server</li>
+<li> OUT_BUFFER_SIZE : this parameter accepts the size of the output buffer to increase the performance of the execution of the information sent to the server</li>
+<li> WALLET_PATH : this parameter accepts the wallet path for the stored certificates which are necessary to make a request for information from a secure connection. The format is file: <Directory_path></li>
+<li> WALLET_PASSWORD : this parameter accepts the password necessary to open the wallet. When the parameter AUTO_LOGIN is enabled, this parameter can be set to NULL.</li>
+</ul>
+
+
+<h3> SECURE_CONNECTION Procedure </h3>
+
+<p>This procedure secures the estabilished TCP/IP connection using the SSL/TLS configuration. This requires an Oracle wallet with a valid</p>
+<p>certificate which must be specified during the connection call using the OPEN_CONNECTION function. The prototype is...</p>
+ 
+<pre><code class="language-sql">UTL_TCP.SECURE_CONNECTION (c IN OUT NOCOPY connection);
+
+<ul>
+<li> C :       this parameter accepts and returns the connection details from the server from which we receive information.</li>
+</ul>
+
+
+<h3> AVAILABLE Function </h3>
+
+<p>This function returns the number of available bytes for reading from the connected server without blocking after the connection is estabilished. On some platforms, this function </p>
+<p>can return 1, if there exists information that can be received from the server, or 0, otherwise. The function is used to perform safety checks to verify if the </p>
+<p>information are available or not, before reading and resource allocation for reading said information. The function prototype is...</p>
+
+<pre><code class="language-sql">UTL_TCP.AVAILABLE (
+   c            IN OUT NOCOPY connection,
+   timeout      IN PLS_INTEGER DEFAULT 0)
+ RETURN PLS_INTEGER;
+
+<ul>
+<li> TIMEOUT : this parameter accepts the timeout time in seconds before giving up on a connection during the attempt time</li>
+</ul>
+
+
+<h3> FLUSH Procedure </h3>
+
+<p>This procedure flushes all information to the server from the output buffer after estabilishing a connection. The prototype is...</p>
+ 
+<pre><code class="language-sql">UTL_TCP.FLUSH(c IN OUT NOCOPY connection);
+
+
+<h3> GET_LINE, and GET_LINE_NCHAR Functions </h3>
+
+<p>These functions return the row of data from the database. The functions prototypes are...</p>
+
+<pre><code class="language-sql">UTL_TCP.GET_LINE (
+   c                IN OUT NOCOPY connection,
+   remove_crlf      IN BOOLEAN DEFAULT FALSE,
+   peek             IN BOOLEAN DEFAULT FALSE)
+ RETURN VARCHAR2;
+
+UTL_TCP.GET_LINE_NCHAR (
+   c                IN OUT NOCOPY connection,
+   remove_crlf      IN BOOLEAN DEFAULT FALSE,
+   peek             IN BOOLEAN DEFAULT FALSE)
+ RETURN NVARCHAR2;
+
+<ul>
+<li> REMOVE_CRLF : this parameter removes trailing CRLF characters from the received message</li>
+<li> PEEK : the parameter is set to a boolean value of true when we want to look-ahead at the information without losing it from the queue and it will be available</li>
+</ul>
+
+
+<p>for reading at a future call. This parameter needs an input buffer to be created before the connection opening. </p>
+<p>This buffer will hold the information available to peek without conflicting with te information from the next call.</p>
+ 
+
+<h3> GET_RAW, GET_TEXT, and GET_TEXT_NCHAR Functions </h3>
+
+<p>These functions return raw data, text data and, respectively, text data in national character read from the server. The functions prototypes are...</p>
+
+<pre><code class="language-sql">UTL_TCP.GET_RAW (
+   c                IN OUT NOCOPY connection,
+   len              IN PLS_INTEGER DEFAULT 1,
+   peek             IN BOOLEAN     DEFAULT FALSE)
+ RETURN RAW;
+
+UTL_TCP.GET_TEXT (
+   c                IN OUT NOCOPY connection,
+   len              IN PLS_INTEGER DEFAULT 1,
+   peek             IN BOOLEAN     DEFAULT FALSE)
+ RETURN VARCHAR2;
+
+UTL_TCP.GET_TEXT_NCHAR (
+   c                IN OUT NOCOPY connection,
+   len              IN PLS_INTEGER DEFAULT 1,
+   peek             IN BOOLEAN DEFAULT FALSE)
+ RETURN NVARCHAR2;
+
+<ul>
+<li> LEN : this parameter accepts the number of bytes of information which will be received</li>
+</ul>
+
+
+<h3> READ_LINE Function </h3>
+
+<p>This function receives a line of text from the server in an open connection. A line feed, carriage return or a carriage return </p>
+<p>followed by a linefeed determines the line separator. The function return the number of characters of data received. The prototype is as follows...</p>
+.
+
+<pre><code class="language-sql">UTL_TCP.READ_LINE (
+   c           IN OUT NOCOPY connection,
+   data        IN OUT NOCOPY VARCHAR2 CHARACTER SET ANY_CS,
+   peek        IN BOOLEAN DEFAULT FALSE)
+ RETURN PLS_INTEGER;
+
+<ul>
+<li> DATA : this parameter accepts and returns the received information</li>
+</ul>
+
+
+<h3> READ_RAW, and READ_TEXT Functions </h3>
+
+<p>These function receive binary data, or, respectively, text data from the server with an open connection. The functions return data only if the specified number of bytes </p>
+<p>is read or if (End Of Input) is reached. The size of the VARCHAR2 buffer should be equal with the number of characters which wll be read, multiplied with the maximum</p>
+<p>number of bytes of a character from the set of characters from the database. This function returns the number of characters of data which have been received.</p>
+<p>The functions prototypes are...</p>
+
+
+<pre><code class="language-sql">UTL_TCP.READ_RAW (
+   c                        IN OUT NOCOPY connection,
+   data                     IN OUT NOCOPY RAW,
+   len                      IN PLS_INTEGER DEFAULT 1,
+   peek  IN                 BOOLEAN DEFAULT FALSE)
+ RETURN PLS_INTEGER;
+
+UTL_TCP.READ_TEXT (
+   c                        IN OUT NOCOPY connection,
+   data                     IN OUT NOCOPY VARCHAR2 CHARACTER SET ANY_CS,
+   len  IN                  PLS_INTEGER DEFAULT 1,
+   peek IN                  BOOLEAN DEFAULT FALSE)
+ RETURN PLS_INTEGER;
+
+<h3> WRITE_LINE, WRITE_RAW, and WRITE_TEXT Functions </h3>
+
+<p>These functions write a line of text, a binary message, and, respectively, a text mesagge to the server in an open connection. The functions return the number of characters </p>
+<p>of data received after writing the number of bytes specified to the server (in case of WRITE_RAW and WRITE_TEXT). The WRITE_LINE function adds a newline </p>
+<p>character to the message before sending it. The WRITE_TEXT function converts the information to a on-the-wire character set before sending it.</p>
+<p>The functions prototypes are...</p>
+
+
+<pre><code class="language-sql">UTL_TCP.WRITE_LINE (
+   c                        IN OUT NOCOPY connection,
+   data                     IN VARCHAR2 DEFAULT NULL CHARACTER SET ANY_CS)
+ RETURN PLS_INTEGER;
+
+UTL_TCP.WRITE_RAW (
+   c                        IN OUT NOCOPY connection,
+   data                     IN RAW,
+   len                      IN PLS_INTEGER DEFAULT NULL)
+ RETURN PLS_INTEGER;
+
+UTL_TCP.WRITE_TEXT (
+   c                        IN OUT NOCOPY connection,
+   data                     IN VARCHAR2 CHARACTER SET ANY_CS,
+   len                      IN PLS_INTEGER DEFAULT NULL)
+ RETURN num_chars PLS_INTEGER;
+
+
+<h3> CLOSE_CONNECTION and CLOSE_ALL_CONNECTIONS Procedures </h3>
+
+<p>These procedures close a single connection, respectively all connections. A TCP/IP connecton remains open until these functions are called. Not doing this will lead to</p>
+<p>unwanted resource usage. The procedures prototypes are...</p>
+
+
+<pre><code class="language-sql">UTL_TCP.CLOSE_CONNECTION (c IN OUT NOCOPY connection);
+
+UTL_TCP.CLOSE_ALL_CONNECTIONS;
+
+<p>Aside from functions and procedures, the UTL_TCP package also offers us some exceptions which can be useful to us.</p>
+
+<pre><code class="language-sql">buffer_too_small               EXCEPTION;  -- Buffer is too small for I/O
+end_of_input                   EXCEPTION;  -- End of input from connection
+network_error                  EXCEPTION;  -- Network error
+bad_argument                   EXCEPTION;  -- Bad argument passed in API call
+partial_multibyte_char         EXCEPTION;  -- A partial multi-byte char found
+transfer_timeout               EXCEPTION;  -- Transfer time-out occurred
+network_access_denied          EXCEPTION;  -- Network access denied
+
+buffer_too_small_errcode       CONSTANT PLS_INTEGER:= -29258;
+end_of_input_errcode           CONSTANT PLS_INTEGER:= -29259;
+network_error_errcode          CONSTANT PLS_INTEGER:= -29260;
+bad_argument_errcode           CONSTANT PLS_INTEGER:= -29261;
+partial_multibyte_char_errcode CONSTANT PLS_INTEGER:= -29275;
+transfer_timeout_errcode       CONSTANT PLS_INTEGER:= -29276;
+network_access_denied_errcode  CONSTANT PLS_INTEGER:= -24247;
+
+<p>And now, we will create an iterative server in JAVA, and a client application in PL/SQL.</p>
+
+<p>'''JAVA CODE'''</p>
+
+<pre><code class="language-sql">import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class Main {
+
+    public static void main(String[] args) throws IOException {
+        ServerSocket listener = new ServerSocket(8010);
+        try {
+            while (true) {
+                System.out.println("Waiting client...");
+                Socket socket = listener.accept();
+                System.out.println("Received client...");
+
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                try {
+                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+                    String inputLine = in.readLine();
+                    if (null != inputLine) {
+                        out.println(inputLine.toUpperCase());
+                    }
+                    out.flush();
+                    out.close();
+                } finally {
+                    socket.close();
+                }
+            }
+        } finally {
+            listener.close();
+        }
+    }
+}
+
+<p>'''PL/SQL CODE'''</p>
+
+<pre><code class="language-sql">SET SERVEROUTPUT ON
+/
+CLEAR SCREEN
+/
+DECLARE
+    CONN            UTL_TCP.CONNECTION;
+    RETVAL          BINARY_INTEGER;
+    L_RESPONSE      VARCHAR2(1000) := '';
+    L_TEXT          VARCHAR2(1000);    
+BEGIN
+    
+    --We open the connection...
+    CONN := UTL_TCP.OPEN_CONNECTION(
+        REMOTE_HOST   => '127.0.0.1',
+        REMOTE_PORT   => 8010,
+        TX_TIMEOUT    => 10
+    );
+    
+    L_TEXT := 'Hello there...';
+    --We write in socket...
+    RETVAL := UTL_TCP.WRITE_LINE(CONN,L_TEXT);
+    UTL_TCP.FLUSH(CONN);
+    
+    --We check if we have received something and read the answer from the socket...
+    BEGIN
+        WHILE UTL_TCP.AVAILABLE(CONN, 10) > 0 LOOP
+            L_RESPONSE := L_RESPONSE ||  UTL_TCP.GET_LINE(CONN,TRUE);
+        END LOOP;
+    EXCEPTION
+        WHEN UTL_TCP.END_OF_INPUT THEN
+            NULL;
+    END;
+
+    DBMS_OUTPUT.PUT_LINE('Response from Socket Server : ' || L_RESPONSE);
+    
+    --We close the connection because, otherwise, we would be wasting resources...
+    UTL_TCP.CLOSE_CONNECTION(CONN);
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE_APPLICATION_ERROR(-20101, SQLERRM);
+        UTL_TCP.CLOSE_CONNECTION(CONN);
+END;
+/
+
+<p>'''Observation'''</p>
+
+<p>If it all goes alright, you should see te following message...</p>
+
+<pre><code class="language-sql">Response from Socket Server : HELLO THERE...
+
+
+PL/SQL procedure successfully completed.
+
+<p>If not...</p>
+<ul>
+<li> Package Error</li>
+</ul>
+
+
+<p> <nowiki></p>
+<p>PLS-00201: identifier 'UTL_TCP' must be declared</p>
+<p>PLS-00320: the declaration of the type of this</p>
+<p>expression is incomplete or malformed</p>
+<p></nowiki> </p>
+
+<p>Explanation: The user tries to use the UTL_TCP package, but doesn't have the permission.</p>
+
+<p>Solution: Open SQL PLUS and login as the admin using ''CONN / AS SYSDBA;''</p>
+<p>Run this command: ''GRANT EXECUTE ON UTL_TCP TO STUDENT;''</p>
+
+<ul>
+<li> ACL Error</li>
+</ul>
+
+
+<p> <nowiki></p>
+<p>ORA-24247: network access denied by access control list (ACL)</p>
+<p></nowiki> </p>
+
+<p>Explanation: From Oracle 11g, Access Control List is introduced. We cand control who has access to packkages through ''GRANT'', but now we can also control what</p>
+<p>recources the users can use. In the example above, we have access to the UTL_TCP package, but we can't connect because we don't have the permission</p>
+<p>to use the resources at connect.</p>
+
+
+<p>Solutie: Deschideti SQL PLUS si intrati pe contul de admin folosind ''CONN / AS SYSDBA;''</p>
+<p>Rulati scriptul:</p>
+<pre><code class="language-sql"> 
+BEGIN
+  DBMS_NETWORK_ACL_ADMIN.CREATE_ACL(acl         => 'example.xml',
+                                    description => 'UTL TCP EXAMPLE',
+                                    principal   => 'STUDENT',
+                                    is_grant    => true,
+                                    privilege   => 'connect');
+ 
+  DBMS_NETWORK_ACL_ADMIN.ADD_PRIVILEGE(acl       => 'example.xml',
+                                       principal => 'STUDENT',
+                                       is_grant  => true,
+                                       privilege => 'resolve');
+ 
+  DBMS_NETWORK_ACL_ADMIN.ASSIGN_ACL(acl  => 'example.xml',
+                                    host => '127.0.0.1');
+END;
+/
+COMMIT;
+
+ 
+<h2>Exercices </h2>
+
+<p>1. (3pt) ''HTTP Request''</p>
+
+<p>Create a stored procedure which will connect to a web server and will make a asimple HTTP reqest. The function will have as parameters the host name and port.</p>
+<p>The received result will be printed in the created function. If you can't connect to the host, it will only print 'FAIL'. Test in an anonymus block with a few hosts.</p>
+
+
+<p>2. (4pt) ''SMTP Server''</p>
+
+<p>Create a stored procedure which will have the role of connecting to a SMTP server. The procedure will receive as arguments, the host of the mail serverand the respective</p>
+<p>port, with whom it will estabilish a connection. In case it can't connect, the message shown will be 'FAIL'. The created procedure will send a single message to a</p>
+<p>random e-mail address. The data necessary or the content of the mail are irrelevant and, so, it will be hardcoded. In case of an exception appearing while using the</p>
+<p>SMTP protocol, it will be announced and the procedure will end it's execution. At the end of the sending, the message shown will be 'MAIL SENT'. As a final check, we</p>
+<p>will see if the mail was received and read it's contents.</p>
+
+<p>PS  : reread about the SMTP protocol, which was taught at the 'Computer Networks' course</p>
+
+<p>PS2: you can se any program necessary for testing the SMTP server</p>
+
+<p>Bonus (5pt): Whoever manages to login to gmail and send the e-mail from there as 5 bonus points.The e-mail will be sent to the laboratory professor.</p>
+
+
+<p>3. (3pt) ''Chit-Chat''</p>
+
+<p>Create a client in PL/SQL and an iterative server in JAVA. The server will have to manage a chat between exactly 2 persons. The client is a stored procedure which has </p>
+<p>as arguments the host adress, the port it will connect to, the inputdirectory and the name of the input file. The respective input file contains the lines which the</p>
+<p>client must use(in the exact order as in the file, empty lines will be ignored). The way the chat must work is as follows: client 1 reads the line from the file,</p>
+<p>prints it in the console, transmits it to the server and the server will send it to client 2, which will print it in the console. This way, at the end of the</p>
+<p>conversation, each client's console will contain the complete dialogue. When a client doesn't have any more lines, it will print only the lines of the other user.</p>
+<p>Each user has at least one line. The format used is the one from the following model.</p>
+
+<p>Example. Let there be the users ALLEN and MARK, and the input files F1.txt (ALLEN'S)</p>
+
+<p>line1</p>
+<p>line3</p>
+<p>line5</p>
+<p>line7</p>
+<p>line9</p>
+<p>line11</p>
+
+<p>and F2.txt (MARK'S)</p>
+
+<p>line2</p>
+<p>line4</p>
+<p>line6</p>
+
+<p>Considering that ALLEN connected first, the 2 of them will have as the following as the output printed:</p>
+
+<p>ALLEN: line1</p>
+<p>MARK: line2</p>
+<p>ALLEN: line3</p>
+<p>MARK: line4</p>
+<p>ALLEN: line5</p>
+<p>MARK: line6</p>
+<p>ALLEN: line7</p>
+<p>ALLEN: line9</p>
+<p>ALLEN: line11</p>
+
+<p>PS: aside from checking the xml, you will have to add another user with connect privileges to solve the problem (exactly like in the model above)</p>
+
+<p><!--</p>
+<p>1. (5pt) ''Ping''</p>
+
+<p>Creati o functie care sa simuleze comanda ping. Aceasta va primi ca argumente, numele host-ului si port-ul respectiv si va verifica daca poate fi accesat.</p>
+<p>In caz afirmativ, va returna 'OK'. Altfel, va returna 'FAIL'. Testati functia intr-un bloc anonim pentru cateva host-uri.</p>
+
+<p>PS: nu uitati de setarea xml-ului.</p>
+
+<p>--></p>

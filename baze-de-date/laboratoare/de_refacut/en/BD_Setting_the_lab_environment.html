@@ -1,0 +1,57 @@
+<h2> Installing Oracle Database Express Edition 11g </h2>
+
+<p>In case you'll be using personal laptops during the lab, you are asked to install [https://profs.info.uaic.ro/~bd/11g/OracleXE112_Win64.zip Oracle Express Edtition 11g Release 2]. This database server is all you need for the practical works, other versions including more advanced features not required at this stage (distributed database or multi-processor access).</p>
+
+<p>To download  [https://profs.info.uaic.ro/~bd/11g/OracleXE112_Win64.zip Oracle Express Edtition 11g Release 2] you need at first to create a student account on the Oracle web page.</p>
+
+<p>During installation, you will be prompted for a password, try to memorize it. <!-->This is the administrator's password required to administer the database remotely. Locally, this password will be ignored by SQL*Plus.<--></p>
+
+
+<h2> Setting up a new account </h2>
+<p><code>SQLPLUS /NOLOG</code> -- This command, executed in command line, opens SQL*Plus without initiating any connection to the database server (this behavior is due to the NOLOG option).</p>
+
+<p>To connect to the database as administrator you will use the user SYS (created during server installation) and you will type: </p>
+
+<p><code>CONN / AS SYSDBA</code> (or <code>CONN SYS AS SYSDBA</code>) </p>
+<p>and you will be prompted for the password (set for you as "sql" on the computers in the lab, subject to change for future labs).</p>
+
+<p>If you prefer, you can type both the user and the password in the connection string as follows:</p>
+
+<p><code>CONN SYS/sql AS SYSDBA</code> </p>
+
+<p>The SYS account gives you access to the entire database. For example, typing <code>SELECT TABLE_NAME FROM DBA_TABLES</code> you can see all the tables existing in the database. A common user should not be able to access these tables, unless the database administrator explicitly grants access. Modifying system tables can compromise the proper functioning of the database, therefore each student has to create a new account he/she will use further during the labs. The accounts will be created from the SYS account (you just have connected to), by typing:</p>
+
+<p><code>CREATE USER STUDENT IDENTIFIED BY STUDENT DEFAULT TABLESPACE USERS TEMPORARY TABLESPACE TEMP;</code> -- congrats, you have just created a user named STUDENT with password STUDENT (the password is case sensitive, you have tu use upper case letters every time you type it). We insist that on all the computers in the lab the new accounts will have EXACTLY this name and password so that any student could connect from any computer. In case user STUDENT already exists, you get error ORA-01920: user name STUDENT conflicts with another user or role; you have to delete the user first, by typing <code>DROP USER STUDENT CASCADE;</code>; then, re-execute the coomand that creates the user. The commands for creating and deleting users can be executed only form the SYS account; you cannot create/drop new users from STUDENT account.</p>
+
+<p>In case on your personal laptops you have installed Oracle XE 12c and you want to create a user, use as user name instead of STUDENT the string c##STUDENT; working with Oracle XE 12c is allowed only for the first lab, you have to uninstall it and use  [https://profs.info.uaic.ro/~bd/11g/OracleXE112_Win64.zip Oracle Express Edtition 11g Release 2] in future labs. </p>
+
+<p>Now, let's give the new user some rights: </p>
+
+
+<p><code>ALTER USER STUDENT QUOTA 100M ON USERS;</code> -- you just allocated a maximum amount of 100mb space in the database. Later on, when logged in as STUDENT, in case you need to store millions of records in a table, you could receive error ORA-01536: space quota exceeded for tablespace 'USERS'. The solution is simple: delete old objects or introduce less data :) Only the administrator can allocate more storage to the users.</p>
+
+<p><code>GRANT CONNECT TO STUDENT;</code> -- the user just received the right to connect to the database. You will find at the bottom of this page the command to connect with the STUDENT user. </p>
+
+<p><code>GRANT CREATE TABLE TO STUDENT;</code> -- the user just got the right to create tables, constraints and indexes.</p>
+
+<p><code>GRANT CREATE VIEW TO STUDENT;</code> -- the user is now able to create views</p>
+
+<p><code>GRANT CREATE SEQUENCE TO STUDENT;</code> -- the user is now able to create sequences</p>
+
+<p><code>GRANT CREATE TRIGGER TO STUDENT;</code> -- the user is now able to create triggers</p>
+
+<p><code>GRANT CREATE SYNONYM TO STUDENT;</code> -- the user is now able to create synonyms</p>
+
+<p><code>GRANT CREATE PROCEDURE TO STUDENT;</code> -- the user is now able to create procedures, functions and packages</p>
+
+<p><!--><code>GRANT SELECT_CATALOG_ROLE TO STUDENT;</code> -- the use now is able to access some system views</p>
+
+<p><code>GRANT EXECUTE_CATALOG_ROLE TO STUDENT;</code> -- the user is able to execute some functions and procedures in the system packages.</p>
+
+<p><--></p>
+
+<p><code>CONN STUDENT/STUDENT@localhost/XE</code> -- congrats! you have just connected with the new user. Any connection to the database will be made with the command: CONN (sau CONNECT) <user>/<parola>@<db server>/<nume serviciu>. In our case, we connect on the locally installed server registered by default as XE service. If you change the name during server installation you have to use the new given name. Once connected to the database, you can switch to other account only by giving the desired user and its password: <code>CONN STUDENT/STUDENT</code></p>
+
+
+
+<p><code>SELECT 1 FROM DUAL;</code> -- you have just executed your first query; you can move on to [[Lab 1| the first lab]] or you can have a look at [[SQLPlus_Guide|the SQL*Plus guide]] - the utility you have already used for executing the above commands and  which will serve as lab environment for the entire semester.</p>

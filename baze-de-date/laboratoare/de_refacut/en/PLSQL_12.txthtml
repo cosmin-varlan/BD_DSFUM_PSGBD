@@ -1,0 +1,67 @@
+<p>Note: for this problem you don’t need any supplementary information. The time spent solving the problem takes longer because the time spent learning is 0. (and I have set a bigger score of points).</p>
+
+<h2> Exercise (15pt) </h2>
+
+<p>Build a multiple-choice test solving application (could be a web application, java, even a CLI – but not just PLSQL scripts)</p>
+
+<p>The application will be connected to an Oracle server which offers two functions:</p>
+
+<h4> First function (6pt) </h4>
+
+<p>Will allow user authentication: it will receive as parameters the username and the password hash and will check if the user is in the database having associated that hash. In case of successful authentication, you will create a new hash (H2) which will be associated to the test generated for that user (in PLSQL you can use ora_hash(param)). In a new table you will store the username, the new generated hash (H2) and a generated test.</p>
+
+<p>How the test is generated:</p>
+<p>It will have a number of 10 questions from 10 different fields; a question from each field.</p>
+
+<p>The n-th field, marked with Dn, will contain a number of questions for that field. Every existing question will have a different number of answers from which at least one is correct.</p>
+
+<p>To generate a question, firstly is selected a field that haven’t been selected yet. It’s randomly picked a question from that field and then for that question it will be added a number of 5 answers: the first answer will be compulsory a correct one and then it will be randomly chosen from the other answers one or more correct or incorrect answers (in total 4 more), taking care of not having duplicated answers (if you choose randomly you can get the same answer twice). After the answers are selected, they will be reordered. The same process is identical for generating the rest of the questions until there are no more fields left to be selected.</p>
+
+<p>You can store as you want the test (as nested tables or strings in CSV format etc.). It is recommended to keep the question’s content as an ID rather then keeping the actual content (same for associated answers). For example, I can store a test in a CSV as:</p>
+
+<p>D4:q2-a75,a22,a89,a12,a34#D2:q94-a41,a77,a78,a80,a79#..... where D4 indicates that the first question of the test is from the field 4, is the question with the ID 2 in the question table and the selected answers for it are the ones with IDs 75, 22, 89, 12, 34 – they already have an order (for example the correct answers could be IDs 89 and 34.)</p>
+
+<p>Don’t forget: the username, the generated hash (H2) along with the test (in any format you want) must be stored in a table.</p>
+
+<p>This function returns either the generated hash (H2) (back to the PHP app) or a standard value (for example 0 or null) if the user cannot be authenticated in the system.</p>
+
+<p>In the case the user can authenticate and he already has a generated test from a previous authentication, it will be returned the existing hash (H2 which was generated previously).</p>
+
+<h4> Second function (9pt) </h4>
+
+<p>It will have 2 parameters:</p>
+<ul>
+<li> H2 hash (which the PHP acknowledges because it was returned in the previous function)</li>
+<li> The answer to a previous question (for example: D4:q2-a89,a34 – he/she answered correctly to the first question).</li>
+</ul>
+
+
+<p>The function will return a question along with the possible answers (which will be displayed in your application’s interface) this way: Due to the hash, this second function will allow receiving the next question from the test – the one the user haven’t answered yet (for example, I can check the table with answers for the ones which were given at the test with the received hash as parameter). After the question is found, this question will be formulated in a string parsable by your application and will be sent to it.</p>
+
+<p>When this function cannot generate any question further (because it is reached the final of the test), it will calculate the final score and will return it to the application in a parsable format (for example: “Score:92”) and in the same time it will be stored in a table with final result where are memorized the usernames and the final score. The application will display the final score.</p>
+
+<p>For computing scores proceed as follows: the 100 points available will be allocated identically for every field: for question from field 1 there will be given 10 points, for question from field D2 another 10 points and so on. The number of points associated to a question are divided to the number of correct answers selected. In the previous example were picked 2 correct answers, so everyone of them values 5 points. For every correct answer it is added 5 points, for every wrong answer are decreased 5 points. To be considered that there aren’t negative scores – for example, if at the given question as example the answer would be “D4:q2-a75,a22,a89”, 89 will be the only one correct, therefore the question will value 0 points.</p>
+
+<p>Observation: the PLSQL code could also contain other functions, but at the end PHP application will only call the two functions described above.</p>
+
+<p>The questions and answers tables could be obtain using this script:</p>
+<p>https://docs.google.com/document/d/1Ps0-R_4NyDkMK04Jmk3bhZiy4bKg2LIjEq_G4Scojqk/edit?usp=sharing (<span style="color:red"> this document can be edited by anyone, especially to be able to add the rest of fields – insert easy questions in order that all of us can answer them :D </span>)</p>
+
+
+<h6> Example / study case </h6>
+<p>This is just an example (probably inefficient). You can implement this story in other ways.</p>
+
+<p>George has the password gigi which is encrypted with sha-1: "3277d1158b8e7b677d96e0f6f0005c30035a9f37". He calls the first function: function1(‘George’, ‘3277d1158b8e7b677d96e0f6f0005c30035a9f37’) from the PHP application. The function searches the table with the users and founds that the password is correct for user George. Then, searches in the table which stores the tests and sees that George doesn’t appear in that table. For that reason, is build a hash (H2): 29152212 and is generated a test, for him:</p>
+
+<p>D2:Q6-A50,A45,A53,A54,A47#D1:Q2-A15,A16,A18,A19,A17#.......</p>
+<p>His name, along with H2 and the generated test are written in the database in the table “Tests”. The function returns value of H2: 29152212 towards PHP application.</p>
+
+<p>The PHP application calls now the second function this way: function2(29152212, ‘’); function2 returns the text of question Q6 with the answers in the established order in the generated test, in a format that can be parsed by PHP: ‘Q6: Which one of this number are even? *50:13*45:2*53:7*54:9*47:6'. The text is split by * (the programmer made sure that * cannot appear in the questions or answers) and displays for George:</p>
+<pre><code class="language-sql">Which of the following numbers are even?
+a) 13
+b) 2
+c) 7
+d) 9
+<p>George is smart but neglectful. He chooses as even number a, b and e. When the submit button is pressed, the answers are sent to PHP which calls function2 again, this time filling the second parameter: function2(29152212,'Q6-A50,A45,A47'). This call will lead to complete in the database with answers of George’s answer: Q6-A50,A45,A47, then it is observed in the table with answers, which are the questions from George’s test that are not answered yet: Q2 (from the field 1). The following string is sent to PHP: ‘Q2:Which one of the geometric shapes have more than 4 angles?*15:Rectangle*16:Parallelogram*18:Dodecagon*19:Pentagon*17:Hexagon’.</p>
+
+<p>The process continues until George reaches next question. When he sends to the database the answer from that last question, because there aren’t questions found to be answered, the database server computes the sum of points: every question will have 10 points. Question 1 had 2 correct answers selected (the one with IDs 45 and 47). For that reason every answer values 5 point (10/2). George had answered with IDs 50, 45, 47 so he scored -5, 5, 5 = totally 5 points for this question. Computing continues for the rest of the questions and in the end the sum is 87.333. Ceil is used (because we don’t like a sad George) and this time function2 sends to PHP app the string ‘Score: 88’, after writing this score in a table with “final grades”. George is happy 😊. He passed your multiple-choice test.</p>
