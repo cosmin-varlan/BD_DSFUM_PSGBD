@@ -1,0 +1,163 @@
+<p>= UTL_SMTP =</p>
+
+<p>https://docs.oracle.com/database/121/ARPLS/u_smtp.htm#ARPLS074</p>
+
+<p>Textul acestei pagini a fost conceput de Cosmin Gabriel Surdu.</p>
+
+<p>Pachetul UTL_SMTP este definit in fisierul sendmail.sql. Acesta oferă posibilitatea programelor PL/SQL să trimită email-urile prin protocolul SMTP ( pe care îl știți de la Rețele , specificațiile complete ale protocolului le găsiți pe https://tools.ietf.org/html/rfc821.). Acest pachet are nevoie de Oracle XMLDB, care a fost aleasă inițial la crearea bazei de date sau modificat ulterior folosind DBCA ( Database Configurator Assistant). Altfel, va apărea eroarea ORA-24248: <span style="color:red">XML DB extensible security not installed</span></p>
+
+<p>Pachetul va fi descris detaliat mai jos, dar acum un examplu este mai util poate acum decât documentația stufoasă.</p>
+
+<p>= Exemplu = </p>
+
+<pre><code class="language-sql">DECLARE
+  c UTL_SMTP.CONNECTION;
+ 
+  PROCEDURE send_header(name IN VARCHAR2, header IN VARCHAR2) AS
+  BEGIN
+    UTL_SMTP.WRITE_DATA(c, name || ': ' || header || UTL_TCP.CRLF);
+  END;
+ 
+BEGIN
+  c := UTL_SMTP.OPEN_CONNECTION('smtp-server.acme.com');
+  UTL_SMTP.HELO(c, 'foo.com');
+  UTL_SMTP.MAIL(c, 'sender@foo.com');
+  UTL_SMTP.RCPT(c, 'recipient@foo.com');
+  UTL_SMTP.OPEN_DATA(c);
+  send_header('From',    '"Sender" <sender@foo.com>');
+  send_header('To',      '"Recipient" <recipient@foo.com>');
+  send_header('Subject', 'Hello');
+  UTL_SMTP.WRITE_DATA(c, UTL_TCP.CRLF || 'Hello, world!');
+  UTL_SMTP.CLOSE_DATA(c);
+  UTL_SMTP.QUIT(c);
+EXCEPTION
+  WHEN utl_smtp.transient_error OR utl_smtp.permanent_error THEN
+    BEGIN
+      UTL_SMTP.QUIT(c);
+    EXCEPTION
+      WHEN UTL_SMTP.TRANSIENT_ERROR OR UTL_SMTP.PERMANENT_ERROR THEN
+        NULL; -- When the SMTP server is down or unavailable, we don't have
+              -- a connection to the server. The QUIT call raises an
+              -- exception that we can ignore.
+    END;
+    raise_application_error(-20000,
+      'Failed to send mail due to the following error: ' || sqlerrm);
+END;
+
+
+<p>Pe baza exemplului de mai sus o să exemplificăm toate funcțiile apărute ( și necesare ) pentru a putea trimite un mail. </p>
+<p><span style="color:blue"> Nu schimbați ordinea funcțiilor !!</span></p>
+<p>Ele sunt descrise mai jos în ordinea firească în care ar trebui apelate. </p>
+
+
+<p>= Funcții folosite = </p>
+
+<ul>
+<li>'''''1.OPEN_CONNECTION''''' - deschide o conexiune SMBTP pe care o folosim să trimitem mail.</li>
+</ul>
+
+
+<p> <nowiki></p>
+<p>UTL_SMTP.OPEN_CONNECTION (</p>
+<p>   host                           IN  VARCHAR2,           -- Acesta trebuie completat </p>
+<p>   port                           IN  PLS_INTEGER DEFAULT 25, -- Acesta are default valoarea 25, nu trebuie modificată </p>
+<p>   tx_timeout                     IN  PLS_INTEGER DEFAULT NULL, -- Dacă aveți nevoie de un timeout la server, setați aici.</p>
+<p>   wallet_path                    IN  VARCHAR2 DEFAULT NULL, -- Path către Oracle Wallet SSL/TLS </p>
+<p>   wallet_password                IN  VARCHAR2 DEFAULT NULL, -- Parola de la Wallet</p>
+<p>   secure_connection_before_smtp  IN  BOOLEAN DEFAULT FALSE) -- Dacă doriți o conexiune SSL/TLS înainte de conexiunea SMTP.</p>
+<p>RETURN connection; </p>
+
+<p></nowiki></p>
+
+<ul>
+<li>'''''2. HELO'''''  - Setează domeniul folosit </li>
+</ul>
+
+
+<p> <nowiki></p>
+<p>UTL_SMTP.HELO (</p>
+<p>   c       IN OUT NOCOPY   connection,  -- Conexiunea deschisă cu OPEN_CONNECTION</p>
+<p>   domain  IN              VARCHAR2); -- Domeniul folosit </p>
+<p></nowiki></p>
+
+<ul>
+<li>'''''3. MAIL'''''  - Setează adresa celui care trimite mail-ul.</li>
+</ul>
+
+
+<p> <nowiki> </p>
+<p>UTL_SMTP.MAIL (</p>
+<p>   c           IN OUT NOCOPY   connection,  -- Conexiunea deschisă cu OPEN_CONNECTION</p>
+<p>   sender      IN              VARCHAR2, -- Sender adress. </p>
+<p>   parameters  IN              VARCHAR2 DEFAULT NULL); -- Parametri specifici ( Secțiunea 6 din RFC 1869 )</p>
+<p></nowiki></p>
+
+<ul>
+<li>'''''4. RCPT''''' - Setează adresa celui căruia trimiteți mail-ul.</li>
+</ul>
+
+
+<p> <nowiki></p>
+<p>UTL_SMTP.RCPT (</p>
+<p>   c           IN OUT NOCOPY     connection,   -- Conexiunea deschisă cu OPEN_CONNECTION</p>
+<p>   recipient   IN                VARCHAR2,  -- Recipient adress</p>
+<p>   parameters  IN                VARCHAR2 DEFAULT NULL); -- Parametri specifici ( Secțiunea 6 din RFC 1869 )</p>
+<p></nowiki></p>
+
+<ul>
+<li>'''''5. OPEN_DATA''''' - Deschide mail-body-ul și permite începerea scrierii de text propriu-zis în body.</li>
+</ul>
+
+
+<p> <nowiki></p>
+<p>UTL_SMTP.OPEN_DATA (</p>
+<p>   c     IN OUT NOCOPY connection); -- Conexiunea deschisă cu OPEN_CONNECTION, după acest pas începem mail_body-ul </p>
+<p></nowiki></p>
+
+<ul>
+<li>'''''6. WRITE_DATA or WRITE_RAW_DATA'''''  -- Aici se scrie propriu-zis body-ul mail-ului. Sunt permise apeluri repetate. Diferența constă </li>
+</ul>
+
+
+<p>în modul de trimitere a textului efectiv. </p>
+<pre><code class="language-sql">UTL_SMTP.WRITE_DATA (
+   c     IN OUT NOCOPY connection, -- Conexiunea deschisă cu OPEN_CONNECTION
+   data  IN VARCHAR2 CHARACTER SET ANY_CS); -- Datele trimise în tip varchar2.
+   
+UTL_SMTP.WRITE_RAW_DATA (
+   c     IN OUT NOCOPY connection -- Conexiunea deschisă cu OPEN_CONNECTION
+   data  IN RAW); -- Datele trimite tip raw
+
+<ul>
+<li>'''''7. CLOSE_DATA''''' - închide body-ul. Abia în punctul ăsta este trimis mail-ul prin atașarea <CR><LF>.<CR><LF> (a single period at the beginning of a line).</li>
+</ul>
+
+
+<p> <nowiki></p>
+<p>UTL_SMTP.CLOSE_DATA (</p>
+<p>   c     IN OUT NOCOPY connection); -- Conexiunea deschisă cu OPEN_CONNECTION</p>
+<p></nowiki></p>
+<p><span style="color:red"> </p>
+<p>The calls to the OPEN_DATA Function and Procedure, WRITE_DATA Procedure, WRITE_RAW_DATA Procedure and CLOSE_DATA Function and Procedure must be made in this order.</p>
+<p></span></p>
+
+<ul>
+<li>'''''8. QUIT''''' - inchide conexiunea SMTP </li>
+</ul>
+
+
+<p> <nowiki></p>
+<p>UTL_SMTP.QUIT (</p>
+<p>   c  IN OUT NOCOPY connection); -- Conexiunea deschisă cu OPEN_CONNECTION</p>
+<p></nowiki></p>
+
+
+<h2> Excepții </h2>
+
+<p>Tratarea excepțiilor este necesară pentru a asigura că toți pașii s-au desfășurat corespunzător. </p>
+
+<p>1. '''''INVALID_OPERATION''''' - Raised when an invalid operation is made. In other words, calling API other than the WRITE_DATA Procedure, the WRITE_RAW_DATA Procedure or the CLOSE_DATA Function and Procedure after the OPEN_DATA Function and Procedure is called, or calling WRITE_DATA, WRITE_RAW_DATA or CLOSE_DATA without first calling OPEN_DATA.</p>
+
+<p>2. '''''TRANSIENT_ERROR''''' - Raised when receiving a reply code in 400 range</p>
+
+<p>3. '''''PERMANENT_ERROR''''' - Raised when receiving a reply code in 500 range</p>

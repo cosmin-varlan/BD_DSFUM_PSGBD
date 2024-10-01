@@ -1,0 +1,304 @@
+<p>Translated by Alexandru Martiniuc on 23.03.2018.</p>
+
+
+<p>= Exceptions =</p>
+
+<p>More details on exceptions can be found in the official Oracle documentation:</p>
+<p>http://docs.oracle.com/cd/B28359_01/appdev.111/b28370/errors.htm</p>
+
+
+<h3> Why we use exceptions </h3>
+
+<p>Many programmers choose to think superficially and write code that meets the original</p>
+<p>specifications and that's it. They hope that users will only use the code according to</p>
+<p>those specifications and that no bug will occur.Oh, well... . Besides them, there are</p>
+<p>good programmers who are aware that whenever users or even their colleagues programmers</p>
+<p>who work on other application modules, can do something outside of those specifications</p>
+<p>and write their code accordingly. For example, the user can call a procedure with some</p>
+<p>invalid parameters and the programmer colleague may omit to write a validation against </p>
+<p>those values. In the end for us everything is reduced to a choice: you do enough and </p>
+<p>write the application in such a way as to protect the users in our case , the database</p>
+<p>of possible errors. I'd like to think we're in the second category.</p>
+
+<p>Fortunately, PL / SQL gives us a powerful and flexible way to handle exceptions and give </p>
+<p>users the most useful messages in different scenarios. And as long as we use the exceptions</p>
+<p>correctly, it does not even require extra code to predict and deal with possible errors.</p>
+<p>In the following sections we will see what an exception in PL / SQL is, how it is defined,</p>
+<p>and especially how to catch and forward it to the caller.</p>
+
+<h3> When we use exceptions </h3>
+
+<p>We will start from an example, namely a function that receives as argument a student's </p>
+<p>registration number and returns the most recent grade of that student.</p>
+
+<p>Here's a first version of the code for this procedure:</p>
+
+<pre><code class="language-sql">CREATE OR REPLACE FUNCTION student_recent_grade(
+    pi_registration_number IN CHAR)
+  RETURN VARCHAR2
+AS
+  recent_grade INTEGER;
+  message        VARCHAR2(32767);
+BEGIN
+  SELECT value
+  INTO recent_grade
+  FROM
+    (SELECT value
+    FROM grades
+    WHERE registration_number = pi_registration_number
+    ORDER BY grading_date DESC
+    )
+  WHERE rownum <= 1;
+  mesaj        := 'The latest student grade with registration_number ' || pi_registration_number
+  || ' is ' || recent_grade || '.';
+  RETURN message;
+END student_recent_grade;
+</code></pre>
+
+
+<p>This is a code from the first category I was talking about earlier. It respects the initial specifications,</p>
+<p>namely to return the most recent student grade, you can present it to a lab, and possibly a lean teacher will</p>
+<p>give you the maximum score, no matter if he can tell you that you could add something.</p>
+<p>Now let's see what could be added to this code and for this we start from possible errors or possible irrelevant</p>
+<p>values returned by this function. We will run the following two selections and here are their results:</p>
+
+<pre><code class="language-sql">
+ <nowiki>select student_recent_grade(120) from dual;
+</code></pre>
+
+ 
+<p>To treat in a more useful way for the user these cases will make the following changes in the procedure:</p>
+ 
+<pre><code class="language-sql">   
+  CREATE OR REPLACE FUNCTION student_recent_grade(
+    pi_registration_number IN CHAR)
+  RETURN VARCHAR2
+AS
+  recent_grade INTEGER;
+  message        VARCHAR2(32767);
+  counter      INTEGER;
+BEGIN
+  SELECT value
+  INTO recent_grade
+  FROM
+    (SELECT values
+    FROM grades
+    WHERE registration_number = pi_registration_number
+    ORDER BY grading_date DESC
+    )
+  WHERE rownum <= 1;
+  message        := 'The latest student grade with registration_number ' || pi_registration_number || ' is' || recent_grade || '.';
+  RETURN message;
+EXCEPTION
+WHEN no_data_found THEN
+  SELECT COUNT(*) INTO counter FROM students WHERE registration_number = pi_registration_number;
+  IF counter = 0 THEN
+    message   := 'Student with registration number ' || pi_registration_number || ' doesn't exist in the database.';
+  ELSE
+    SELECT COUNT(*) INTO counter FROM grades WHERE registration_number = pi_registration_number;
+    IF counter = 0 THEN
+      message   := 'Student with registration_number ' || pi_registration_number || ' doesn't have any grade.';
+    END IF;
+  END IF;
+RETURN message;
+END student_recent_grade;
+</code></pre>
+
+
+<p>As you have seen, a new section appeared in the function / procedure / anonymous block, namely:</p>
+
+<pre><code class="language-sql">begin
+exception
+
+
+<p>Let's run the two function calls again: Let's run the two function calls again:</p>
+
+<pre><code class="language-sql">
+ <nowiki>select nota_recenta_student(120) from dual;
+</code></pre>
+
+ 
+<p>Which version does it look ok for the application user? What message do you prefer to show :</p>
+<p>"No data found" or "Student with registration number -1 doesn't exist"?</p>
+
+<h3> Types of exceptions </h3>
+
+<p>There are three types of exceptions (technically speaking two, plus a third so generic that it deserves a separate category):</p>
+
+<ul>
+<li> exceptions defined by the user - declared as an exception object and initialized using the PRAGMA EXCEPTION_INIT function </li>
+</ul>
+
+
+<p>with an error code between -20001 and -20999.</p>
+
+<pre><code class="language-sql">  inexistent_student exception;
+  PRAGMA EXCEPTION_INIT(inexistent_student, -20001);
+begin
+  if...then
+     raise inexistent_student;
+  end if;
+  exception
+    when inexistent_student then
+      [do something]
+
+<ul>
+<li> predefined exceptions in the database - remember that predefined exceptions have error codes between -1 (unique constraint violated) </li>
+</ul>
+
+
+<p>and -20000. When defining our exceptions, it is recommended that we use error codes beginning with -20001 in order not to intersect with</p>
+<p>those codes already used or reserved by Oracle. The end of the range is -20999, so we can define a maximum of one thousand custom exceptions.</p>
+
+<p>Some examples of predefined exceptions:</p>
+<p>DUP_VAL_ON_INDEX - A program attempts to store duplicate values in a column that is constrained by a unique index.</p>
+<p>NO_DATA_FOUND - A SELECT INTO statement returns no rows, or your program references a deleted element in a nested table or an uninitialized element in an index-by table.</p>
+<p>ZERO_DIVIDE - A program attempts to divide a number by zero.</p>
+
+<pre><code class="language-sql">   [code]
+   exception
+     when NO_DATA_FOUND then
+       [do something]
+
+<ul>
+<li> the predefined exception OTHERS which the database throws in the case of any exception other than predefined and defined by the user.</li>
+</ul>
+
+
+<p> <nowiki>begin</p>
+<p>   [code]</p>
+<p>   exception</p>
+<p>     when NO_DATA_FOUND then</p>
+<p>        [do something]</p>
+<p>     when OTHERS then</p>
+<p>        [do something]</p>
+<p>end;</nowiki></p>
+
+<p>We can use WHEN OTHERS to show generic messages like "Unexpected error. Please contact the application administrator".</p>
+
+<p>Another way to use WHEN OTHERS is the syntax EXCEPTION WHEN OTHERS THEN NULL that ignores any exceptions thrown by our code. I hope it is useless to specify </p>
+<p>never to use this construction in an application :) The only acceptable use of it is in a test code, for example if we want to display something and deliberately </p>
+<p>ignore any exception. I repeat, just for tests.</p>
+
+<h3> How we use an exception </h3>
+
+<p>There are 2 ways to use an exception:</p>
+
+<ul>
+<li> throw the exception in a certain scenario (simpler version). In this case, we do not explicitly define the exception but just send the caller an error code and a message:</li>
+</ul>
+
+
+<p> <nowiki></p>
+
+<p>CREATE OR REPLACE FUNCTION student_recent_grade(</p>
+<p>    pi_registration_number IN CHAR)</p>
+<p>  RETURN VARCHAR2</p>
+<p>AS</p>
+<p>  recent_grade INTEGER;</p>
+<p>  message      VARCHAR2(32767);</p>
+<p>  counter      INTEGER;</p>
+<p>BEGIN</p>
+<p>  SELECT value</p>
+<p>  INTO recent_grade</p>
+<p>  FROM</p>
+<p>    (SELECT value</p>
+<p>    FROM grades</p>
+<p>    WHERE registration_number = pi_registration_number</p>
+<p>    ORDER BY grading_date DESC</p>
+<p>    )</p>
+<p>  WHERE rownum <= 1;</p>
+<p>  message        := 'The latest student grade with registration_number ' || pi_registration_number || ' is' || recent_grade || '.';</p>
+<p>  RETURN message;</p>
+<p>EXCEPTION</p>
+<p>WHEN no_data_found THEN</p>
+<p>  SELECT COUNT(*) INTO counter FROM students WHERE registration_number = pi_registration_number;</p>
+<p>  IF counter = 0 THE</p>
+<p>    raise_application_error (-20001,'Student with registration number ' || pi_registration_number || ' doesn't exist in the database.');</p>
+<p>  ELSE</p>
+<p>    SELECT COUNT(*) INTO counter FROM grades WHERE registration_number = pi_registration_number;</p>
+<p>    IF counter = 0 THEN</p>
+<p>      raise_application_error (-20002,'Student with registration_number ' || pi_registration_number || ' doesn't have any grade.');</p>
+<p>    END IF;</p>
+<p>  END IF;</p>
+<p>END student_recent_grade; </nowiki></p>
+
+<p>If the student does not exist in the database, we return the caller ID -20001 and a personalized message, and if the student exists but </p>
+<p>has no notes, we return the error code -20002 and another message.</p>
+
+<ul>
+<li> we define the exception, call it and then throw it (this is the complicated version but with the advantage that we can reuse the declared exceptions).</li>
+</ul>
+
+
+<p> <nowiki></p>
+<p>CREATE OR REPLACE FUNCTION student_recent_grade(</p>
+<p>    pi_registration_number IN CHAR)</p>
+<p>  RETURN VARCHAR2</p>
+<p>AS</p>
+<p>  recent_grade       INTEGER;</p>
+<p>  message              VARCHAR2(32767);</p>
+<p>  counter            INTEGER;</p>
+<p>  inexistent_student EXCEPTION;</p>
+<p>  PRAGMA EXCEPTION_INIT(inexistent_student, -20001);</p>
+<p>  student_fara_note EXCEPTION;</p>
+<p>  PRAGMA EXCEPTION_INIT(student_without_grades, -20002);</p>
+<p>BEGIN</p>
+<p>  SELECT COUNT(*) INTO counter FROM students WHERE registration_number = pi_registration_number;</p>
+<p>  IF counter = 0 THEN</p>
+<p>    raise inexistent_student;</p>
+<p>  ELSE</p>
+<p>    SELECT COUNT(*) INTO counter FROM grades WHERE registration_number = pi_registration_number;</p>
+<p>    IF counter = 0 THEN</p>
+<p>      raise student_without_grades;</p>
+<p>    END IF;</p>
+<p>  END IF;</p>
+<p>SELECT value</p>
+<p>INTO recent_grade</p>
+<p>FROM</p>
+<p>  (SELECT value</p>
+<p>  FROM grades</p>
+<p>  WHERE registration_number = pi_registration_number</p>
+<p>  ORDER BY grading_date DESC</p>
+<p>  )</p>
+<p> WHERE rownum <= 1;</p>
+<p>  message        := 'The latest student grade with registration_number ' || pi_registration_number || ' is' || recent_grade || '.';</p>
+<p>  RETURN message;</p>
+<p>EXCEPTION</p>
+<p>WHEN inexistent_student THEN </p>
+<p>	raise_application_error (-20001,'Student with registration number ' || pi_registration_number || ' doesn't exist in the database.');</p>
+<p>WHEN student_without_grades THEN</p>
+<p>  raise_application_error (-20002,'Student with registration_number ' || pi_registration_number || ' doesn't have any grade.');</p>
+<p>END nota_recenta_student; </nowiki></p>
+
+<p>The result is the same, except we have defined the exception. This style has the advantage that we could, in a separate set of exceptions ,</p>
+<p>define a list of exceptions, each with its code and message. It is more elegant to define the exceptions in one place and just use them in</p>
+<p>different places. This avoids duplication of code and hardcoding.</p>
+
+<pre><code class="language-sql">when exceptions.inexistent_student then
+[code]
+
+
+
+<h2> Exercises</h2>
+
+<p>These exercises were inspired from a previous laboratory proposed by mr. Lucian Lazar</p>
+
+<p>Exercice 1 (5 pt). </p>
+<p>Create a table that will contain all the students that went on a erasmus scholarship. The table must contain a registration number of the student, his first and last name and a number symbolizing the country he went. </p>
+<ul>
+<li> (1pt). Create an unique constraint on the field representing the registration number.</li>
+<li> (2pt). Woth respect to the uniquely constraint in the first part, in the newly created table copy 100 random students (from the table students). Some of the 100 students will be copied and some will violate the unique constraint.</li>
+<li> (2pt). Display all the students two students that were successfully copied and two that were not copied.</li>
+</ul>
+
+
+<p>Exercice 2 (5pt).</p>
+<ul>
+<li> (1pt) Create a function or procedure that will increase the scholarship of each student with a hardcoded value.</li>
+<li> (3pt) Call the procedure from an anonymous PLSQL block where you will also catch a custom exception thrown by the function when the increased scholarship has a value higher than 3000. In this case, you will also make the scholarship to have a value of 3000.</li>
+<li> (1pt) Display a list of students that have scholarship, the new scholarship and how much was the scholarship increased.</li>
+</ul>
+
+
+

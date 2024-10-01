@@ -1,0 +1,258 @@
+<p><b>Tematică:</b> lucrul cu funcții linie în SQL</p>
+
+<h2> Funcții linie </h2>
+<p>Funcţiile de tip linie sunt funcţii care, utilizate în interogări, sunt apelate pentru fiecare linie și returnează un rezultat pe linie pentru tabelul interogat. Argumentul funcțiilor poate fi o simplă constantă dată de utilizator, numele unei variabile, numele unei coloane sau o expresie.</p>
+<p>Pot fi utilizate în cadrul listei SELECT, în clauzele WHERE, ORDER BY.</p>
+<p>Apelate cu argument NULL funcţiile returnează NULL. Excepţie fac CONCAT, NVL, REPLACE şi REGEXP_REPLACE.</p>
+
+<p>Cele mai multe dintre funcțiile listate în continuare sunt specifice dialectului SQL de la Oracle.</p>
+
+<h3> Funcţii numerice </h3>
+<p>primesc ca argument şi returnează date de tip numeric</p>
+<p>{| border=1</p>
+<p>|-</p>
+<p>|CEIL (n) ||Rotunjeşte superior pe n	||SELECT CEIL(51.3) FROM DUAL;</p>
+<p>|-</p>
+<p>|FLOOR(n) ||Rotunjeşte inferior pe n	||SELECT FLOOR(51.3) FROM DUAL;</p>
+<p>|-</p>
+<p>|ROUND(n [,m])	||Rotunjeşte pe n la m zecimale. Implicit m este 0, echivalent cu rotunjirea la cel mai apropiat întreg. m poate fi şi negativ.	||SELECT ROUND(21.365,2) AS "Rotunjire - pozitiv" FROM DUAL;</p>
+<p><br></p>
+<p>SELECT ROUND (21.665,-1) AS " Rotunjire - negativ " FROM DUAL;</p>
+<p>|-</p>
+<p>|TRUNC(n [,m]) ||Trunchează pe n la m zecimale; implicit m e 0; m poate fi şi negativ.	||SELECT TRUNC(21.365,2) AS "Trunchiere - pozitiv" FROM DUAL;</p>
+<p><br></p>
+<p>SELECT TRUNC(21.665,-1) AS " Trunchiere - negativ" FROM DUAL;</p>
+<p>|-</p>
+<p>|MOD(m, n)||Returnează restul împărţirii lui m la n	||SELECT MOD (26,11) AS "Mod" FROM DUAL;</p>
+<p>|}</p>
+
+<p>La acestea se mai adaugă funcţiile trigonometrice uzuale (COS(n), ACOS(n), SIN(n), ASIN(n), TAN(n), ATAN(n)), funcţiile de calcul de logaritmi (LN(n), LOG(base, n)), ridicarea la putere (EXP(n), POWER(m,n), rădăcina pătrată (SQRT(n)).</p>
+
+<h3>Funcţii ce iau ca argument date caracter şi returnează valori numerice</h3>
+<p>{| border=1</p>
+<p>|-</p>
+<p>|LENGTH (char)	||Returneză lungimea şirului char.	||SELECT LENGTH('cuvant') AS "Lungime cuvant" FROM DUAL;</p>
+<p><br></p>
+<p>SELECT prenume, LENGTH(prenume) FROM profesori WHERE UPPER(TRIM(prenume))='COSMIN'; -- de ce 10?</p>
+<p>|-</p>
+<p>|ASCII (char)	||Returnează codul ASCII al primului character din şir	||SELECT ASCII('A') FROM DUAL;</p>
+<p>|-</p>
+<p>|INSTR(char1, char2 </p>
+<p>[, n [, m ]])</p>
+<p>	||Caută a m-a apariţie a şirului char2 în şirul char1 începând căutarea de la poziţia n; returnează poziţia în char1 a primului caracter din subşirul identificat. Implicit n şi m sunt 1. Dacă nu se identifică nici o apariţe rezultatul este 0.	||SELECT INSTR('CORPORATE FLOOR','OR',3,2) AS "Instring" FROM DUAL;</p>
+<p><br></p>
+<p>SELECT nume, INSTR(nume,'ra') FROM profesori;</p>
+<p>|}</p>
+
+<h3>Funcţii ce iau ca argument date caracter și returnează date de tip caracter</h3>
+<p>{| border=1</p>
+<p>|-</p>
+<p>|INITCAP(char) ||Prima literă a fiecărui cuvânt e transformată în majusculă.	||SELECT INITCAP('prima litera majuscula') FROM DUAL;</p>
+<p>|-</p>
+<p>|UPPER(char) ||Returnează şirul char rescris cu majuscule	||SELECT UPPER('Stefan') FROM DUAL;</p>
+<p>|-</p>
+<p>|LOWER(char) ||Returnează şirul char rescris cu litere mici	||SELECT LOWER('LOWER') FROM DUAL;</p>
+<p>|-</p>
+<p>|REVERSE(char) ||Returnează şirul char rescris de la coadă la cap	||SELECT REVERSE('OREZ') FROM DUAL;</p>
+<p>|-</p>
+<p>|CONCAT(char1, char2)	||Concatenează şirurile argument echivalent cu operatorul de concatenare	||SELECT CONCAT( CONCAT(nume, ' este student in anul '), an) FROM studenti;</p>
+<p>|-</p>
+<p>|SUBSTR(char, m [, n ])	||Extrage din şirul char n caractere începând de la poziţia m; omisiunea lui n semnifică finalul şirului; o valoare negativă pentru m semnifică numărarea de la stânga la dreapta	||SELECT SUBSTR('ABCDEFG',3,4) FROM DUAL;</p>
+<p>|-</p>
+<p>|RPAD(char1,n [,char2 ])  	||Returnează char1 cu spaţii adăugate la dreapta până la lungimea n, dacă se omite char2; altfel char2 este copiat de oricâte ori e nevoie pentru a completa char1 până la lungimea n	||SELECT RPAD(nume,12,'ab') FROM studenti WHERE nume = 'Popescu';</p>
+<p>|-</p>
+<p>|LPAD(char1,n [,char2 ])  	||Similar RPAD cu diferenţa că alipirea se face la stânga	||SELECT LPAD('Pagina',15,'*.') FROM DUAL;</p>
+<p>|-</p>
+<p>|CHR(n) ||Returnează caracterul corespunzător codului n, ca tip VARCHAR2	||SELECT CHR(68)<nowiki>||</nowiki>CHR(65)<nowiki>||</nowiki>CHR(84)<nowiki>||</nowiki>CHR(69) FROM DUAL;</p>
+<p>|-</p>
+<p>|TRIM (char) ||Elimină spaţiile goale de la inceputul şi sfârşitul textului || SELECT '-'<nowiki>||</nowiki>TRIM(' &nbsp; test &nbsp; ')<nowiki>||</nowiki>'-' AS "Fara spatii" FROM DUAL;</p>
+<p>|-</p>
+<p>|LTRIM(char) ||Elimină spaţiile goale de la inceputul textului	|| SELECT '-'<nowiki>||</nowiki>LTRIM(' &nbsp; test &nbsp; ')<nowiki>||</nowiki>'-' AS "Fara spatiile de la inceput" FROM DUAL;</p>
+<p>|-</p>
+<p>|REPLACE(char, search_string [, replacement_string])	||Returnează şirul char în care subşirul search_string este înlocuit de replacement_string; absenţa ultimului reprezintă ştergerea tuturor apariţiilor subşirului căutat 	||SELECT REPLACE('Andrei','i','ea') FROM DUAL;</p>
+<p>|-</p>
+<p>|TRANSLATE(char, from, to)	||Returnează char modificat astfel: fiecare apariţie a unui character din şirul from este înlocuită de corespondentul (caracterul de pe aceeaşi poziţie) din şirul to; dacă from este mai lung decât to, caracterele fără corespondent sunt şterse	||SELECT TRANSLATE('48KLM980', '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', '9999999999XXXXXXXXXXXXXXXXXXXXXXXXXX') "COD" FROM DUAL;</p>
+<p>|}</p>
+
+<p>Funcțiile care schimbă <span style="font-style:italic">case</span>-ul literelor (transformă textul în litere mici sau în majuscule) sunt frecvent utilizate în clauza WHERE pentru a regăsi text. De exemplu, dacă dorim identificarea datelor despre studentul Andrei și nu avem garanția că prenumele acestuia a fost inserat în baza de date cu toate litere majuscule sau doar cu prima literă majusculă, vom procesa atributul <i>prenume</i> aducându-l la forma dorită pentru testare:</p>
+
+<p><code>SELECT * FROM studenti WHERE prenume = 'ANDREI'; --returneaza 0 linii</code></p>
+
+<p><code>SELECT * FROM studenti WHERE UPPER(prenume) = 'ANDREI'; --returneaza înregistrările dorite</code></p>
+
+<p>De asemenea funcția TRIM are o largă utilizare pentru regăsirea datelor atunci cand atributele sunt declarate de tip CHAR:</p>
+
+<p><code>SELECT * FROM profesori WHERE UPPER(nume) = 'BREABAN'; --returneaza 0 linii</code></p>
+
+<p><code>SELECT * FROM profesori WHERE TRIM(UPPER(nume)) = 'BREABAN'; --returneaza înregistrările dorite</code></p>
+
+<p><code> SELECT TRIM('1' FROM '1test1') FROM dual; -- elimina caracterul 1de la inceputul si de la sfarsitul textului "1test1"</code></p>
+
+<p><code> SELECT TRIM(LEADING '0' FROM '00010230') FROM dual; -- Elimina zerourile de la inceput</code></p>
+
+<p><code> SELECT TRIM(TRAILING '1' FROM 'Tech1') FROM dual; -- elimina caracterele '1' de la sfarsit</code></p>
+
+<p><code> SELECT TRIM(BOTH '1' FROM '123Tech111') FROM dual; -- elimina caracterele '1' de la inceput si de la sfarsit</code></p>
+
+<h3>Funcţii pentru tipul DATE (date calendaristice)</h3>
+<p>Formatul implicit pentru datele calendaristice pe un server de baze de date Oracle este derivat pe baza parametrilor NLS_DATE_FORMAT si NLS_DATE_LANGUAGE. Cei mai multi veti descoperi probabil dupa instalarea serverului pe calculatoarele personale ca formatul implicit este "DD-MON-YY" (ex: '10-JUN-15'), însă acesta poate fi modificat de către utilizator (ALTER SESSION SET NLS_DATE_FORMAT....).  Pentru a depăși problemele de incompatibilitate, este recomandat ca lucrul cu constante de tip date calendaristice să facă apel la funcția TO_DATE (descrisă în secțiunea următoarea) care va specifica formatul acesteia.</p>
+<p>{| border=1</p>
+<p>|-</p>
+<p>|CURRENT_DATE    </p>
+<p>|Returnează data curentă relativ la zona de timp (time zone) a sesiunii curente	||SELECT CURRENT_DATE FROM DUAL;</p>
+<p>|-</p>
+<p>|CURRENT_TIMESTAMP    </p>
+<p>|Returnează data, ora si fusul orar curente relative la zona de timp (time zone) a sesiunii curente	||SELECT CURRENT_TIMESTAMP FROM DUAL;</p>
+<p>|-</p>
+<p>|SYSDATE	||Returnează data curentă a sistemului (dar contine si ora care de obicei nu este afisata)	||SELECT SYSDATE FROM DUAL;<br /><br /> SELECT TO_CHAR(SYSDATE, 'DD-MM-YYYY HH:MI') FROM DUAL;</p>
+<p>|-</p>
+<p>|MONTHS_BETWEEN(d1, d2 )	||Numărul de luni dintre d1 şi d2	||SELECT MONTHS_BETWEEN(</p>
+<p>TO_DATE('02-02-2015','MM-DD-YYYY'),</p>
+<p>TO_DATE('01-01-2015','MM-DD-YYYY') ) AS "Months"</p>
+<p>FROM DUAL;</p>
+<p>|-</p>
+<p>|ADD_MONTHS(d, n)</p>
+|
+<p>|SELECT data_nastere, ADD_MONTHS(data_nastere,1) FROM studenti WHERE nume= 'Popescu';</p>
+<p>|-</p>
+<p>|NEXT_DAY(d, char)	||Returnează data calendaristică corespunzătoare zilei lucrătoare specificate de char imediat urmatoare datei d	||SELECT NEXT_DAY('13-OCT-15','TUESDAY') FROM DUAL;</p>
+<p>|-</p>
+<p>|LAST_DAY(d)	||Returnează data calendaristică corespunzătoare ultimei zile din luna specificată de d	||SELECT SYSDATE,   LAST_DAY(SYSDATE) AS "Last" FROM DUAL;</p>
+<p>|-</p>
+<p>|ROUND(d [, fmt ]) ||	Rotunjește la cea mai apropiată dată calendaristcă conform formatului dat.</p>
+<p>|SELECT ROUND (TO_DATE ('27-OCT-16','DD-MON-YY'),'YEAR')"New Year" FROM DUAL;</p>
+<p>|-</p>
+<p>|TRUNC(d [, fmt ])	||Dacă formatul este omis, trunchiază la cea mai apropiată zi.</p>
+<p>|SELECT TRUNC(TO_DATE('27-OCT-16','DD-MON-YY'), 'YEAR')"First day of the current year" FROM DUAL; <br></p>
+<p>SELECT TRUNC(TO_DATE('27-OCT-16','DD-MON-YY'), 'MONTH')"First day of the current month" FROM DUAL;</p>
+<p>|}</p>
+
+<p>Studiaţi formatul fmt la adresa http://download.oracle.com/docs/cd/B19306_01/server.102/b14200/functions230.htm (macar astea sa stiti ce fac: D, DAY, DD, HH, MI, MM, MON, MONTH, SS, YYYY, YY, YEAR)</p>
+
+<p>Oracle stochează datele într-un format numeric intern reprezentând secolul, anul, luna, ziua, orele minutele și secundele. Fiind stocate în format numeric, datelor calendaristice le pot fi aplicați operatori numerici: </p>
+<ul>
+<li>adunarea sau scăderea unui număr la/dintr-o dată are ca rezultat o nouă dată:</li>
+</ul>
+
+
+<p><code>SELECT SYSDATE + 10 FROM dual;</code> Ce semnifică valoarea adunată? Cum putem adăuga un număr de ore la o data calendaristică?</p>
+<ul>
+<li>diferența a două date are ca rezultat numărul de zile</li>
+</ul>
+
+
+<p><code> SELECT (SYSDATE-data_nastere)/365 FROM studenti;</code></p>
+
+<h3>Funcţii de conversie</h3>
+<p>Oracle face implicit următoarele conversii de tipuri:</p>
+
+<p>VARCHAR2 -> NUMBER</p>
+
+<p>CHAR -> NUMBER</p>
+
+<p>VARCHAR2 -> DATE</p>
+
+<p>CHAR -> DATE</p>
+
+<p>NUMBER -> VARCHAR2</p>
+
+<p>DATE -> VARCHAR2</p>
+
+<p>Pentru alte conversii există funcţiile:</p>
+<p>{| border=1</p>
+<p>|-</p>
+<p>|TO_CHAR(char)	||Convertește o valoare de tip char la VARCHAR2	||</p>
+<p>|-</p>
+<p>|TO_CHAR(n [, fmt])	||Converteşte o valoare numerică n la VARCHAR2 conform formatului specificat fmt. Studiați formatul numeric la adresa: http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements004.htm#i34570 ||SELECT TO_CHAR('01110' + 1) FROM dual; <br> SELECT TO_CHAR(bursa,'$99,999') FROM studenti;</p>
+<p>|-</p>
+<p>|TO_CHAR({ datetime} [, fmt ])</p>
+<p>|Converteşte datetime la VARCHAR2 conform formatului specificat fmt	</p>
+<p>|SELECT TO_CHAR (SYSDATE, 'Day, Month, DD, YYYY')"TO_CHAR example" FROM DUAL;</p>
+<p>|-</p>
+<p>|TO_DATE(char [, fmt ])</p>
+<p>|Convertește un șir de caractere în dată calendarostică conform formatului specificat. Studiați modul de specificare a formatului la adresa: https://docs.oracle.com/cd/B28359_01/server.111/b28286/sql_elements004.htm#i34924</p>
+<p>|SELECT TO_DATE('January 26, 1996, 12:38 A.M.', 'Month dd YYYY HH:MI A.M.') FROM DUAL;</p>
+<p>|-</p>
+<p>|TO_NUMBER(char [, fmt ])	</p>
+<p>|http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements004.htm#i34570</p>
+<p>|SELECT TO_NUMBER('100.52','9,999.99') FROM DUAL;</p>
+<p>|-</p>
+<p>|CAST(expr AS type_name)||   ||SELECT CAST(CURRENT_TIMESTAMP AS VARCHAR(50)) FROM DUAL;</p>
+<p>|-</p>
+<p>|CONVERT(char, dest_char_set </p>
+<p>[, source_char_set ])</p>
+<p>|Converteşte şirul char într-o nouă codificare. Codificările uzuale sunt:</p>
+<p>-US7ASCII: US 7-bit ASCII character set</p>
+<p>-WE8DEC: West European 8-bit character set</p>
+<p>-F7DEC: DEC French 7-bit character set</p>
+<p>-WE8EBCDIC500: IBM West European EBCDIC Code Page 500</p>
+<p>-WE8ISO8859P1: ISO 8859-1 West European 8-bit character set</p>
+<p>-UTF8: Unicode 4.0 UTF-8 Universal character set, CESU-8 compliant</p>
+<p>-AL32UTF8: Unicode 4.0 UTF-8 Universal character set	</p>
+<p>|SELECT CONVERT('Ä Ê Í Ó Ø A B C D E ', 'US7ASCII', 'WE8ISO8859P1') FROM DUAL; </p>
+<p>|}</p>
+
+<p>Exemple in care data calendaristica (day/month) este tradusa in limba romana:  </p>
+<ul>
+<li><code> SELECT 'Este o zi frumoasa de '|| TO_CHAR(SYSDATE,'month','NLS_DATE_LANGUAGE = romanian') FROM DUAL;</code></li>
+<li><code>SELECT nume, prenume, TO_CHAR(data_nastere, 'day', 'nls_date_language=romanian') AS "zi nastere" FROM studenti; </code></li>
+</ul>
+
+
+<p>Pentru a studia formatarea datelor calendaristice in cadrul functiei to_char studiati materialul de la adresa:</p>
+<p>http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements004.htm#i34924</p>
+
+<h3>Alte funcţii</h3>
+<p>{| border=1</p>
+<p>|-</p>
+<p>|USER	||Returnează numele schemei curente	||SELECT USER FROM DUAL;</p>
+<p>|-</p>
+<p>|NVL(expr1, expr2)	||Dacă expr1 este NULL returnează expr2, altfel returnează expr1	</p>
+<p>|SELECT nume, NVL(bursa,0) "bursa" FROM studenti;<br>SELECT nume, NVL(TO_CHAR(bursa),'Nu are bursa') "bursa" FROM studenti;</p>
+<p>|-</p>
+<p>|NULLIF(expr1, expr2)</p>
+<p>|Dacă expr1 este egală cu expr2 returnează NULL, altfel returnează expr1	</p>
+<p>|-</p>
+<p>|DECODE(expr, search1, result1</p>
+<p>[, search2, result2]...</p>
+<p>[, default ])	</p>
+<p>|Compară expr cu fiecare valoare search pe rând. Dacă obţine egalitate returnează valorea result corespunzătoare. Dacă nici o potrivire nu e găsită este returnată valoarea DEFAULT; dacă aceasta nu e precizată returnează NULL. Dacă expr e NULL, se consider egalitate doar dacă search e NULL.	</p>
+<p>|SELECT DECODE(bursa, 450, 'premiul 1',</p>
+<p>350, 'premiul 2',</p>
+<p>250, 'premiul 3', '?'</p>
+<p>) FROM studenti;</p>
+<p>|-</p>
+<p>|LEAST(expr1 </p>
+<p>[, expr2 ]...</p>
+<p>) 	</p>
+<p>|Returnează cel mai mic element din listă	</p>
+<p>|SELECT LEAST('Mihai','Andrei','Anca') "LEAST" FROM DUAL;</p>
+<p>|-</p>
+<p>|GREATEST (expr1 </p>
+<p>[, expr2 ]...</p>
+<p>)	</p>
+<p>|Returnează cel mai mare element din listă	</p>
+<p>|SELECT GREATEST('Stefan','Mihai','Andrei','Anca') "GREATEST" FROM DUAL; </p>
+<p>|}</p>
+<p>Funcția NVL este deseori utilă pentru a evita rezultatele nule la aplicarea unor operatori/funcții. De exemplu, dacă toți studenții facultății ar fi finanțați cu o sumă dată (de ex. 100), suma totală ridicată de un student nu se poate obține prin</p>
+
+<p><code>SELECT 100+bursa FROM studenti;</code></p>
+
+<p>ci prin</p>
+
+<p><code>SELECT 100+NVL(bursa,0) FROM studenti;</code></p>
+
+<h2>Exerciții</h2>
+<p># Scrieți o interogare pentru a afișa data de azi. Etichetați coloana "Astazi".</p>
+<p># Pentru fiecare student afișați numele, data de nastere si numărul de luni între data curentă și data nașterii.</p>
+<p># Afișați ziua din săptămână în care s-a născut fiecare student.</p>
+<p># Utilizând functia de concatenare, obțineți pentru fiecare student textul 'Elevul <prenume> este in grupa <grupa>'.</p>
+<p># Afisati valoarea bursei pe 10 caractere, completand valoarea numerica cu caracterul $.</p>
+<p># Pentru profesorii al căror nume începe cu B, afișați numele cu prima litera mică si restul mari, precum și lungimea (nr. de caractere a) numelui.</p>
+<p># Pentru fiecare student afișați numele, data de nastere, data la care studentul urmeaza sa isi sarbatoreasca ziua de nastere si prima zi de duminică de dupa.</p>
+<p># Ordonați studenții care nu iau bursă în funcție de luna cand au fost născuți; se va afișa doar numele, prenumele și luna corespunzătoare datei de naștere.</p>
+<p>#Pentru fiecare student afișati numele, valoarea bursei si textul: 'premiul 1' pentru valoarea 450, 'premiul 2' pentru valoarea 350, 'premiul 3' pentru valoarea 250 și 'mentiune' pentru cei care nu iau bursa. Pentru cea de a treia coloana dati aliasul "Premiu".</p>
+<p># Afişaţi numele tuturor studenților înlocuind apariţia literei i cu a şi apariţia literei a cu i.</p>
+<p># Afișați pentru fiecare student numele, vârsta acestuia la data curentă sub forma '<x> ani <y> luni și <z> zile' (de ex '19 ani 3 luni și 2 zile') și numărul de zile până își va sărbători (din nou) ziua de naștere.</p>
+<p># Presupunând că în următoarea lună bursa de 450 RON se mărește cu 10%, cea de 350 RON cu 15% și cea de 250 RON cu 20%, afișați pentru fiecare student numele acestuia, data corespunzătoare primei zile din luna urmatoare și valoarea bursei pe care o va încasa luna următoare. Pentru cei care nu iau bursa, se va afisa valoarea 0.</p>
+<p># Pentru studentii bursieri (doar pentru ei) afisati numele studentului si bursa in stelute: fiecare steluta valoreaza 50 RON. In tabel, alineati stelutele la dreapta.</p>

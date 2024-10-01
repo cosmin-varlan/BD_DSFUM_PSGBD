@@ -1,0 +1,217 @@
+<p>=Regresia Liniară=</p>
+
+<p>Regresia liniară este o metodă prezentă în statistică care este folosită pentru a prezice, pe baza unor date introduse, urmările pentru un set nou date. Spre exemplu pentru venitul lunar al unei persoane și cheltuielile acesteia putem folosi această metodă (împreună cu date din trecut) pentru a găsi o variantă cât mai bună de a estima cât cheltuiește o persoană pe lună în funcție de ce venit are.</p>
+
+<p>==Exemplu==</p>
+
+<p>Pentru început, vom ilustra cea mai ușoară metodă de a stabili o prezicere voi relua exemplul prezentat în început însă doar cu datele de cheltuieli lunare, venitul va fi ignorat (aceasta este o variabilă ajutătoare pe care o vom folosi mai încolo la regresia liniară).</p>
+
+<p>În cazul în care singurele date pe care le avem sunt cheltuielile, cea mai bună estimare este media tuturor cheltuielilor introduse până acum. Astfel, spre exemplu, dacă media acestora este 1000 RON atunci valorile reale ar trebui să fie cel mai des apropiate de 1000. (recomandăm vizionarea imaginii https://imgur.com/42ZLPBJ pentru a putea observa mai bine metoda aceasta de predicție)</p>
+
+<p>Pentru a ne da seama de cât de bună este această estimare (vom compara cu metoda regresiei liniare) vom calcula suma erorilor ridicate la pătrat (erorile se ridică la pătrat pentru a fi valori pozitive și pentru a se putea cumula toate într-o valoare finală, precum și pentru a fi mai vizibile erorile). Aceasta este o cumulare a discrepanței dintre prezicerea actuală și valorile de până acum și ne indică un grad de eroare, suma trebuie să fie cât mai mică posibil pentru ca prezicerile să fie cât mai precise. Ea se calculează astfel: calculăm pentru fiecare valoare a cheltuielilor pe lună introduse, diferența dintre aceasta și prezicerea noastră actuală, după care ridicăm diferența la pătrat și facem suma tuturor diferențelor obținute. În cazul nostru, datele introduse să spunem că sunt (1300,2600,2200,3800,2700,2000,2500,2800), media va fi 2487.5 iar suma erorilor medie va fi 3608750.  Suma obținută în acest exemplu o vom numi SUMA_ERORILOR_MEDIE.</p>
+
+<pre><code class="language-sql">2600-2487.5 = 112.5   și ridicat la pătrat = 12 656.25
+2200-2487.5 = -287.5  și ridicat la pătrat = 82 656.25
+3800-2487.5 = 1312.5  și ridicat la pătrat = 1 722 656.25
+2700-2487.5 = 212.5   și ridicat la pătrat = 45 156.25
+2000-2487.5 = -487.5  și ridicat la pătrat = 237 656.25
+2500-2487.5 = 12.5    și ridicat la pătrat = 156.25
+2800-2487.5 = 312.5   și ridicat la pătrat = 97 656.25
+Adunând aceste valori obținem SUMA_ERORILOR_MEDIE = 3 608 750
+
+<p>Însă estimările obținute de pe urma acestei metode sunt slabe și le putem îmbunătăți folosind regresia liniară simplă care se bazează pe scăderea erorilor cât mai mult posibil găsind o dreapta a cărei ecuație să fie cât mai aproape de datele introduse. Pentru a face acest lucru, vom insera o nouă variabilă, aceasta fiind venitul pe lună al persoanei.</p>
+
+<p>Regresia liniară simplă se realizează folosind ca date perechi de valori. Din aceste perechi, un set de valori sunt independente (nu depind de alți factori relevanți problemei, în cazul nostru, venitul) și celalalt set sunt dependente (au șansa de a depinde de valorile independente considerate de noi, acestea putând să ofere o precizie mai mare a estimării ). (de exemplu, pentru perechea (x,y), conventia este că x sunt datele independente si y sunt datele dependente)</p>
+<p>Pentru a realiza regresia liniară trebuie să ne folosim și de ecuația dreptei din matematică, aceasta fiind y = m*x + b, unde m este panta dreptei (sau panta de regresie în cazul de față) și b este intersecția dreptei cu axa OY (mai este denumit și interceptul). Pentru exemplul de mai devreme în care nu am folosit regresia liniară simplă y = 0*x + 2487.5,  deoarece dreapta ce reprezintă prezicerea este constantă iar aceasta este media valorilor.</p>
+
+<p>Pentru a calcula ecuația dreptei regresiei liniare vom folosi următoarele formule:</p>
+
+<p>• m = sumă ( (x_i - medie(x)) * (y_i - medie(y)) ) / sumă ((x_i - medie(x)) * (x_i - medie(x)))</p>
+<p>• b = medie(y) - medie(x) * m   (nu putem afla interceptul dacă nu avem panta dreptei)</p>
+<p>unde x_i și y_i sunt coordonatele x respectiv y ale fiecărui punct furnizat și medie(x) este media aritmetică a tuturor coordonatelor x</p>
+
+<pre><code class="language-sql">Folosim datele : 
+   x:2600 y:1300 (x este venitul pe lună)
+                 x:4800 y:2600 (y este cheltuiala pe luna respectivă)
+                 x:3700 y:2200
+                 x:7800 y:3800
+                 x:5300 y:2700
+                 x:2800 y:2000
+                 x:4100 y:2500
+                 x:6100 y:2800
+Pentru a calcula m:
+medie(x) = 4650
+medie(y) = 2487.5
+(x_1 - medie(x)) * (y_1 - medie(y)) = 2 434 375
+(x_2 - medie(x)) * (y_2 - medie(y)) =  16 875
+(x_3 - medie(x)) * (y_3 - medie(y)) = 273 125
+(x_4 - medie(x)) * (y_4 - medie(y)) = 4 134 375
+(x_5 - medie(x)) * (y_5 - medie(y)) = 138 125
+(x_6 - medie(x)) * (y_6 - medie(y)) = 901 875
+(x_7 - medie(x)) * (y_7 - medie(y)) = -6 875
+(x_8 - medie(x)) * (y_8 - medie(y)) = 453 125
+sumă ((x_i - medie(x)) * (y_i - medie(y))) = 8 345 000
+ 
+(x_1 - medie(x)) * (x_1 - medie(x)) = 4 202 500
+(x_2 - medie(x)) * (x_2 - medie(x)) =  22 500
+(x_3 - medie(x)) * (x_3 - medie(x)) =  902 500
+(x_4 - medie(x)) * (x_4 - medie(x)) = 9 922 500
+(x_5 - medie(x)) * (x_5 - medie(x)) =  422 500
+(x_6 - medie(x)) * (x_6 - medie(x)) = 3 422 500
+(x_7 - medie(x)) * (x_7 - medie(x)) =  302 500
+(x_8 - medie(x)) * (x_8 - medie(x)) = 2 102 500
+sumă ((x_i - medie(x)) * (x_i - medie(x))) = 21 300 000
+ 
+m = sumă ((x_i - medie(x)) * (y_i - medie(y))) / sumă ((x_i - medie(x)) * (x_i - medie(x))) = 0.3918
+ 
+Iar pentru interceptul b:
+b = medie(y) - medie(x) * m = 2487.5 - 4650 * 0.3918 = 2487.5 - 1821.87 = 665.63
+ 
+<p>Astfel, am aflat ecuația dreptei regresiei liniare: y = 0.3918*x + 665.63 </p>
+
+<p>Folosind această formulă, putem estima pentru un x dat care va fi rezultatul. Adică pentru un venit lunar x, putem prezice cam cât ar fi cheltuielile de pe luna curentă y luând în considerare datele deja adunate.</p>
+ 
+<p>Pentru a afla cât de bună este regresia liniară simplă pe lângă metoda ce folosește media aritmetică, relativ la acest exemplu, vom calcula din nou media erorilor, însă de data aceasta folosind ecuația obținută pentru a stabili distanțele dintre date și dreaptă. Pentru a face acest lucru, vom calcula distanța de la punctele ce reprezintă datele preluate, până la dreaptă. Apoi vom ridica această distanță la pătrat și vom face din nou suma lor.</p>
+ 
+<pre><code class="language-sql">2600-(0.3918*4800 + 665.63) = 53.73   și ridicat la pătrat = 2886.9129
+2200-(0.3918*3700 + 665.63) = 84.71   și ridicat la pătrat = 7175.7841
+3800-(0.3918*7800 + 665.63) = 78.33   și ridicat la pătrat = 6135.5889
+2700-(0.3918*5300 + 665.63) = -42.17  și ridicat la pătrat = 1778.3089
+2000-(0.3918*2800 + 665.63) = 237.33  și ridicat la pătrat = 56 325.5289
+2500-(0.3918*4100 + 665.63) = 227.99  și ridicat la pătrat = 51 979.4401
+2800-(0.3918*6100 + 665.63) = -255.61 și ridicat la pătrat = 65 336.4721
+Adunând aceste valori obținem SUMA_ERORILOR_REGRESIE = 339 312.212
+
+<p>Din valoarea acesteia se poate observa cum eroarea este mai mică pentru regresia liniară. Vom numi suma erorilor obținută folosind metoda regresiei liniare simple  SUMA_ERORILOR_REGRESIE.</p>
+
+<p>Mai mult de atât, pentru a afla ce procentaj din erorile din SUMA_ERORILOR_MEDIE sunt eliminate prin metoda regresiei liniare, putem calcula COEFICIENTUL DETERMINĂRII care este notat cu r^2 (r la puterea a doua). Pentru a calcula acest coeficient folosim pur și simplu formula r^2 = ( SUMA_ERORILOR_MEDIE - SUMA_ERORILOR_REGRESIE) / SUMA_ERORILOR_MEDIE.</p>
+
+<p>Prin procentajul obținut putem afla și câte erori rămân, folosind diferența simplă 100% - r^2.</p>
+ 
+<pre><code class="language-sql"> 
+<p>Putem stabili deci că regresia liniară oferă un rezultat satisfăcător, îmbunătățind predicțiile considerabil.</p>
+ 
+<h2>Exemple în cod PLSQL</h2>
+
+<pre><code class="language-sql">
+CREATE TABLE informatii(
+  venit NUMBER,
+  cheltuieli NUMBER);
+/
+INSERT INTO informatii values(2600,1300);/
+INSERT INTO informatii values(4800,2600);/
+INSERT INTO informatii values(3700,2200);/
+INSERT INTO informatii values(7800,3800);/
+INSERT INTO informatii values(5300,2700);/
+INSERT INTO informatii values(2800,2000);/
+INSERT INTO informatii values(4100,2500);/
+INSERT INTO informatii values(6100,2800);/
+
+DECLARE
+  v_x NUMBER;
+  v_input NUMBER;
+  v_medie_x NUMBER;
+  v_medie_y NUMBER;
+  v_slope NUMBER;
+  v_intercept NUMBER;
+  v_r_2 NUMBER;
+  v_sxx NUMBER;
+  v_sxy NUMBER;
+  BEGIN
+  SELECT REGR_AVGX(cheltuieli, venit) into v_medie_x from informatii;
+  SELECT REGR_AVGY(cheltuieli, venit) into v_medie_y from informatii;
+  DBMS_OUTPUT.PUT_LINE('Valoare medie pentru valorile independente(x) este: ' || v_medie_x);
+  DBMS_OUTPUT.PUT_LINE('Valoare medie pentru valorile dependente(y) este: ' || v_medie_y);
+  
+  SELECT REGR_SXX(cheltuieli, venit), REGR_SXY(cheltuieli, venit) INTO v_sxx, v_sxy FROM informatii;
+  DBMS_OUTPUT.PUT_LINE('suma((x_i - medie(x))*(y_i - medie(y))) = '||v_sxy);
+  DBMS_OUTPUT.PUT_LINE('suma((x_i - medie(x))*(x_i - medie(x))) = '||v_sxx);
+  DBMS_OUTPUT.PUT_LINE('panta m = suma((x_i - medie(x))*(y_i - medie(y))) / suma((x_i - medie(x))*(x_i - medie(x))) = '||TRUNC(v_sxy/v_sxx,4));
+  
+  SELECT REGR_SLOPE(cheltuieli, venit) INTO v_slope FROM informatii;
+  SELECT REGR_INTERCEPT(cheltuieli, venit) INTO v_intercept FROM informatii;
+  SELECT REGR_R2(cheltuieli, venit) into v_r_2 from informatii;
+  DBMS_OUTPUT.PUT_LINE('Panta regresiei liniare este m = ' || TRUNC(v_slope, 4) || ', iar interceptul cu ordonata este b = ' || TRUNC(v_intercept,4));
+  DBMS_OUTPUT.PUT_LINE('Ecuatia dreptei de regresie este y = '|| TRUNC(v_slope,4) ||'*x + '|| TRUNC(v_intercept,4));
+  DBMS_OUTPUT.PUT_LINE('Coeficientul determinarii (r la puterea a doua) este: ' || TRUNC(v_r_2,4)); 
+  
+END;
+
+
+<p>În exemplul de mai sus apelăm funcțiile din pachet pentru a valida calculele făcute mai sus. Într-adevăr, rezultatele sunt aceleași și ne folosim de ecuația obținută in următorul exemplu pentru a face preziceri pentru orice valoare.</p>
+
+<pre><code class="language-sql">
+CREATE OR REPLACE PROCEDURE calculeaza_valoare_estimata(v_x NUMBER) AS
+v_slope NUMBER;
+v_intercept NUMBER;
+v_y NUMBER;
+BEGIN
+    SELECT TRUNC(REGR_SLOPE(cheltuieli, venit),4) INTO v_slope FROM informatii;
+    SELECT TRUNC(REGR_INTERCEPT(cheltuieli, venit),4) INTO v_intercept FROM informatii;
+    DBMS_OUTPUT.PUT_LINE('Panta regresiei liniare este: ' || v_slope || ', iar interceptul cu ordonata este: ' || v_intercept);
+    
+    v_y := TRUNC(v_x * v_slope + v_intercept, 4);
+    DBMS_OUTPUT.PUT_LINE('Valoare estimata pentru x=' || v_x || ' este y=' || v_y);
+END;
+/
+accept v_input prompt "Introduceti o valoare: ";
+DECLARE
+  v_x NUMBER;
+  v_input NUMBER;
+BEGIN
+  v_x := &v_input;
+  calculeaza_valoare_estimata(v_x);
+END;
+
+<p>În acest cod estimăm pentru un x (un venit) cât ar fi y (cheltuiala de pe luna curentă) folosind funcția calculeaza_valoare_estimata ce folosește ecuația dreptei regresiei liniare și calculează și ecuația în același timp conform datelor din tabelă.</p>
+
+<h2>Funcțiile pachetului</h2>
+
+<p>{| border=1</p>
+<p>|-</p>
+<p>|REGR_SLOPE(expr1, expr2)</p>
+<p>|Calculează panta din ecuația dreptei regresiei liniare</p>
+<p>|-</p>
+<p>|REGR_INTERCEPT(expr1, expr2)</p>
+<p>|Calculează interceptul din ecuația dreptei regresiei liniare</p>
+<p>|-</p>
+<p>|REGR_COUNT(expr1, expr2)</p>
+<p>|Returnează numărul de perechi de valori nenule din setul de date</p>
+<p>|-</p>
+<p>|REGR_R2(expr1, expr2)</p>
+<p>|Calculează coeficientul determinării (r la patrăt)</p>
+<p>|-</p>
+<p>|REGR_AVGX(expr2)</p>
+<p>|Calculează media tuturor valorilor x din perechile de valori (x,y)</p>
+<p>|-</p>
+<p>|REGR_AVGY(expr1)</p>
+<p>| Calculează media tuturor valorilor y din perechile de valori (x,y)</p>
+<p>|-</p>
+<p>|REGR_SXX(expr1, expr2)</p>
+<p>| sumă((x_i - medie(x))* (x_i - medie(x)))</p>
+<p><br></p>
+<p>Numitorul fracției cu care aflăm panta regresiei liniare</p>
+<p>|-</p>
+<p>|REGR_SYY(expr1, expr2)</p>
+<p>| sumă((y_i - medie(y))* (y_i - medie(y)))</p>
+<p>|-</p>
+<p>|REGR_SXY(expr1, expr2)</p>
+<p>| sumă((x_i - medie(x))* (y_i - medie(y)))</p>
+<p><br></p>
+<p>Numărătorul fracției cu care aflăm panta regresiei liniare</p>
+<p>|}</p>
+
+<p>Convenția in plsql este expr2 este x iar expr1 este y (ca și coordinate).</p>
+
+<p>Autori: Asoltanei Cristian și Gafița Andrei</p>
+
+<h2>Bibliografie</h2>
+<ul>
+<li> https://docs.oracle.com/cd/B19306_01/server.102/b14200/functions132.htm</li>
+<li> https://en.wikipedia.org/wiki/Linear_regression#Simple_and_multiple_linear_regression</li>
+<li> http://statisticasociala.tripod.com/regresie.htm</li>
+<li> https://www.youtube.com/playlist?list=PLIeGtxpvyG-LoKUpV0fSY8BGKIMIdmfCi</li>
+</ul>
+
+
+
