@@ -54,23 +54,23 @@ CREATE TABLE didactic (
 /
 
 
-INSERT INTO students VALUES ('111', 'Morrison', 'Cody',3, 'A2',NULL, TO_DATE('17/02/1995', 'dd/mm/yyyy'));
-INSERT INTO students VALUES ('112', 'Bennett', 'George',3, 'A2',NULL, TO_DATE('26/05/1995', 'dd/mm/yyyy'));
-INSERT INTO students VALUES ('113', 'Ford', 'Alice',3, 'A2',450, TO_DATE('3/01/1995', 'dd/mm/yyyy'));
-INSERT INTO students VALUES ('114', 'Walters', 'Emily',3, 'A4',NULL, TO_DATE('26/12/1995', 'dd/mm/yyyy'));
-INSERT INTO students VALUES ('115', 'Doyle', 'Andrew',3, 'B3',NULL, TO_DATE('13/04/1995', 'dd/mm/yyyy'));
+INSERT INTO students VALUES ('111', 'Popescu', 'Bogdan',3, 'A2',NULL, TO_DATE('17/02/1995', 'dd/mm/yyyy'));
+INSERT INTO students VALUES ('112', 'Prelipcean', 'Radu',3, 'A2',NULL, TO_DATE('26/05/1995', 'dd/mm/yyyy'));
+INSERT INTO students VALUES ('113', 'Antonie', 'Ioana',3, 'A2',450, TO_DATE('3/01/1995', 'dd/mm/yyyy'));
+INSERT INTO students VALUES ('114', 'Arhire', 'Raluca',3, 'A4',NULL, TO_DATE('26/12/1995', 'dd/mm/yyyy'));
+INSERT INTO students VALUES ('115', 'Panaite', 'Alexandru',3, 'B3',NULL, TO_DATE('13/04/1995', 'dd/mm/yyyy'));
 
 
-INSERT INTO students VALUES ('116', 'Keller', 'Jane',2, 'A1',NULL, TO_DATE('26/08/1996', 'dd/mm/yyyy'));
-INSERT INTO students VALUES ('117', 'Ortega', 'Susan',2, 'A1',350, TO_DATE('03/04/1996', 'dd/mm/yyyy'));
-INSERT INTO students VALUES ('118', 'Clarke', 'Nicolas',2, 'A1',350, TO_DATE('03/04/1996', 'dd/mm/yyyy'));
-INSERT INTO students VALUES ('119', 'Keller', 'Jane',2, 'B2',NULL, TO_DATE('10/06/1996', 'dd/mm/yyyy'));
+INSERT INTO students VALUES ('116', 'Bodnar', 'Ioana',2, 'A1',NULL, TO_DATE('26/08/1996', 'dd/mm/yyyy'));
+INSERT INTO students VALUES ('117', 'Archip', 'Andrada',2, 'A1',350, TO_DATE('03/04/1996', 'dd/mm/yyyy'));
+INSERT INTO students VALUES ('118', 'Ciobotariu', 'Ciprian',2, 'A1',350, TO_DATE('03/04/1996', 'dd/mm/yyyy'));
+INSERT INTO students VALUES ('119', 'Bodnar', 'Ioana',2, 'B2',NULL, TO_DATE('10/06/1996', 'dd/mm/yyyy'));
 
 
-INSERT INTO students VALUES ('120', 'Lee', 'Maria',1, 'B1',250, TO_DATE('26/08/1997', 'dd/mm/yyyy'));
-INSERT INTO students VALUES ('121', 'Cash', 'Sue',1, 'B1',NULL, TO_DATE('02/07/1997', 'dd/mm/yyyy'));
-INSERT INTO students VALUES ('122', 'Herbert', 'Dustin',1, 'B1',350, TO_DATE('29/04/1997', 'dd/mm/yyyy'));
-INSERT INTO students VALUES ('123', 'Maxwell', 'Gloria',1, 'B2',NULL, TO_DATE('10/05/1997', 'dd/mm/yyyy'));
+INSERT INTO students VALUES ('120', 'Pintescu', 'Andrei',1, 'B1',250, TO_DATE('26/08/1997', 'dd/mm/yyyy'));
+INSERT INTO students VALUES ('121', 'Arhire', 'Alexandra',1, 'B1',NULL, TO_DATE('02/07/1997', 'dd/mm/yyyy'));
+INSERT INTO students VALUES ('122', 'Cobzaru', 'George',1, 'B1',350, TO_DATE('29/04/1997', 'dd/mm/yyyy'));
+INSERT INTO students VALUES ('123', 'Bucur', 'Andreea', 1, 'B2',NULL, TO_DATE('10/05/1997', 'dd/mm/yyyy'));
 
 
 INSERT INTO courses VALUES ('21', 'Logic', 1, 1, 5);

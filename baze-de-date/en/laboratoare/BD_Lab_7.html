@@ -1,0 +1,120 @@
+<h2>(Uncorrelated) Subqueries</h2>
+
+<p>Subqueries, also called nested queries or inner queries, are SELECT statements used within other SELECT phrases (called outer queries) in WHERE, HAVING and FROM clauses. They may also be used within DML statements for filtering purposes in the WHERE clause.</p>
+
+<p>Subqueries generally serve for obtaining values from the database that are used to filter records in the outer queries The subquery must be always enclosed in brackets and may appear only on the right side of a comparison operator. </p>
+
+<p>Syntax example:</p>
+<pre><code class="language-sql">SELECT ...
+    FROM ...
+    WHERE expr operator
+          (SELECT ...
+              FROM ...
+              [WHERE ...]
+              [GROUP BY...[HAVING...]])
+    [GROUP BY...[HAVING...]]
+    [ORDER BY...]
+</code></pre>
+
+<p>Examples:</p>
+<pre><code class="language-sql">SELECT fname, lname
+    FROM students
+    WHERE id_stud IN
+          (SELECT id_stud
+              FROM grades
+              WHERE value=10)
+    ORDER BY lname, fname;
+--What does the above query return?
+</code></pre>
+
+<pre><code class="language-sql">SELECT DISTINCT fname, lname
+    FROM students s, grades n
+    WHERE s.id_stud=n.id_stud and value >
+          (SELECT MAX(value)
+              FROM students s, grades n
+              WHERE s.id_stud=n.id_stud AND lname='Archip')
+    ORDER BY lname, fname;
+--What does the above query return?
+</code></pre>
+
+<p>If the subquery returns a single row, the comparison operator may be a standard one from the following: &lt;, =, &lt;=, &gt;, &lt;&gt;, &gt;=. If the subquery returns several rows, special operators must be used as IN, ALL, ANY, SOME.</p>
+
+<p>Several subqueries may be used:</p>
+<pre><code class="language-sql">SELECT DISTINCT fname, lname
+    FROM students s, grades n
+    WHERE s.id_stud=n.id_stud and value >
+          (SELECT MAX(value)
+              FROM students s, grades n
+              WHERE s.id_stud=n.id_stud AND lname='Archip')
+      AND groupno=
+          (SELECT groupno FROM students WHERE lname='Archip')
+    ORDER BY lname, fname;
+--What does the above query return?
+</code></pre>
+<p>Subqueries may return more than one column, case for which the condition must be formulated over tuples:</p>
+
+<pre><code class="language-sql">SELECT DISTINCT year, groupno, fname, lname, value
+    FROM students s, grades n
+    WHERE s.id_stud=n.id_stud and (groupno,year,value) IN
+          (SELECT groupno,year, MAX(value)
+              FROM students s, grades n
+              WHERE s.id_stud=n.id_stud
+              GROUP BY groupno, year)
+    ORDER BY year, groupno;
+--What does the above query return?
+</code></pre>
+<h2>Limiting the number of rows returned by a query: the ROWNUM pseudo-column </h2>
+<p>Sometimes we need to limit the number of rows returned by a query. A common example is returning <i>"top n"</i> rows. For our database we could ask for <i>"the first three students ordered descending by their average grades"</i></p>
+
+<p>In some DBMSs this problem could be solved by using the LIMIT keyword. </p>
+<p>However, in Oracle we can limit the number of rows with the aid of the ROWNUM pseudo-column.</p>
+
+<p>ROWNUM is a column dynamically generated when the query is processed. To be able to correctly use it, one must understand exactly the moment when its values are assigned. For a complex query containing all the taught clauses, the processing order is as follows: </p>
+<ul>
+<li> the records are brought from the tables appearing in the FROM clause and are filtered to satisfy the conditions in the WHERE clause; </li>
+<li> ROWNUM is assigned for the first row and then is incremented;</li>
+<li> the projection operator corresponding to the SELECT clause is applied;</li>
+<li> groups are created as specified by the GROUP BY clause;</li>
+<li> filters are applied as specified by the HAVING option;</li>
+<li> the rows are finally ordered if ORDER BY is present.</li>
+</ul>
+
+
+<p>The order above explains why </p>
+<pre><code class="language-sql">SELECT * FROM students WHERE ROWNUM>1;
+<p>does not return any line and</p></code></pre>
+<pre><code class="language-sql">SELECT * FROM students WHERE ROWNUM<4 ORDER BY lname, fname;
+<p>does not return the first three students in the alphabetical ordering, as one could expect.</p></code></pre>
+
+<p>The way we can obtain the first three students in the alphabetical ordering is to first ensure the correct ordering of the rows and than limit the number of rows returned:</p>
+<pre><code class="language-sql">SELECT * FROM
+      (SELECT * FROM students ORDER BY lname, fname)
+    WHERE ROWNUM<4;
+</code></pre>
+<h2>Exercises</h2>
+<p>1 Show the last name for the students earning the smallest scholarship.</p>
+<p>2 Show the last name for the students that are colleagues with a student called Keller (colleague = same year and same group).</p>
+<p>3 For each group show the name for the students with the lowest grade in their group. </p>
+<p>4 Identify the students whose average grade is higher than the average of all the grades in the database. Show their names and their average grades.</p>
+<p>5 Show the lname and the average grade for the best three students (as decided by their average grades).</p>
+<p>6 Show the name(s) and the average grades for the student(s) having the highest average grade in the database(CAUTION: limiting the number of rows may eliminate students on equal positions; find an alternative correct solution). </p>
+<p>7 Show the first and last names for the students receiving the same grade as student Susan Ortega at Logics. Exclude student Susan Ortega from the list.</p>
+<p>8 From the table students, display the 5<sup>th</sup> fname in alphabetical order.</p>
+<p>9 The GPA of a student is computed as being the sum between the products of their grade and the number of credits for the course where he has taken that grade. Display all the informations of the student that is in the 3<sup>rd</sup> position when they are ordered by their GPA.</p>
+<p>10 Display the names of the students that have the highest grade at some course, the grade and the name of the course (display the best students for each course).</p>
+
+
+
+
+<p><!--</p>
+<p>Agenda: </p>
+<p># operators in relational algebra</p>
+<p># functional and multivalued dependencies</p>
+
+<p>[https://profs.info.uaic.ro/~vcosmin/pagini/resurse_bd/curs_bd_en.pdf Course slides]</p>
+
+<h2>Exercises==</h2>
+<p># [https://profs.info.uaic.ro/~vcosmin/pagini/resurse_bd/Relational_Algebra_Exercices.pdf Exercises illustrating Relational Algebra concepts]</p>
+<p># For the first three exercises in lab 4, identify the functional dependencies in the tables obtained as result of the joins.</p>
+<p># Modify one of the tables in order to obtain multivalued dependencies.</p>
+<p>--></p>

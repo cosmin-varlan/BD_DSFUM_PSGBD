@@ -1,0 +1,389 @@
+<p><b>Objectives:</b> working with single-row functions in SQL</p>
+
+<h2> Single-Row Functions </h2>
+<p>Single-row functions are functions which, when used in SQL queries, are called and executed for each row/tuple/record of the queried table (row to be included in the result of the query). The functions may take as input a user constant, a variable name, a column name or an expression.</p>
+<p>They may be used within the SELECT list, or within WHERE and ORDER BY clauses.</p>
+<p>If called with a NULL argument these functions return NULL. Exceptions are CONCAT, NVL, REPLACE and REGEXP_REPLACE.</p>
+
+<p>Most of the functions illustrated in the following, are specific to the Oracle's SQL dialect.</p>
+
+<h3> Numeric functions </h3>
+<p>get as input and also return numeric data</p>
+<table>
+    <tr> 
+	   <th>Function</th>
+	   <th>Description</th>
+	   <th>Example</th>
+	</tr>
+	<tr>
+	   <td>CEIL (n)</td>
+	   <td>the smallest integer that is greater than or equal to n	</td>
+	   <td>SELECT CEIL(51.3) FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>FLOOR(n)</td>
+	   <td>the largest integer that is smaller than or equal to n</td>
+	   <td>SELECT FLOOR(51.3) FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>ROUND(n [,m])</td>
+	   <td>Rounds n to the closest number using m decimal places. By default m is 0, equivalent to rounding to the closest integer. m may also take negative values.</td>
+	   <td><p>SELECT ROUND(21.365,2) AS "Round - positive" FROM DUAL;</p>
+	       <p><br></p>
+           <p>SELECT ROUND (21.665,-1) AS " Round - negative " FROM DUAL;</p>
+	   </td>
+	</tr>
+	<tr>
+	   <td>TRUNC(n [,m])</td>
+	   <td>Truncates n to m decimals; by default m is 0; m may also take negative values.</td>
+	   <td><p>SELECT TRUNC(21.365,2) AS "Truncate - positive" FROM DUAL;</p>
+	       <p><br></p>
+           <p>SELECT TRUNC(21.665,-1) AS " Truncate - negative" FROM DUAL;</p>
+	   </td>
+	</tr>
+	<tr>
+	   <td>MOD(m, n)</td>
+	   <td>Returns the remainder of the division of m to n</td>
+	   <td>SELECT MOD (26,11) AS "Mod" FROM DUAL;</td>
+	</tr>
+</table>
+
+<p>To the above functions we may also add common trigonometrical functions: (COS(n), ACOS(n), SIN(n), ASIN(n), TAN(n), ATAN(n)), logarithm functions: (LN(n), LOG(base, n)), exponentiation (EXP(n), POWER(m,n), square root (SQRT(n)).</p>
+
+<h3>Functions taking character data as input and returning numeric values</h3>
+
+<table>
+    <tr> 
+	   <th>Function</th>
+	   <th>Description</th>
+	   <th>Example</th>
+	</tr>
+	<tr>
+	   <td>LENGTH (char)</td>
+	   <td>Returns the length of the string char.</td>
+	   <td><p>SELECT LENGTH('word') AS "Word length" FROM DUAL;<p>
+	       <p><br></p>
+           <p>SELECT fname, LENGTH(fname) FROM instructors WHERE UPPER(TRIM(fname))='COSMIN'; -- why 10?</p>
+	   </td>
+	</tr>
+	<tr>
+	   <td>ASCII (char)</td>
+	   <td>Returns the ASCII code for the first character in the string</td>
+	   <td>SELECT ASCII('A') FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>INSTR(char1, char2 [, n [, m ]]) </td>
+	   <td>Looks for the m th match of char2 within char1, staring search from position n; returns the position in char1 of the first character of char2 string, relative to n. By default n and m are 1.If no match is found, the result is 0.</td>
+	   <td><p>SELECT INSTR('CORPORATE FLOOR','OR',3,2) AS "Instring" FROM DUAL;</p>
+	       <p><br></p>
+           <p>SELECT lname, INSTR(lname,'ra') FROM instructors;</p>
+	   </td>
+	</tr>
+	<tr>
+	   <td></td>
+	   <td></td>
+	   <td></td>
+	</tr>
+</table>
+	
+
+
+<h3>Functions taking character data as input and returning character values</h3>
+<table>
+    <tr> 
+	   <th>Function</th>
+	   <th>Description</th>
+	   <th>Example</th>
+	</tr>
+	<tr>
+	   <td>INITCAP(char)</td>
+	   <td>Returns char formatted such that the first character is in uppercase and the rest in lowercase. </td>
+	   <td>SELECT INITCAP('first leTTER in uPPERCASE') FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>UPPER(char) </td>
+	   <td>Returns char typed in uppercase</td>
+	   <td>SELECT UPPER('Stefan') FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>LOWER(char) </td>
+	   <td>Returns char typed in lowercase</td>
+	   <td>SELECT LOWER('LOWER') FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>CONCAT(char1, char2)</td>
+	   <td>Returns char1 concatenated with char2; equivalent to the concatenation operator</td>
+	   <td>SELECT CONCAT( CONCAT(fname, ' is student in year '), year) FROM students;</td>
+	</tr>
+	<tr>
+	   <td>SUBSTR(char, m [, n ])</td>
+	   <td>Extract n characters from char starting with position m; missing n leads to using the end of char; a negative value for m determines the counting to be performed from right to left.</td>
+	   <td>SELECT SUBSTR('ABCDEFG',3,4) FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>RPAD(char1,n [,char2 ]) </td>
+	   <td>Returns char1 filled with empty spaces at right until length n is reached, if char2 is missing; otherwise, char2 is coped at the right of char1 until length n</td>
+	   <td>SELECT RPAD(lname,12,'ab') FROM students WHERE lname = 'Ford';</td>
+	</tr>
+	<tr>
+	   <td>LPAD(char1,n [,char2 ]) </td>
+	   <td>Similar to RPAD but the operations are performed at the left of char1</td>
+	   <td>SELECT LPAD('Page',15,'*.') FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>CHR(n)</td>
+	   <td>returns the character having the binary equivalent to n, as a VARCHAR2	</td>
+	   <td>SELECT CHR(68)||CHR(65)||CHR(84)||CHR(69) FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>TRIM (char)  </td>
+	   <td>Eliminates blanks from the beginning and the end of char</td>
+	   <td>SELECT '-'|| TRIM('   test   ')||'-' FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>LTRIM(char)</td>
+	   <td>Eliminates blanks from the left/beginning of char</td>
+	   <td>SELECT '-'|| LTRIM('   test   ')||'-' FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>RTRIM(char)</td>
+	   <td>Eliminates blanks from the right/ending of char</td>
+	   <td>SELECT '-'|| RTRIM('   test   ')||'-' FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>REPLACE(char, search_string [, replacement_string])</td>
+	   <td>Returns char after replacing search_string with replacement_string; if replacement_string is not given, search_string is simply eliminated</td>
+	   <td>SELECT REPLACE('Andrei','i','ea') FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>TRANSLATE(char, from, to)</td>
+	   <td>Returns char modified as follows: every occurrence of a character in from is replaced by the character in to having the same position; if from is longer then to, the characters in from having no corresponding character are deleted. </td>
+	   <td>SELECT TRANSLATE('48KLM980', '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', '9999999999XXXXXXXXXXXXXXXXXXXXXXXXXX') "COD" FROM DUAL;</td>
+	</tr>
+</table>
+
+
+<p>The functions that change the case of the letters (transform the text in lowercase or in uppercase) are frequently used in the WHERE clause in order to look for text for which we d not know how it was stored (in uppercase or lowercase or initcap format). For example, if we do not know how the first names were stored and we would like to retrieve information for a student named Andrei, we will process the field extracted from the database to bring it to a convenient format:</p>
+<p><code>SELECT * FROM students WHERE first_name = 'ANDREI';</code> --returns 0 rows</p>
+
+<p><code>SELECT * FROM students WHERE UPPER(fname) = 'ANDREI'; </code>--returns the wanted data</p>
+
+<p>Also, TRIM is a function largely used to retrieve data when the attributes are declared as CHAR():</p>
+
+<p><code>SELECT * FROM instructors WHERE UPPER(lname) = 'BREABAN'; </code>--returns 0 rows</p>
+
+<p><code>SELECT * FROM instructors WHERE TRIM(UPPER(lname)) = 'BREABAN'; </code>--returns the wanted records</p>
+
+<h3>Functions for Dates</h3>
+<p>The default date format for an Oracle Database date value is derived from the NLS_DATE_FORMAT and NLS_DATE_LANGUAGE. Most of you, after installing the database server on your systems will probably have the "DD-MON-YY" format (ex: '10-JUN-15'), but this can be modified by the user (ALTER SESSION SET NLS_DATE_FORMAT....).  To overcome incompatibility issues, it is recommended when working with Dates to make use of the function  TO_DATE (described in the next section), which will specify the format.</p>
+
+<table>
+    <tr> 
+	   <th>Function</th>
+	   <th>Description</th>
+	   <th>Example</th>
+	</tr>
+	<tr>
+	   <td>CURRENT_DATE</td>
+	   <td>Returns the current date as given by the time zone of the current session</td>
+	   <td>SELECT CURRENT_DATE FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>CURRENT_TIMESTAMP</td>
+	   <td>Returns the current timestamp (up to milliseconds) as given by the time zone of the current session</td>
+	   <td>SELECT CURRENT_TIMESTAMP FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>SYSDATE</td>
+	   <td>Returns the current date of the system</td>
+	   <td>SELECT SYSDATE FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>MONTHS_BETWEEN(d1, d2)</td>
+	   <td>The number of months elapsed between d1 and d2</td>
+	   <td><p>SELECT MONTHS_BETWEEN(</p>
+			<p>TO_DATE('02-02-2015','MM-DD-YYYY'),</p>
+			<p>TO_DATE('01-01-2015','MM-DD-YYYY') ) AS "Months"</p>
+			<p>FROM DUAL;</p></td>
+	</tr>
+	<tr>
+	   <td>ADD_MONTHS(d, n)</td>
+	   <td></td>
+	   <td>SELECT dob, ADD_MONTHS(dob,1) FROM students WHERE lname = 'Popescu';</td>
+	</tr>
+	<tr>
+	   <td>NEXT_DAY(d, char)</td>
+	   <td>Returns the date corresponding to the first week day given by char, after date d</td>
+	   <td>SELECT NEXT_DAY('13-OCT-15','TUESDAY') FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>LAST_DAY(d)</td>
+	   <td>Returns the date corresponding to the last day in the month specified by d.</td>
+	   <td>SELECT SYSDATE,   LAST_DAY(SYSDATE) AS "Last" FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>ROUND(d [, fmt ])</td>
+	   <td>Rounds to the closest date based on the given format.</td>
+	   <td>SELECT ROUND (TO_DATE ('27-OCT-16','DD-MON-YY'),'YEAR')"New Year" FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>TRUNC(d [, fmt ])</td>
+	   <td>If the format is missing, truncates to the closest day.</td>
+	   <td><p>SELECT TRUNC(TO_DATE('27-OCT-16','DD-MON-YY'), 'YEAR')"First Day of the Year" FROM DUAL; <br></p>
+           <p>SELECT TRUNC(TO_DATE('27-OCT-16','DD-MON-YY'), 'MONTH')"Beginning of Oct." FROM DUAL;</p></td>
+	</tr>
+</table>
+
+
+<p>Study the fmt format at http://download.oracle.com/docs/cd/B19306_01/server.102/b14200/functions230.htm </p>
+
+<p>Remember what these formats do: D, DAY, DD, HH, MI, MM, MON, MONTH, SS, YYYY, YY, YEAR</p>
+
+<p>The database stores dates internally as numbers. Dates are stored in fixed-length fields of 7 bytes each, corresponding to century, year, month, day, hour, minute, and second. Being stored as numbers, applying numerical operators is possible: </p>
+<ul>
+<li>summing or subtracting a number to/from a date results in a new date:</li>
+</ul>
+
+
+<p><code>SELECT SYSDATE + 10 FROM dual;</code> How was the resultant date computed? How can we add a number of hours to a date? </p>
+<ul>
+<li>subtracting two dates generates the number of days between the two: <code> SELECT (SYSDATE - dob)/365 FROM students;</code></li>
+</ul>
+
+
+<h3>Conversion functions</h3>
+<p>Oracle converts by default the following types:</p>
+
+<p>VARCHAR2 -> NUMBER</p>
+
+<p>CHAR -> NUMBER</p>
+
+<p>VARCHAR2 -> DATE</p>
+
+<p>CHAR -> DATE</p>
+
+<p>NUMBER -> VARCHAR2</p>
+
+<p>DATE -> VARCHAR2</p>
+
+<p>For other conversions the following functions are supplied:</p>
+
+<table>
+    <tr> 
+	   <th>Function</th>
+	   <th>Description</th>
+	   <th>Example</th>
+	</tr>
+	<tr>
+	   <td>TO_CHAR(char)</td>
+	   <td>Converts a char value to VARCHAR2</td>
+	   <td></td>
+	</tr>
+	<tr>
+	   <td>TO_CHAR(n [, fmt])</td>
+	   <td>Converts a numerical value n to VARCHAR2, according to the fmt format. Numeric formats are described at: http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements004.htm#i34570</td>
+	   <td><p>SELECT TO_CHAR('01110' + 1) FROM dual; <br> SELECT TO_CHAR(scholarship,'$99,999') FROM students;</p></td>
+	</tr>
+	<tr>
+	   <td>TO_CHAR({ datetime} [, fmt ])</td>
+	   <td>Converts datetime to VARCHAR2 according to fmt</td>
+	   <td>SELECT TO_CHAR (SYSDATE, 'Day, Month, DD, YYYY')"TO_CHAR example" FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>TO_DATE(char [, fmt ])</td>
+	   <td>Converts a character string to a date according to fmt. Study the format here: https://docs.oracle.com/cd/B28359_01/server.111/b28286/sql_elements004.htm#i34924</td>
+	   <td>SELECT TO_DATE('January 26, 1996, 12:38 A.M.', 'Month dd YYYY HH:MI A.M.') FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>TO_NUMBER(char [, fmt ])</td>
+	   <td>http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements004.htm#i34570</td>
+	   <td>SELECT TO_NUMBER('100.52','9,999.99') FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>CAST(expr AS type_name)</td>
+	   <td></td>
+	   <td>SELECT CAST(CURRENT_TIMESTAMP AS VARCHAR(50)) FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>CONVERT(char, dest_char_set[, source_char_set ])</td>
+	   <td>Converts char (any character string) to a new encoding. Common encoding are:
+	    <p>-US7ASCII: US 7-bit ASCII character set</p>
+		<p>-WE8DEC: West European 8-bit character set</p>
+		<p>-F7DEC: DEC French 7-bit character set</p>
+		<p>-WE8EBCDIC500: IBM West European EBCDIC Code Page 500</p>
+		<p>-WE8ISO8859P1: ISO 8859-1 West European 8-bit character set</p>
+		<p>-UTF8: Unicode 4.0 UTF-8 Universal character set, CESU-8 compliant</p>
+		<p>-AL32UTF8: Unicode 4.0 UTF-8 Universal character set	</p>
+	   </td>
+	   <td>SELECT CONVERT('Ä Ê Í Ó Ø A B C D E ', 'US7ASCII', 'WE8ISO8859P1') FROM DUAL;</td>
+	</tr>
+</table>
+
+
+<p>To study the formats for dates to be used within to_char function, study the information at:</p>
+<p>http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements004.htm#i34924</p>
+
+<h3>Other functions</h3>
+<table>
+    <tr> 
+	   <th>Function</th>
+	   <th>Description</th>
+	   <th>Example</th>
+	</tr>
+	<tr>
+	   <td>USER</td>
+	   <td>Returns the name of the current schema</td>
+	   <td>SELECT USER FROM DUAL;</td>
+	</tr>
+	<tr>
+	   <td>NVL(expr1, expr2)</td>
+	   <td>If expr1 is NULL returns expr2, otherwise returns expr1</td>
+	   <td><p>SELECT lname, NVL(scholarship,0) "scholarship" FROM students;<br>SELECT lname, NVL(TO_CHAR(scholarship),'No scholarship') "scholarship" FROM students;</p></td>
+	</tr>
+	<tr>
+	   <td>NULLIF(expr1, expr2)</td>
+	   <td>If expr1 is equal to expr2 returns NULL, otherwise returns expr1</td>
+	   <td></td>
+	</tr>
+	<tr>
+	   <td><p>DECODE(expr, search1, result1</p>
+			<p>[, search2, result2]...</p>
+			<p>[, default ])	</p></td>
+	   <td>Compares expr with every value search_i in the list. In case of equality returns the corresponding result_i. If no match exists, DEFAULT is returned; if this is not indicated, returns NULL. If expr is NULL, equality is considered only if there exists a search_i which is NULL.</td>
+	   <td>SELECT DECODE(scholarship, 450, '1st prize',350, '2nd prize',250, '3rd prize', '?') FROM students;</td>
+	</tr>
+	<tr>
+	   <td>LEAST(expr1 [, expr2 ]...)</td>
+	   <td>Returns the smallest element from the list	</td>
+	   <td>SELECT LEAST('Mihai','Andrei','Anca') "LEAST" FROM DUAL;</td>
+	</tr>
+		<tr>
+	   <td>GREATEST(expr1 [, expr2 ]...)</td>
+	   <td>Returns the largest element from the list	</td>
+	   <td>SELECT GREATEST('Mihai','Andrei','Anca') "GREATEST" FROM DUAL;</td>
+	</tr>
+</table>
+
+
+<p>NVL function is frequently used to avoid null results when applying operators/functions. For example, if all students would be given some funds (ex. 100 RON), the total amount of money received by a student cannot be obtained by using:</p>
+
+<p><code>SELECT 100+scholarship FROM students;</code></p>
+
+<p>but by using:</p>
+
+<p><code>SELECT 100+NVL(scholarship,0) FROM students;</code></p>
+
+<h2>Exercises</h2>
+<p>1 Write a query to show the current date. Label the column "Today". </p>
+<p>2 For every student, show the first name, date of birth and the number of months between the current date and the date of birth. </p>
+<p>3 For every student, show the day of the week when he/she was born.</p>
+<p>4 Using the concatenation function, show for every student the text: 'Student <fname> is in group <groupno>'.</p>
+<p>5 Show the scholarships on 10 characters, filling the empty slots at the right of the number with character '$'.</p>
+<p>6 For the instructors whose last names begin with B, show the name with the first letter in lowercase and the rest in uppercase, and the number of characters. </p>
+<p>7 For every student show the name, the date of birth, the date when the student is going to celebrate his/her birthday and the date corresponding to the first Sunday after celebration. </p>
+<p>8 Order the students who do not earn a scholarship based on the month when they were born; print the first name, last name, and the month of birth.</p>
+<p>9 For every student show first name, scholarship and the text: '1st place' for value 450, '2nd place' for 350, 3rd place' for 250 and 'mention' for the students not earning a scholarship. Give alias "Prize" for the third column.</p>
+<p>10 Show all students' first names, replacing letter <i>i</i> with <i>a</i> and letter <i>a</i> with <i>i</i>.</p>
+<p>11 For every student print first name, age as '<x> years <y> months and <z> days' (i.e. '19 years 3 months and 2 days'), and the number of days until the student will celebrate his/her birthday.</p>
+<p>12 Assuming that next month the scholarships are increased as follows: 450 with 10%, 350 with 15% and 250 with 20%, show for every student his/her first name, the date corresponding to the first day of next month and the new value of the scholarship. The students not earning a scholarship will have assigned value 0.</p>
+<p>13 For the students earning a scholarship, show the first name and the corresponding scholarship using only the star symbol (*) as follows: every symbol corresponds to 50 RON. In the table, align the symbols at the right.</p>

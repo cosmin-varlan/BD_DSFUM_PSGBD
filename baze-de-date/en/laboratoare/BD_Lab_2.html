@@ -1,0 +1,286 @@
+<p><b>Objectives:</b></p>
+<p><ul></p>
+<p><li>The SELECT phrase: Operators, WHERE and ORDER BY clauses</p>
+
+<p></ul></p>
+
+<p>In order to be able to run the examples inserted throughout the text, download and execute now this script if you didn't do it during Lab1: <a href="https://edu.info.uaic.ro/baze-de-date/resurse/script/faculty.sql">faculty.sql</a></p>
+
+<h2> Filtering and ordering data: WHERE and ORDER BY clauses in the SELECT phrase</h2>
+
+<h3> Selecting data from one table </h3>
+
+<p>When one executes a SELECT command, he/she can decide which columns and which rows should be returned.</p>
+
+<p>To obtain all the columns and all the rows from a table, run the following query: </p>
+
+<p><code>SELECT * FROM table_name;</code></p>
+
+<p>Exercise: return the content of table STUDENTS.</p>
+
+<p>To return a subset of the columns, instead '*' you should supply a list of column names separated by comma. As an example, the following query extracts only students' first and last names: </p>
+
+<p><code>SELECT fname, lname FROM students;</code></p>
+
+
+
+<p>When, for any reason, you dislike the column name appearing in the result, you can modify it by using aliases in the SELECT phrase. The alias must be inserted immediately after the column name and, optionally (but recommended for legibility) may be preceded by the "AS" keyword. If the alias is composed of several terms containing thus spaces, it must be put between quotation marks. For example, the following query will show a table containing instructors' last names with the header renamed to "Instructor name" </p>
+
+<p><code>SELECT lname AS "Instructor name" FROM instructors;</code></p>
+
+<p><span style="color:red">Observation:</span> The AS keyword is optional. In case the alias consists of only one term, quotation marks are not necessary; quotation marks are necessary only when the alias contains spaces or special characters and when we want the characters to respect the case (to be case sensitive). As an example, try to run the following query:</p>
+
+<p><code>SELECT lname AS Instructor name FROM instructors;</code></p>
+
+
+<p>If there are several similar entries/records in the table, all of them will be shown. For example, extract our students' years of study by running the query:</p>
+
+<p><code>SELECT year FROM students;</code></p>
+
+<p>The year of study will be returned for each student/record in the table. If we want to reduce the output by showing only once each value, we will use the "DISTINCT" keyword: </p>
+
+<p><code>SELECT DISTINCT year FROM students;</code></p>
+
+<p>The DISTINCT keyword can appear only once in the SELECT list and acts at the tuple level, not at the attribute level. Run and analyze the output for the following query:</p>
+
+<p><code>SELECT DISTINCT year, groupno FROM students;</code></p>
+
+
+<p><span style="color:red">Observation:</span> Although SQL reserved keywords were written with uppercase letters, SQL is not a case-sensitive language. We will use when solving exercises during the labs a simple convention: uppercase letters for reserved words and lowercase letters for identifiers. Be aware that SQL distinguishes between uppercase and lowercase letters in the case of strings stored in a table. For example, if you execute <code>SELECT * FROM courses WHERE course_title='LOGICS';</code> on our table, it will not return any rows.</p>
+
+<p><span style="color:red">Observation:</span> A SQL command can be written on several lines. It must end with a semicolon.</p>
+
+<p>Sometimes, instead of showing row data stored in the table, we would like to process the data and show the results. This is where the operators come in. If for example, we would like to see how much each student would earn if the scholarship is increased by 10RON, you may use the following query:</p>
+
+<p><code>SELECT fname, lname, scholarship + 10 FROM students;</code></p>
+
+
+<p><span style="color:green">Exercise: Show half of the scholarship which is firstly increased by 100 RON. Take care of operators precedence. </span></p>
+
+<h3> NULL values </h3>
+<p>Sometimes, for some records, some attributes/columns cannot be assigned a value (i.e. not all students receive scholarships; a 0 value is not always the same thing with a missing value, in our case it may indicate that the student was selected for a scholarship but for the moment there are insufficient funds; an unexpected thing would happen if all scholarships would be increased with 100 RON: a student not earning any scholarship and with the table field set to 0 would end-up earning 100 RON).</p>
+<p>If no value is set to a field of a record, this field/attribute will be assigned the NULL value. A null value used in an algebraic expression generate also a null value as result.</p>
+
+<h3> Concatenating strings </h3>
+
+<p>To concatenate two strings we can use the || operator. The result is a new string. Let's see some examples:</p>
+
+<p><code>SELECT 'Student '||fname||' '||lname||' is enrolled in the year of study '|| year ||'.' AS info FROM students;</code></p>
+
+<p><span style="color:red"></p>
+<p>Observation:</span> All strings mus be put between apostrophe marks. The only place where we use quotation marks is the alias.</p>
+
+<h3>Filtering rows</h3>
+
+<p>We already saw how to filter duplicate rows using the DISTINCT keyword. To restrict further the data that will be shown, we can use the WHERE clause of the SELECT statement. </p>
+
+<p>This is optional and, when used, it will always follow after the name of the queried table and will specify a filtering condition. For example, we could show only students in the first year of study by running:</p>
+
+<p><code>SELECT fname, lname FROM students WHERE year = 1;</code></p>
+
+<p>The conditions that will be used in the WHERE clause are logical expressions that must return one of two possible values: TRUE or FALSE. These expressions may use any arithmetic or string operator but also logical operators. The next example will return the students that earn scholarships.</p>
+
+<p><code>SELECT fname, lname FROM students WHERE scholarship IS NOT NULL;</code></p>
+
+<p>If we want to further filter the data and show only the first year students that receive scholarships, we make use of logical operators in order to use two filtering conditions: </p>
+
+<p><code>SELECT fname, lname FROM students WHERE scholarship IS NOT NULL AND year = 1;</code></p>
+
+<p><span style="color:red">Observation:</span> when evaluating complex logical expressions, the priority of the logical operators decreases in the enumeration: NOT, AND, OR.</p>
+
+<p>A very useful operator for expressing filtering conditions for strings is LIKE. It allows us to formulate regular expressions to match strings stored in the database. These regular expressions may use symbol "%" (percent) which holds for any group of characters while "_" (underscore) holds for exactly one character. For example, if we want to select all the students whose names end with "escu", we can use:</p>
+
+<p><code>SELECT fname, lname FROM students WHERE lname LIKE '%escu';</code></p>
+
+<p><span style="color:red">Observation:</span> when you need to use % or _ as part of a string, these must be preceded by the escape character \ (backslash).</p>
+
+<h3>Ordering the results of a query</h3>
+<p>To order the rows returned by a query, we can use the ORDER BY clause followed by a list of columns (or expressions built over column_names). Optionally, after each column name we can use one keyword from {ASC, DESC}  specifying increasing/decreasing order; by default the order is ascending.</p>
+
+<p>Let's order the students by the year of study:</p>
+
+<p><code>SELECT fname, lname, year FROM students ORDER BY year ASC;</code></p>
+
+<p>When there are several students in an year of study we would like to order them by their study_group:</p>
+
+<p><code>SELECT fname, lname, year FROM students ORDER BY year ASC, groupno DESC;</code></p>
+
+<p>Let's build a query that has both the WHERE and the ORDER By clauses:</p>
+
+<p><code>SELECT fname, lname, groupno FROM students WHERE year=1 ORDER BY groupno ASC;</code></p>
+
+<p>Also, we can specify the field/attribute to be used for ordering by its position in the table definition:</p>
+
+<p><code>SELECT * FROM students ORDER BY 2;</code> -- orders the returned records by the family name</p>
+
+<h2> Operators </h2>
+<h3>Usual arithmetic operators</h3>
+
+<table>
+    <tr> 
+	   <th>Operator</th>
+	   <th>Description</th>
+	   <th>Example</th>
+	</tr>
+	<tr>
+	   <td>*</td>
+	   <td>multiplication - for all numerical types</td>
+	   <td>SELECT value * 5 FROM grades;</td>
+	</tr>
+	<tr>
+	   <td>/</td>
+	   <td>division - for all numerical types</td>
+	   <td>SELECT value / 10 FROM grades;</td>
+	</tr>
+	<tr>
+	   <td>+</td>
+	   <td>summation - for all numerical types and DATE </td>
+	   <td>SELECT value + 1 FROM grades;</td>
+	</tr>
+	<tr>
+	   <td>-</td>
+	   <td>subtraction - for all numerical types and DATE </td>
+	   <td>SELECT value-1 FROM grades;</td>
+	</tr>
+</table>
+
+<p>If one of the operands is NULL the result is NULL</p>
+
+<h3>String operators</h3>
+
+<table>
+<tr>
+   <th>Operator</th>
+   <th>Description</th>
+   <th>Example</th>
+</tr>
+<tr>
+  <td>||</td>
+  <td>concatenation</td>
+  <td>SELECT 'The name of the student is: ' || fname FROM students;</td>
+</tr>
+</table>
+
+<p>If one of the operands is NULL, the result consists of the other operand; if both operands are NULL the result is NULL.</p>
+
+<h3> Comparison operators </h3>
+<p>- return TRUE or FALSE, are applicable to all data types </p>
+
+<table>
+<tr>
+   <th>Operator</th>
+   <th>Description</th>
+   <th>Example</th>
+</tr>
+<tr>
+  <td>=, &lt;, &gt;, &lt;=, &gt;=, &lt;&gt;, !=</td>
+  <td>Binary operators with the usual meaning. != is equivalent to &lt;&gt;.</td>
+  <td>SELECT fname AS "Student" FROM students WHERE year = 2;</td>
+</tr>
+<tr>
+  <td>ANY, SOME</td>
+  <td>Operator applicable to a list of values or to the result of a query in conjunction with one of the common comparison operators above; the meaning is as follows: the common operator takes as a second operand each of the values in the list; it returns TRUE if <b>at least one</b> of the values in the list returns TRUE; otherwise the result is FALSE. </td>
+  <td>SELECT * FROM students WHERE year = SOME (2,3);</td>
+</tr>
+<tr>
+  <td>ALL</td>
+  <td>Same as ANY/SOME, with the difference that the result is TRUE only if the common operator returns TRUE for <b>all</b> the values in the list.</td>
+  <td>SELECT * FROM students WHERE year >= ALL (1, 2);</td>
+</tr>
+<tr>
+  <td>IN</td>
+  <td>Checks if the first operand belongs to the list/set corresponding to the second operand. It is equivalent to „=ANY”</td>
+  <td>SELECT * FROM students WHERE first_name IN ('Adrian', 'Alex');</td>
+</tr>
+<tr>
+  <td>NOT IN</td>
+  <td>Returns FALSE if the first operand does not belong to the list/set corresponding to the second operand. It is equivalent to „<>ANY”</td>
+  <td>SELECT * FROM students WHERE year NOT IN (1,2);</td>
+</tr>
+<tr>
+  <td>BETWEEN x AND y</td>
+  <td>We can consider it as a ternary operator: it return TRUE if the first operand satisfies in the same time the two conditions:  &gt;=x and &lt;=y, where x and y correspond to the other two operands.</td>
+  <td>SELECT fname, lname FROM students WHERE year BETWEEN 1 AND 3;</td>
+</tr>
+<tr>
+  <td>LIKE</td>
+  <td>Binary operator, checks if the first operand satisfies the pattern expressed by the second operand. The pattern is a string that may contain one of the following special characters:
+  <p><b>%</b>, which means any string, even the empty string (of length 0)</p>
+  <p><b>_</b>, which means exactly one character</p> 
+  </td>
+  <td>SELECT * FROM students WHERE fname LIKE '%andr%';</td>
+</tr>
+<tr>
+  <td>IS [NOT] NULL</td>
+  <td>The only way to check for NULL</td>
+  <td>SELECT * FROM students WHERE scholarship IS NOT NULL AND scholarship > 200;</td>
+</tr>
+</table>
+
+
+<h3>Logical operators</h3>
+<table>
+<tr>
+   <th>Operator</th>
+   <th>Description</th>
+   <th>Example</th>
+</tr>
+<tr>
+  <td>NOT	</td>
+  <td>negation</td>
+  <td>SELECT * FROM students WHERE NOT (scholarship IS NULL);</td>
+</tr>
+<tr>
+  <td>AND	</td>
+  <td>logical AND </td>
+  <td>SELECT * FROM students WHERE year='3' AND scholarship IS NOT NULL;</td>
+</tr>
+<tr>
+  <td>OR	</td>
+  <td>logical OR</td>
+  <td>SELECT * FROM students WHERE year='3' OR scholarship IS NOT NULL;</td>
+</tr>
+</table>
+
+<h3>Set operators</h3>
+<p>- The operands are queries (query results – therefore tables), their definition and restrictions of applicability are those specified in the relational algebra.</p>
+<table>
+<tr>
+   <th>Operator</th>
+   <th>Description</th>
+   <th>Example</th>
+</tr>
+<tr>
+   <td>UNION [ALL]</td>
+   <td>Sets union. If specifying ALL the duplicates are not eliminated.</td>
+   <td>SELECT lname FROM students WHERE year = '2' <br/>UNION <br/>SELECT lname FROM students WHERE year = '3';</td>
+</tr>
+<tr>
+  <td>INTERSECT [ALL]</td>
+  <td>Sets intersection, duplicates are eliminated.</td>
+  <td>SELECT last_name FROM students WHERE year = 2 <br/> INTERSECT <br/>SELECT lname FROM students WHERE scholarship IS NOT NULL;</td>
+</tr>
+<tr>
+  <td>MINUS</td>
+  <td>Distinct rows from the first query which do not exist in the second query.</td>
+  <td>SELECT lname FROM students WHERE year = 3 <br/> MINUS <br/> SELECT lname FROM students WHERE scholarship IS NULL;</td>
+</tr>
+</table>
+
+
+<h2> Exercises </h2>
+
+<p>1 Write a query to display the first name, last name, year of study and date of birth for all students. Edit in SQL*Plus and run. Save the query in a file named p1.sql.</p>
+<p>2 Display all information about students who have two occurrences of the letter "a" in their first name.</p>
+<p>3 Load the file p1.sql into the buffer. Give each column in the SELECT clause an alias. Run the query (Execute).</p>
+<p>4 Display the name concatenated with the first name followed by comma and the year of study. Then, sort ascending by the year of study. Name the column "Students by years of study".</p>
+<p>5 Display the first name, the last name and the date of birth of the students born between 1st of January 1995 and 10th of June 1997. Order the results in descending order of their year of study.</p>
+<p>6 Display the first name, the last name and the year in which they are (study year) for all the students born in the year 1995.</p>
+<p>7 Display every information you have about the students that don't have a scholarship.</p>
+<p>8 Display the first and last name of the students that have a scholarship and are in the 2nd or 3rd year of study. Order the students alphabetically by their name and, if there are two students with the same name, display them in the reverse order of their first name.</p>
+<p>9 Display the students that have a scholarship, and its value if it would be increased by 15%.</p>
+<p>10 Select/Show the students whose name starts with the letter 'P' and are in their first year of study.</p>
+<p>11 Display everything about the students which have the letter 'a' appearing two times in their names.</p>
+<p>12 Display everything about the students named “Susan”, “Jane” or “Maria”.</p>
+<p>13 Display all the students that have scholarship and are in the groups starting with 'A'.</p>
+<p>14 Display the first and last names of teachers whose last name ends with the letter "n".</p>
