@@ -10,7 +10,7 @@ DROP TABLE didactic CASCADE CONSTRAINTS
 /
 
 CREATE TABLE students (
-  registration_number VARCHAR2(6) NOT NULL,
+  id_stud VARCHAR2(6) NOT NULL,
   lname VARCHAR2(10) NOT NULL,
   fname VARCHAR2(10) NOT NULL,
   year NUMBER(1),
@@ -32,7 +32,7 @@ CREATE TABLE courses (
 
 
 CREATE TABLE grades (
-  registration_number VARCHAR2(6) NOT NULL,
+  id_stud VARCHAR2(6) NOT NULL,
   id_course VARCHAR2(4) NOT NULL,
   value NUMBER(2),
   grading_date DATE
@@ -40,7 +40,7 @@ CREATE TABLE grades (
 /
 
 CREATE TABLE profs (
-  id_instructor  VARCHAR2(4) PRIMARY KEY,
+  id_prof  VARCHAR2(4) PRIMARY KEY,
   lname VARCHAR2(10) NOT NULL,
   fname VARCHAR2(10) NOT NULL,
   title VARCHAR2(12)
@@ -48,7 +48,7 @@ CREATE TABLE profs (
 /
 
 CREATE TABLE didactic (
-  id_instructor  VARCHAR2(4),
+  id_prof  VARCHAR2(4),
   id_course  VARCHAR2(4)
 )
 /

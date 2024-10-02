@@ -26,11 +26,11 @@
 
 <p>When, for any reason, you dislike the column name appearing in the result, you can modify it by using aliases in the SELECT phrase. The alias must be inserted immediately after the column name and, optionally (but recommended for legibility) may be preceded by the "AS" keyword. If the alias is composed of several terms containing thus spaces, it must be put between quotation marks. For example, the following query will show a table containing instructors' last names with the header renamed to "Instructor name" </p>
 
-<p><code>SELECT lname AS "Instructor name" FROM instructors;</code></p>
+<p><code>SELECT lname AS "Instructor name" FROM profs;</code></p>
 
 <p><span style="color:red">Observation:</span> The AS keyword is optional. In case the alias consists of only one term, quotation marks are not necessary; quotation marks are necessary only when the alias contains spaces or special characters and when we want the characters to respect the case (to be case sensitive). As an example, try to run the following query:</p>
 
-<p><code>SELECT lname AS Instructor name FROM instructors;</code></p>
+<p><code>SELECT lname AS Instructor name FROM profs;</code></p>
 
 
 <p>If there are several similar entries/records in the table, all of them will be shown. For example, extract our students' years of study by running the query:</p>
@@ -46,7 +46,7 @@
 <p><code>SELECT DISTINCT year, groupno FROM students;</code></p>
 
 
-<p><span style="color:red">Observation:</span> Although SQL reserved keywords were written with uppercase letters, SQL is not a case-sensitive language. We will use when solving exercises during the labs a simple convention: uppercase letters for reserved words and lowercase letters for identifiers. Be aware that SQL distinguishes between uppercase and lowercase letters in the case of strings stored in a table. For example, if you execute <code>SELECT * FROM courses WHERE course_title='LOGICS';</code> on our table, it will not return any rows.</p>
+<p><span style="color:red">Observation:</span> Although SQL reserved keywords were written with uppercase letters, SQL is not a case-sensitive language. We will use when solving exercises during the labs a simple convention: uppercase letters for reserved words and lowercase letters for identifiers. Be aware that SQL distinguishes between uppercase and lowercase letters in the case of strings stored in a table. For example, if you execute <code>SELECT * FROM courses WHERE course_title='LOGIC';</code> on our table, it will not return any rows.</p>
 
 <p><span style="color:red">Observation:</span> A SQL command can be written on several lines. It must end with a semicolon.</p>
 
@@ -281,6 +281,6 @@
 <p>9 Display the students that have a scholarship, and its value if it would be increased by 15%.</p>
 <p>10 Select/Show the students whose name starts with the letter 'P' and are in their first year of study.</p>
 <p>11 Display everything about the students which have the letter 'a' appearing two times in their names.</p>
-<p>12 Display everything about the students named “Susan”, “Jane” or “Maria”.</p>
-<p>13 Display all the students that have scholarship and are in the groups starting with 'A'.</p>
-<p>14 Display the first and last names of teachers whose last name ends with the letter "n".</p>
+<p>12 Display everything about the students named "Alexandru", “Ioana” or “Marius”.</p>
+<p>13 Display all the students whose first name contains EXACTLY once the letter 'a' (we will ignore the case in which their name starts with 'A').</p>
+<p>14 Display the first and last names of teachers whose last name ends with the letter "n" (trap question).</p>

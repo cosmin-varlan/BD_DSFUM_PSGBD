@@ -164,15 +164,15 @@
 
 
 <p>The functions that change the case of the letters (transform the text in lowercase or in uppercase) are frequently used in the WHERE clause in order to look for text for which we d not know how it was stored (in uppercase or lowercase or initcap format). For example, if we do not know how the first names were stored and we would like to retrieve information for a student named Andrei, we will process the field extracted from the database to bring it to a convenient format:</p>
-<p><code>SELECT * FROM students WHERE first_name = 'ANDREI';</code> --returns 0 rows</p>
+<p><code>SELECT * FROM students WHERE fname = 'ANDREI';</code> --returns 0 rows</p>
 
 <p><code>SELECT * FROM students WHERE UPPER(fname) = 'ANDREI'; </code>--returns the wanted data</p>
 
 <p>Also, TRIM is a function largely used to retrieve data when the attributes are declared as CHAR():</p>
 
-<p><code>SELECT * FROM instructors WHERE UPPER(lname) = 'BREABAN'; </code>--returns 0 rows</p>
+<p><code>SELECT * FROM profs WHERE UPPER(lname) = 'BREABAN'; </code>--returns 0 rows</p>
 
-<p><code>SELECT * FROM instructors WHERE TRIM(UPPER(lname)) = 'BREABAN'; </code>--returns the wanted records</p>
+<p><code>SELECT * FROM profs WHERE TRIM(UPPER(lname)) = 'BREABAN'; </code>--returns the wanted records</p>
 
 <h3>Functions for Dates</h3>
 <p>The default date format for an Oracle Database date value is derived from the NLS_DATE_FORMAT and NLS_DATE_LANGUAGE. Most of you, after installing the database server on your systems will probably have the "DD-MON-YY" format (ex: '10-JUN-15'), but this can be modified by the user (ALTER SESSION SET NLS_DATE_FORMAT....).  To overcome incompatibility issues, it is recommended when working with Dates to make use of the function  TO_DATE (described in the next section), which will specify the format.</p>

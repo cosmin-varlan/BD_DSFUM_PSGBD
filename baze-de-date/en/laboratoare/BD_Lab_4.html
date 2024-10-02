@@ -123,10 +123,10 @@
 
 <p>All of the examples above express joins over two tables - students and grades. How can we find out the course names corresponding to the shown grades? We add a second join in the query, with table courses:</p>
 
-<pre><code class="language-sql">SELECT fname, lname, course_name, value 
+<pre><code class="language-sql">SELECT fname, lname, course_title, value 
    FROM students s 
               JOIN grades g ON s.id_stud=g.id_stud 
-              JOIN courses c ON c.id=g.id_course;
+              JOIN courses c ON c.id_course=g.id_course;
 </code></pre>
 
 

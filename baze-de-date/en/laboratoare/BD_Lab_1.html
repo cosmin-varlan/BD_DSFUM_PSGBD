@@ -77,9 +77,9 @@
 
 <h4> Creating tables </h4>
 <pre><code class="language-sql">CREATE [{GLOBAL | LOCAL} TEMPORARY] TABLE
-       <table_name>
-        (<column_name1> {data_type | domain_name} [constraints] 
-        [,<column_name2> {data_type | domain_name} [constraints]]
+       &lt;table_name&gt; 
+        (&lt;column_name1&gt;  {data_type | domain_name} [constraints] 
+        [,&lt;column_name2&gt;  {data_type | domain_name} [constraints]]
         […]
         )     
        [ ON COMMIT { DELETE | PRESERVE } ROWS ]
@@ -91,51 +91,51 @@
 
 
 <h4> Deleting tables </h4>
-<pre><code class="language-sql">DROP TABLE <table_name>  [RESTRICT | CASCADE]
+<pre><code class="language-sql">DROP TABLE &lt;table_name&gt;  [CASCADE CONSTRAINTS]
 </code></pre>
 
 <p>CASCADE forces dropping a table which is referenced by a view or by other foreign keys, propagating the drop command on these objects.</p>
 
 <p>In Oracle a table is dropped using:</p>
-<pre><code class="language-sql">DROP TABLE <table_name>  [CASCADE CONSTRAINTS] [PURGE]
+<pre><code class="language-sql">DROP TABLE &lt;table_name&gt;  [CASCADE CONSTRAINTS] [PURGE]
 </code></pre>
 
 
 <p>In Oracle the tables are recycled, unless the PURGE option is specified. They can be restored by using:</p>
-<pre><code class="language-sql">FLASHBACK TABLE <table_name>   TO 
+<pre><code class="language-sql">FLASHBACK TABLE &lt;table_name&gt;   TO 
      { { SCN | TIMESTAMP } expr 
      [ { ENABLE | DISABLE } TRIGGERS ] | 
-     BEFORE DROP [ RENAME TO <nume_nou> ]} 
+     BEFORE DROP [ RENAME TO &lt;nume_nou&gt; ]} 
 </code></pre>
 
 
 <h3> DML (Data Manipulation Language) </h3>
 
 <h4> Inserting records </h4>
-<pre><code class="language-sql">INSERT INTO <table_name> 
+<pre><code class="language-sql">INSERT INTO &lt;table_name&gt;
             [ (columns_list) ]
             VALUES (values_list)
 </code></pre>
 
 
 <h4> Updating records </h4>
-<pre><code class="language-sql">UPDATE <table_name>
-       SET <column_name1> = value1
-           [, <column_name2> = valoare2...]
+<pre><code class="language-sql">UPDATE &lt;table_name&gt;
+       SET &lt;column_name1&gt; = value1
+           [, &lt;column_name2&gt; = valoare2...]
        [WHERE condition]
 </code></pre>
 
 
 <h4> Deleting records </h4>
-<pre><code class="language-sql">DELETE FROM <table_name> 
+<pre><code class="language-sql">DELETE FROM &lt;table_name&gt; 
       [WHERE condition]
 </code></pre>
 
 
 
 <h4> Querying the database </h4>
-<pre><code class="language-sql">SELECT [DISTINCT | ALL] {* | [column_expresion [AS <new_name>]] [,...] }
-       FROM <table_name> [alias] [, ...]
+<pre><code class="language-sql">SELECT [DISTINCT | ALL] {* | [column_expresion [AS &lt;new_name&gt;]] [,...] }
+       FROM &lt;table_name&gt; [alias] [, ...]
        [WHERE condition]
        [GROUP BY columns_list] [HAVING condition]
        [ORDER BY exp1 [ASC/DESC] [,exp2...]] 
@@ -190,7 +190,7 @@
 
 <p>Students table:</p>
 <ul>
-<li>registration_number - alphanumeric field of maximum 6 characters which cannot be NULL</li>
+<li>id_stud - alphanumeric field of maximum 6 characters which cannot be NULL</li>
 <li>lname - alphanumeric field of maximum 10 characters which cannot be NULL, indicating the last name of a student.</li>
 <li>fname - alphanumeric field of maximum 10 characters which cannot be NULL indicating the first name of a student. </li>
 <li>year - numeric field which can retain numbers formed of a single digit</li>
@@ -201,7 +201,7 @@
 
 <p>Grades table:</p>
 <ul>
-<li>registration_number - alphanumeric field of maximum 6 characters which cannot be NULL</li>
+<li>id_stud - alphanumeric field of maximum 6 characters which cannot be NULL</li>
 <li>id_course - alphanumeric field of maximum 4 characters which cannot be NULL</li>
 <li>value - numeric field which can retain numbers formed of at most 2 digits</li>
 <li>grading_date - date field</li>

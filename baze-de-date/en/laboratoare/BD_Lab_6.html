@@ -88,7 +88,7 @@
 <p>Example:</p>
 <pre><code class="language-sql">SELECT MAX(value) 
     FROM grades
-    GROUP BY stud_id;
+    GROUP BY id_stud;
 --How many lines are returned? What is the meaning of each line?
 </code></pre>
 
@@ -96,9 +96,9 @@
 <p>Individual field values cannot be accessed in the SELECT list unless the GROUP BY clause contains the field. This means that all the fields/columns in the SELECT list which are not given as arguments to aggregate functions must also appear in the GROUP BY clause. </p>
 
 <p>Example:</p>
-<pre><code class="language-sql">SELECT MAX(value), course_id
+<pre><code class="language-sql">SELECT MAX(value), id_course
     FROM grades
-    GROUP BY stud_id; 
+    GROUP BY id_stud; 
 --Doesn't work?
 </code></pre>
 
@@ -131,20 +131,20 @@ SELECT year, credits, count(*)
 <p>The HAVING clause is used only in conjunction with the GROUP BY clause in order to eliminate groups based on the results returned by the aggregate functions or based on column values that characterize the entire group and not based on individual row values.</p>
 
 <p>Example:</p>
-<pre><code class="language-sql">SELECT course_id, COUNT(value)
+<pre><code class="language-sql">SELECT id_course, COUNT(value)
    FROM grades
-   GROUP BY course_id;
+   GROUP BY id_course;
 --How many groups?
 
-SELECT course_id, COUNT(value)
+SELECT id_course, COUNT(value)
    FROM grades
    WHERE value>8
-   GROUP BY course_id;
+   GROUP BY id_course;
 --How many groups? Why?
 
-SELECT course_id, COUNT(value)
+SELECT id_course, COUNT(value)
    FROM grades
-   GROUP BY course_id
+   GROUP BY id_course
    HAVING COUNT(value)>8;
 --How many groups? Why?
  </code></pre>
