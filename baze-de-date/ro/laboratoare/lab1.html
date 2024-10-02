@@ -79,9 +79,9 @@
 
 <h4> Crearea tabelelor </h4>
 <pre><code class="language-sql">CREATE [{GLOBAL | LOCAL} TEMPORARY] TABLE
-       <nume_tabel>
-        (<nume_coloană1> data_type [constrângeri] 
-        [,<nume_coloana2> data_type [constrângeri]]
+        &lt;nume_tabel&gt;
+        (&lt;nume_coloană1&gt; data_type [constrângeri] 
+        [,&lt;nume_coloana2&gt; data_type [constrângeri]]
         […]
         )     
        [ ON COMMIT { DELETE | PRESERVE } ROWS ]
@@ -93,18 +93,18 @@
 
 
 <h4> Ştergerea unui tabel </h4>
-<pre><code class="language-sql">DROP TABLE <nume_tabel>  [CASCADE CONSTRAINTS]
+<pre><code class="language-sql">DROP TABLE &lt;nume_tabel&gt;  [CASCADE CONSTRAINTS]
 </code></pre>
 
 <p>CASCADE permite ştergerea unui tabel care e referenţiat de un VIEW sau de chei străine şi şterge view-ul şi restricţia de tip cheie străină.</p>
 
 <p>În Oracle sintaxa pentru ştergerea tabelelor este:</p>
-<pre><code class="language-sql">DROP TABLE <nume_tabel>  [CASCADE CONSTRAINTS] [PURGE]
+<pre><code class="language-sql">DROP TABLE &lt;nume_tabel&gt;  [CASCADE CONSTRAINTS] [PURGE]
 </code></pre>
 
 
 <p>În Oracle tabelele şterse sunt reciclate dacă nu este specificată opţiunea PURGE, ele putând fi recuperate cu comanda: </p>
-<pre><code class="language-sql">FLASHBACK TABLE <nume_tabel>   TO 
+<pre><code class="language-sql">FLASHBACK TABLE &lt;nume_tabel&gt;   TO 
      { { SCN | TIMESTAMP } expr 
      [ { ENABLE | DISABLE } TRIGGERS ] | 
      BEFORE DROP [ RENAME TO <nume_nou> ]} 
@@ -114,22 +114,22 @@
 <h3> Comenzi DML (de manipulare a datelor) </h3>
 
 <h4> Inserarea înregistrărilor </h4>
-<pre><code class="language-sql">INSERT INTO <nume_tabel> 
+<pre><code class="language-sql">INSERT INTO &lt;nume_tabel&gt; 
             [ (lista_coloane) ]
             VALUES (lista_valori)
 </code></pre>
 
 
 <h4> Actualizarea valorilor </h4>
-<pre><code class="language-sql">UPDATE <nume_tabel>
-       SET <nume_coloana1> = valoare1
-           [, <nume_coloana2> = valoare2...]
+<pre><code class="language-sql">UPDATE &lt;nume_tabel&gt;
+       SET &lt;nume_coloana1&gt; = valoare1
+           [, &lt;nume_coloana2&gt; = valoare2...]
        [WHERE conditie]
 </code></pre>
 
 
 <h4> Ştergerea înregistrărilor </h4>
-<pre><code class="language-sql">DELETE FROM <nume_tabel> 
+<pre><code class="language-sql">DELETE FROM &lt;nume_tabel&gt; 
       [WHERE conditie]
 </code></pre>
 
@@ -137,7 +137,7 @@
 
 <h4> Interogarea bazei de date </h4>
 <pre><code class="language-sql">SELECT [DISTINCT | ALL] {* | [expresie_coloana [AS <nume_nou>]] [,...] }
-       FROM <nume_tabel> [alias] [, ...]
+       FROM &lt;nume_tabel&gt; [alias] [, ...]
        [WHERE conditie]
        [GROUP BY lista_coloane] [HAVING conditie]
        [ORDER BY exp1 [ASC/DESC] [,exp2...]] 
