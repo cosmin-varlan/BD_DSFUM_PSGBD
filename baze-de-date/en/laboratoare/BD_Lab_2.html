@@ -88,7 +88,7 @@
 
 <p><span style="color:red">Observation:</span> when evaluating complex logical expressions, the priority of the logical operators decreases in the enumeration: NOT, AND, OR.</p>
 
-<p>A very useful operator for expressing filtering conditions for strings is LIKE. It allows us to formulate regular expressions to match strings stored in the database. These regular expressions may use symbol "%" (percent) which holds for any group of characters while "_" (underscore) holds for exactly one character. For example, if we want to select all the students whose names end with "escu", we can use:</p>
+<p>A very useful operator for expressing filtering conditions for strings is LIKE. It allows us to formulate regular expressions to match strings stored in the database. These regular expressions may use symbol "%" (percent) which holds for any group of characters while "_" (underscore) holds for exactly one character. For example, if we want to select all the students whose last names end with "escu", we can use:</p>
 
 <p><code>SELECT fname, lname FROM students WHERE lname LIKE '%escu';</code></p>
 
@@ -111,7 +111,7 @@
 
 <p>Also, we can specify the field/attribute to be used for ordering by its position in the table definition:</p>
 
-<p><code>SELECT * FROM students ORDER BY 2;</code> -- orders the returned records by the family name</p>
+<p><code>SELECT * FROM students ORDER BY 2;</code> -- orders the returned records by the first name </p>
 
 <h2> Operators </h2>
 <h3>Usual arithmetic operators</h3>
@@ -157,7 +157,7 @@
 <tr>
   <td>||</td>
   <td>concatenation</td>
-  <td>SELECT 'The name of the student is: ' || fname FROM students;</td>
+  <td>SELECT 'The first name of the student is: ' || fname FROM students;</td>
 </tr>
 </table>
 
@@ -190,7 +190,7 @@
 <tr>
   <td>IN</td>
   <td>Checks if the first operand belongs to the list/set corresponding to the second operand. It is equivalent to „=ANY”</td>
-  <td>SELECT * FROM students WHERE first_name IN ('Adrian', 'Alex');</td>
+  <td>SELECT * FROM students WHERE fname IN ('Adrian', 'Alex');</td>
 </tr>
 <tr>
   <td>NOT IN</td>
@@ -258,7 +258,7 @@
 <tr>
   <td>INTERSECT [ALL]</td>
   <td>Sets intersection, duplicates are eliminated.</td>
-  <td>SELECT last_name FROM students WHERE year = 2 <br/> INTERSECT <br/>SELECT lname FROM students WHERE scholarship IS NOT NULL;</td>
+  <td>SELECT lname FROM students WHERE year = 2 <br/> INTERSECT <br/>SELECT lname FROM students WHERE scholarship IS NOT NULL;</td>
 </tr>
 <tr>
   <td>MINUS</td>
@@ -271,16 +271,16 @@
 <h2> Exercises </h2>
 
 <p>1 Write a query to display the first name, last name, year of study and date of birth for all students. Edit in SQL*Plus and run. Save the query in a file named p1.sql.</p>
-<p>2 Display all information about students who have two occurrences of the letter "a" in their first name.</p>
+<p>2 Display the unique values of the scholarships.</p>
 <p>3 Load the file p1.sql into the buffer. Give each column in the SELECT clause an alias. Run the query (Execute).</p>
-<p>4 Display the name concatenated with the first name followed by comma and the year of study. Then, sort ascending by the year of study. Name the column "Students by years of study".</p>
+<p>4 Display the last name concatenated with the first name followed by comma and the year of study. Then, sort ascending by the year of study. Name the column "Students by years of study".</p>
 <p>5 Display the first name, the last name and the date of birth of the students born between 1st of January 1995 and 10th of June 1997. Order the results in descending order of their year of study.</p>
 <p>6 Display the first name, the last name and the year in which they are (study year) for all the students born in the year 1995.</p>
 <p>7 Display every information you have about the students that don't have a scholarship.</p>
-<p>8 Display the first and last name of the students that have a scholarship and are in the 2nd or 3rd year of study. Order the students alphabetically by their name and, if there are two students with the same name, display them in the reverse order of their first name.</p>
+<p>8 Display the first and last name of the students that have a scholarship and are in the 2nd or 3rd year of study. Order the students alphabetically by their last name and, if there are two students with the same last name, display them in the reverse order of their first name.</p>
 <p>9 Display the students that have a scholarship, and its value if it would be increased by 15%.</p>
-<p>10 Select/Show the students whose name starts with the letter 'P' and are in their first year of study.</p>
-<p>11 Display everything about the students which have the letter 'a' appearing two times in their names.</p>
+<p>10 Select/Show the students whose last name starts with the letter 'P' and are in their first year of study.</p>
+<p>11 Display all information about students who have two occurrences of the letter "a" in their first name.</p>
 <p>12 Display everything about the students named "Alexandru", “Ioana” or “Marius”.</p>
 <p>13 Display all the students whose first name contains EXACTLY once the letter 'a' (we will ignore the case in which their name starts with 'A').</p>
 <p>14 Display the first and last names of teachers whose last name ends with the letter "n" (trap question).</p>

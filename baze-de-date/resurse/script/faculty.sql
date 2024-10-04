@@ -22,7 +22,7 @@ CREATE TABLE students (
 
 
 CREATE TABLE courses (
-  id_course VARCHAR2(4) PRIMARY KEY,
+  id_course VARCHAR2(4),
   course_title VARCHAR2(12) NOT NULL,
   year NUMBER(1),
   sem NUMBER(1),
@@ -40,9 +40,9 @@ CREATE TABLE grades (
 /
 
 CREATE TABLE profs (
-  id_prof  VARCHAR2(4) PRIMARY KEY,
-  lname VARCHAR2(10) NOT NULL,
-  fname VARCHAR2(10) NOT NULL,
+  id_prof  VARCHAR2(4),
+  lname CHAR2(10) NOT NULL,
+  fname CHAR2(10) NOT NULL,
   title VARCHAR2(12)
 )
 /
