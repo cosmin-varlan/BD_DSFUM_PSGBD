@@ -1,0 +1,161 @@
+
+<h2> Breadboard </h2>
+
+
+
+
+<div class="row">
+    <div class="col-md-4">
+        <img src="imagini/lab2_pcb.png" style="width:100%; float:left"/>
+    </div>
+    <div class="col-md-8">        
+        <p>Cei mai tari dintre electroniști știu exact ce fac atunci când proiectează un circuit: construiesc PCB-ul (<a href="https://ro.wikipedia.org/wiki/Circuit_imprimat">Printed Circuit Board</a>), lipesc piesele, alimentează cu curent electric și totul funcționează perfect din prima. V-ați putea gândi că așa este și în cazul programatorilor: cei mai tari dintre ei compilează și rulează programul și totul merge ca pe roate. Pentru ceilalți (electroniști), cei ca noi - care suntem la început de drum, există posibilitatea de a face montaje temporare pentru a testa dacă ceea ce am construit are vreo șansă să funcționeze așa cum ne-am dori. Pentru ca aceste montaje temporare să nu arate ca un amalgam de fire lipite între ele, s-au "inventat" așa-zisele plăci pentru prototipizare.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-10">
+        <p>Plăcile pentru prototipizare sunt de două tipuri: cele ce necesită lipirea pieselor (în general pentru începătorii mai avansați :D) și care se mai numesc și stripboard și cele de tip solderless (care nu necesită lipituri) care se mai numesc și breadboard. Pentru a nu ne lipi degetele, frige sau strica diverse componente, în cadrul acestui laborator vom folosi varianta solderless. </p>
+    </div>
+    <div class="col-md-2">
+        <img src="imagini/lab2_breadboard.png" style="width:100%; float:left"/>
+    </div>
+</div>
+
+
+
+<div class="row">
+    <div class="col-md-8">
+        <p>Plăcile de prototipizare solderless (breadboard) sunt construite ca în imaginea schematică atașată acestei secțiuni: există 4 zone diferite A, B, C, D. Zonele A și D sunt utilizate pentru alimentarea cu curent electric, în timp ce zonele B și C sunt utilizate pentru montarea diverselor piese. Pentru a ne fi mai ușor să referim fiecare dintre conectorii din zona de montare a pieselor, acestea au fost indexate cu literele a, b, c, d, e / f, g, h, i, j, respectiv cu numere de la 1 la 30 - vezi imaginea alăturată reprezentând un breadboard. De asemenea, zonele A și D au un marcaj cu +, respectiv - pentru fiecare dintre rândurile lor (uneori sunt desenate două linii: albastru/roșu reprezentând aceleași polarități ale curentului: albastru=- și roșu=+).</p>
+    </div>
+    <div class="col-md-4">
+        <img src="imagini/lab2_breadboard_layout.png" style="width:100%; float:left"/>
+    </div>
+</div>
+
+
+<p>În zonele A și D, conectorii aflați pe același rând sunt interconectați. Dacă vom conecta printr-un fir conectorul marcat 3.3V de la Arduino cu oricare dintre conectorii + din zona A a breadboard-ului, toți conectorii + din zona A vor avea proprietatea de a furniza cei 3.3V preluați din Arduino. Evident, trebuie să conectăm și GND-ul Arduino-ului cu rândul -. </p> 
+<p>Zonele C și D au coloanele interconectate, dar până la jumătatea breadboard-ului. Astfel, 1a este conectat cu 1b, 1c, 1d și 1e, în timp ce 1f este conectat cu 1g, 1h, 1i și 1j. </p> 
+<p>Aveți grijă să nu conectați NICIODATĂ rândul marcat cu + cu rândul marcat cu - (din nicio zonă A sau D): indiferent dacă această conexiune ar fi făcută direct sau prin intermediul altor conexiuni din zonele C/D, rezultatul va fi un scurtcircuit și veți risca arderea componentelor cu care lucrați.</p> 
+<h2> Rezistorul </h2> 
+<p>Diverse materiale pe care le regăsim în mediul înconjurător sunt mai mult sau mai puțin conductoare de curent electric. Probabil că până acum v-ați dat seama că cele mai bune conductoare de curent electric sunt metalele (în fond, din acestea sunt construite firele), iar cele mai puțin conductoare de curent puteți să vă dați seama că sunt masele plastice (pentru că izolează firele). De fapt, cele mai bune izolatoare sunt construite din ceramică: din acest motiv, pe stâlpii de înaltă tensiune, locul în care firul ce transportă curentul atinge stâlpul este construit din ceramică. </p> 
+<p>Despre <a href="https://ro.wikipedia.org/wiki/Rezistor">rezistor</a> vom discuta și la curs. Important pentru acest laborator este să știți faptul că el poate produce o cădere a tensiunii electrice, fapt pe care ni-l dorim pentru a evita arderea LED-ului pe care îl vom conecta la Arduino. </p> 
+<p>Înainte să trecem mai departe, să facem totuși un experiment foarte interesant. Faceți următorii pași unul după altul:</p>
+
+
+<ul> 
+    <li> Cu ajutorul unui creion, desenați pe o foaie de hârtie o linie (de aprox 5cm). Încercați să treceți de mai multe ori cu creionul prin aceeași zonă pentru a depune cât mai mult din mina creionului pe foaia de hârtie.</li> 
+    <li> Fără a avea Arduino conectat la portul USB (sau la altă sursă de curent), conectați prin intermediul unui fir + din zona A a unui breadboard cu pinul indicând 5V al Arduino-ului, respectiv - a zonei A cu pinul GND al Arduino-ului. </li> 
+    <li> Introduceți un LED în zona B a breadboard-ului astfel încât pinul mai lung să fie conectat la 1e și cel scurt la 2e (aproape de centrul breadboard-ului). </li> 
+    <li> Conectați prin intermediul unui fir 1c cu + din zona A.</li> 
+    <li> Conectați două fire (preferabil de culori diferite) la 2a din zona B, respectiv la - din zona A.</li> 
+    <li> Având grijă ca cele două capete rămase libere de la firele conectate la pasul anterior să nu se atingă între ele, conectați Arduino la portul USB (nu se va întâmpla nimic special cu LED-ul).</li> 
+    <li> Puneți capătul unuia dintre fire într-o parte a liniei desenate cu creionul, iar cel de-al doilea fir atingeți-l de celălalt capăt al liniei desenate.</li> 
+    <li> Cu grijă pentru a nu atinge capetele celor două fire între ele, apropiați-le ținându-le lipite de foaia de hârtie (dar fără să ajungeți să le atingeți).</li> 
+</ul>
+
+
+<p>Cu cât distanța pe care curentul trebuie să o parcurgă prin linia de carbon desenată pe foaia de hârtie este mai mare, cu atât rezistența este mai mare și din acest motiv LED-ul se va aprinde mai puțin. Dacă micșorați distanța, LED-ul se va aprinde mai puternic. Nu atingeți niciodată cele două capete rămase libere între ele pentru a evita arderea LED-ului (nu este neapărat să se întâmple acest lucru, dar vă veți întrista dacă se va întâmpla).</p> 
+<p>În general, o rezistență de 330 ohmi este suficientă pentru a nu arde LED-ul (Puteți calcula valoarea rezistorului plecând de la culorile desenate pe acesta. Un astfel de calculator găsiți <a href="https://www.allaboutcircuits.com/tools/resistor-color-code-calculator">aici</a>. Puteți ca în locul celor două fire ce aveau capetele libere să puneți o astfel de rezistență (deci puneți o rezistență care să unească - din zona A cu 2a din zona B). În continuare, pentru a controla LED-ul cu ajutorul Arduino-ului aveți două posibilități: </p> 
+<ul> 
+    <li> fie mutați firul conectat la 5V al Arduino-ului într-unul din pinii digitali - caz în care LED-ul se va aprinde când îi veți da comanda HIGH (pinul digital se va comporta ca +)</li> 
+    <li> fie mutați firul conectat la GND al Arduino-ului într-unul din pinii digitali - caz în care LED-ul se va aprinde când îi veți da comanda LOW (pinul digital se va comporta ca -).</li> 
+</ul>
+
+<h4>Exerciții (prima parte)</h4>
+
+<p>Construiți pe propriul Breadboard următoarea schemă ce are rolul de a conecta 6 leduri pe pinii numerotați de la 7 la 13 ai Arduino-ului. Rezistorii ce vor fi folosiți sunt de 330 Ohm:</p>
+<img src="imagini/lab2_circuit.png" style="width:100%"> 
+<p>Alternativ [1], încercați să faceți această schemă în emulatorul de pe site-ul <a href="https://wokwi.com/">Wokwi</a><a href="resurse/lab2_schema_cu_6_leduri.txt">.</a> După ce ați făcut această schemă, pentru testa corectitudinea conexiunilor, scrieți un cod care să aprindă pe rând cele șase leduri.</p>
+
+<pre><code class="language-c">void setup() {
+    for(byte i=8; i<=13; i++)
+        pinMode(i, OUTPUT);
+}
+
+void loop() {
+    for(byte i=8; i<=13; i++)
+    {
+        digitalWrite(i, 1);  
+        delay(300);
+        digitalWrite(i, 0);      
+    }
+}
+</code></pre>
+  
+<p>Alternativ [2], la laborator avem o serie de piese ce conțin 6 leduri ce pot fi conectate direct în arduino având grijă ca pin-ul marcat ca GND să fie conectat în pinl GND următor pin-ului 13.</p>
+<p>Deocamdată vom salva această configurare pentru că o vom folosi ulterior în rezolvarea altor exerciții. Pentru a face acest lucru copiați conținutul tab-ul "diagram.json" din fereastra Wokwi - din păcate salvarea efectivă poate fi făcută numai dacă ați achiziționat un pachet "premium".</p>
+
+
+
+
+<h2>PWM = Pulse Width Modulation</h2> 
+<p>Pulse Width Modulation (PWM) este o tehnică de a emula o anumită tensiune, în cazul Arduinoului între 0 și 5v. Atunci când punem pin-ul Arduino-ului în modul HIGH (1), vom obține o tensiune de 5V la un curent de 20mA (tensiune și curent inofensivă chiar și pentru o muscă). Cu ajutorul acestei tensiuni putem alimenta un dispozitiv care are nevoie de 5V și un curent cel mult egal cu 20mA. Ce facem dacă tensiunea este însă prea mare ?</p> 
+<p>Pentru a alimenta dispozitive care necesită o tensiune mai mică (5V le-ar putea arde), se vor folosi pinii de tip PWM. Aceștia au rolul de a emula o tensiune între 0 și 5V prin intermediul unor impulsuri de 5V ce se produc cu o frecvență foarte mare. Această tehnică nu este specifică numai Arduino-ului, în general un transformator real (analogic) de tensiune ar fi foarte costisitor.</p>
+<p>Pentru a putea obținem o astfel de oscilație vom folosi comanda analogWrite (în locul comenzii digitalWrite). 
+   Comanda analogWrite poate fi folosită numai pentru pinii notați cu "~"" sau "PWM" pe plăcuța Arduino 
+   (Pentru Arduino UNO: 3,5,6,9,10,11). Valoarea pe care o putem da ca parametru și care indică tensiunea ce vrem 
+   să fie obținută pe pin este una între 0 și 255 unde 0 înseamnă 0V și 255 înseamnă 5V. Spre exemplu:
+   <ul>
+    <li>Setarea pinului folosind comanda analogWrite(pin, 255); va duce la obținerea în pinul respectiv la 5V [logic.D1].</li>
+    <li>Valoarea 127, spre exemplu, va face ca pe pinul utilizat să fie pe pentru un interval 
+   foarte mic de timp 0V apoi pentru un același interval pinul să fie pe 5V; urmează o nouă semi-cuantă de 0V, 
+   apoi 5V, apoi 0V etc. Dacă am măsura cu un aparat de măsură ce tensiune este la acest pin, am obține 2.5V.[logic.D2]</li> 
+     <li>Ne putem închipui că dacă dorim să obținem 1.25V, va trebui să executăm comanda analogWrite(pin,64); care 
+   va duce la împărțirea cuantei de timp în 3/4 pentru 0V și 1/4 pentru 5V. în imaginea următoarea se pot observa cuantele
+   pentru 5V, 2.5V și 1.25V [logic.D3]</li>
+   </ul>
+   O cunată are 2ms, așadar pentru a obține 2.5V Arduino setează o tensiune de 5V pentru 1ms și apoi 0V pentru 1ms:</p> 
+<img src="imagini/lab2_analizor_logic.png" style="width:100%" />
+
+<p>Pentru a măsura cuantele de timp și a vedea cum acestea alternează, se poate folosi un analizor logic sau un 
+   osciloscop. Pentru că ne interesează informație de tip digital, analizorul logic este mai indicat
+   în această situație. Acest dispozitiv are o serie de conexiuni pentru pinii arduino-ului și o interfață USB
+   care se conectează la calculator. Un software (cu care vine analizorul logic) poate face vizualizarea semnalului
+   digital așa cum este captat de analizorul logic (și vizualizarea este aproximativ ca în imaginea de mai sus).</p>
+
+
+<h4>Exercițiu (partea a doua)</h4>
+<p> Utilizând simulatorul de Arduino de pe site-ul Wokwi, conectați la acesta un analizor logic. După ce porniți 
+    simularea opriți-o imediat și vi se va permite să salvați un fișier cu extensia vcd. Acesta poate fi deschis
+    pentru vizualizare cu <a href="https://sigrok.org/wiki/Downloads">PulseView</a> sau cu alte softwuri despre
+    care puteți citi în <a href="https://docs.wokwi.com/parts/wokwi-logic-analyzer">documentația Wokwi</a>.
+    Faceți vizualizări pentru următoarele cazuri:
+    <ul>
+        <li>Pin PWM setat la valoarea 255 (comanda analogWrite poate fi dată în secțiunea setup).</li>
+        <li>Pin PWM setat la valoarea 127 (comanda analogWrite poate fi dată în secțiunea setup).</li>
+        <li>Pin PWM setat la valoarea 63  (comanda analogWrite poate fi dată în secțiunea setup).</li>
+        <li>Pin oarecare pe care se face rapid digitalWrite(pin,1) apoi imediat digitalWrite(pin,0).</li>
+    </ul>
+    Ce observați ? Discuție în cadrul laboratorului.<br>
+    Ați putea simula comportamentul unui pin de tip PWM pe un pin non-PWM ?<br>
+</p>
+
+
+<!--p>Pentru a vedea felul în care funcționează PWM, se va utiliza un analizor logic. Din păcate, nu avem decât un singur astfel de echipament și din acest motiv doar profesorul va putea să vă arate experimentul prin intermediul unui videoproiector. Vă rugăm să fiți atenți pentru că astfel veți înțelege cum trebuie să rezolvați problemele din ultima parte a laboratorului (aprox 20-30 min).</p--> 
+
+
+
+<h4> Exerciții (partea a treia) </h4> 
+
+<h6> Problema 1</h6> 
+<p>Faceți un program care să afișeze o numărătoare în binar (pe biți) pe cele 6 leduri conectate la Arduino în primul exercițiu (valori între 0 și 63).</p> 
+
+<h6> Problema 2</h6> 
+<p>Faceți un program care să afișeze în binar (pe biți) pe cele 6 leduri conectate la Arduino în primul exercițiu o valoare recepționată pe portul serial.</p> 
+
+<h6> Problema 3</h6> 
+<p> Având un LED conectat la unul din pinii PWM (cei marcați cu ~), modificați exemplul "fade" din File->Examples->Basics pentru a face LED-ul de pe breadboard să facă fade in/out.</p> 
+
+<h6> Problema 4</h6> 
+<p>Modificați aplicația de la punctul anterior pentru a putea trimite prin portul serial viteza cu care se va face fade-ul (la o viteză mai mare, timpul dintre stările aprins și stins va fi mai mic). Nu aveți voie să folosiți comanda delay în program.</p> 
+
+<h6> Problema 5</h6> 
+<p>Dată o valoare pe portul serial, să se emuleze tensiunea (volți) respectiv la unul dintre pinii Arduino care nu este de tip PWM (emularea corectă va fi măsurată cu un aparat de măsură). Nu aveți voie să folosiți comanda delay în program.</p> 
+
+<h6> Problema 6</h6> 
+<p>Construiți un program care să facă efectul de fade pe un pin NON-PWM.</p> 
+
+<h6> Problema 7</h6> 
+<p>Construiți un program care sa facă fade pe fiecare dintre cele 6 leduri conectate la pinii 8-13, fiecare la viteza proprie.</p> 
+
