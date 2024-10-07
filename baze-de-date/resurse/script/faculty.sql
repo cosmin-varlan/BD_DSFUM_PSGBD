@@ -41,8 +41,8 @@ CREATE TABLE grades (
 
 CREATE TABLE profs (
   id_prof  VARCHAR2(4),
-  lname CHAR2(10) NOT NULL,
-  fname CHAR2(10) NOT NULL,
+  lname CHAR(10) NOT NULL,
+  fname CHAR(10) NOT NULL,
   title VARCHAR2(12)
 )
 /

@@ -63,7 +63,7 @@
 	   <td>Returns the length of the string char.</td>
 	   <td><p>SELECT LENGTH('word') AS "Word length" FROM DUAL;<p>
 	       <p><br></p>
-           <p>SELECT fname, LENGTH(fname) FROM instructors WHERE UPPER(TRIM(fname))='COSMIN'; -- why 10?</p>
+           <p>SELECT fname, LENGTH(fname) FROM profs WHERE UPPER(TRIM(fname))='COSMIN'; -- why 10?</p>
 	   </td>
 	</tr>
 	<tr>
@@ -76,7 +76,7 @@
 	   <td>Looks for the m th match of char2 within char1, staring search from position n; returns the position in char1 of the first character of char2 string, relative to n. By default n and m are 1.If no match is found, the result is 0.</td>
 	   <td><p>SELECT INSTR('CORPORATE FLOOR','OR',3,2) AS "Instring" FROM DUAL;</p>
 	       <p><br></p>
-           <p>SELECT lname, INSTR(lname,'ra') FROM instructors;</p>
+           <p>SELECT lname, INSTR(lname,'ra') FROM profs;</p>
 	   </td>
 	</tr>
 	<tr>
@@ -122,8 +122,8 @@
 	</tr>
 	<tr>
 	   <td>RPAD(char1,n [,char2 ]) </td>
-	   <td>Returns char1 filled with empty spaces at right until length n is reached, if char2 is missing; otherwise, char2 is coped at the right of char1 until length n</td>
-	   <td>SELECT RPAD(lname,12,'ab') FROM students WHERE lname = 'Ford';</td>
+	   <td>Returns char1 filled with empty spaces at right until length n is reached, if char2 is missing; otherwise, char2 is copied at the right of char1 until length n</td>
+	   <td>SELECT RPAD(lname,12,'ab') FROM students WHERE lname = 'Popescu';</td>
 	</tr>
 	<tr>
 	   <td>LPAD(char1,n [,char2 ]) </td>
@@ -158,21 +158,21 @@
 	<tr>
 	   <td>TRANSLATE(char, from, to)</td>
 	   <td>Returns char modified as follows: every occurrence of a character in from is replaced by the character in to having the same position; if from is longer then to, the characters in from having no corresponding character are deleted. </td>
-	   <td>SELECT TRANSLATE('48KLM980', '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', '9999999999XXXXXXXXXXXXXXXXXXXXXXXXXX') "COD" FROM DUAL;</td>
+	   <td>SELECT TRANSLATE('48ABCK980', '0123456789ABCDEFG', '9999999999*******') "CODE" FROM DUAL;</td>
 	</tr>
 </table>
 
 
-<p>The functions that change the case of the letters (transform the text in lowercase or in uppercase) are frequently used in the WHERE clause in order to look for text for which we d not know how it was stored (in uppercase or lowercase or initcap format). For example, if we do not know how the first names were stored and we would like to retrieve information for a student named Andrei, we will process the field extracted from the database to bring it to a convenient format:</p>
+<p>The functions that change the case of the letters (transform the text in lowercase or in uppercase) are frequently used in the WHERE clause in order to look for text for which we don't know how it was stored (in uppercase or lowercase or initcap format). For example, if we do not know how the first names were stored and we would like to retrieve information for a student named Andrei, we will process the field extracted from the database to bring it to a convenient format:</p>
 <p><code>SELECT * FROM students WHERE fname = 'ANDREI';</code> --returns 0 rows</p>
 
 <p><code>SELECT * FROM students WHERE UPPER(fname) = 'ANDREI'; </code>--returns the wanted data</p>
 
 <p>Also, TRIM is a function largely used to retrieve data when the attributes are declared as CHAR():</p>
 
-<p><code>SELECT * FROM profs WHERE UPPER(lname) = 'BREABAN'; </code>--returns 0 rows</p>
+<p><code>SELECT fname, lname FROM profs WHERE fname LIKE '%n'; </code>--returns 0 rows</p>
 
-<p><code>SELECT * FROM profs WHERE TRIM(UPPER(lname)) = 'BREABAN'; </code>--returns the wanted records</p>
+<p><code>SELECT fname, lname FROM profs WHERE TRIM(fname) LIKE '%n'; </code>--returns the wanted records</p>
 
 <h3>Functions for Dates</h3>
 <p>The default date format for an Oracle Database date value is derived from the NLS_DATE_FORMAT and NLS_DATE_LANGUAGE. Most of you, after installing the database server on your systems will probably have the "DD-MON-YY" format (ex: '10-JUN-15'), but this can be modified by the user (ALTER SESSION SET NLS_DATE_FORMAT....).  To overcome incompatibility issues, it is recommended when working with Dates to make use of the function  TO_DATE (described in the next section), which will specify the format.</p>
@@ -195,16 +195,15 @@
 	</tr>
 	<tr>
 	   <td>SYSDATE</td>
-	   <td>Returns the current date of the system</td>
-	   <td>SELECT SYSDATE FROM DUAL;</td>
+	   <td>Returns the current date (and time, which is not usually printed) of the system</td>
+	   <td>SELECT SYSDATE FROM DUAL; </br></br> SELECT TO_CHAR(SYSDATE, 'DD-MM-YYYY HH:MI') FROM DUAL; </td>
 	</tr>
 	<tr>
 	   <td>MONTHS_BETWEEN(d1, d2)</td>
 	   <td>The number of months elapsed between d1 and d2</td>
-	   <td><p>SELECT MONTHS_BETWEEN(</p>
-			<p>TO_DATE('02-02-2015','MM-DD-YYYY'),</p>
-			<p>TO_DATE('01-01-2015','MM-DD-YYYY') ) AS "Months"</p>
-			<p>FROM DUAL;</p></td>
+	   <td><p>SELECT MONTHS_BETWEEN(<br/>
+		    	TO_DATE('02-02-2015','MM-DD-YYYY'),<br/>
+			    TO_DATE('01-01-2015','MM-DD-YYYY') ) AS "Months" FROM DUAL;</td>
 	</tr>
 	<tr>
 	   <td>ADD_MONTHS(d, n)</td>
@@ -214,7 +213,10 @@
 	<tr>
 	   <td>NEXT_DAY(d, char)</td>
 	   <td>Returns the date corresponding to the first week day given by char, after date d</td>
-	   <td>SELECT NEXT_DAY('13-OCT-15','TUESDAY') FROM DUAL;</td>
+	   <td>SELECT NEXT_DAY('11-OCT-24','TUESDAY') FROM DUAL; <br/>
+		     SELECT NEXT_DAY('11-OCT-24','FRIDAY') FROM DUAL; <br/>
+				 SELECT NEXT_DAY('11-OCT-24','SUNDAY') FROM DUAL;
+		</td>
 	</tr>
 	<tr>
 	   <td>LAST_DAY(d)</td>
@@ -224,20 +226,39 @@
 	<tr>
 	   <td>ROUND(d [, fmt ])</td>
 	   <td>Rounds to the closest date based on the given format.</td>
-	   <td>SELECT ROUND (TO_DATE ('27-OCT-16','DD-MON-YY'),'YEAR')"New Year" FROM DUAL;</td>
+	   <td>SELECT ROUND (TO_DATE ('14-OCT-24','DD-MON-YY'),'YEAR') FROM DUAL; <br/>
+			   SELECT ROUND (TO_DATE ('20-OCT-24','DD-MON-YY'),'MONTH') FROM DUAL; <br/>
+				 SELECT ROUND (TO_DATE ('14-OCT-24','DD-MON-YY'),'DAY') FROM DUAL; <br/>
+				 SELECT ROUND (TO_DATE ('18-OCT-24','DD-MON-YY'),'DAY') FROM DUAL; <br/>
+		 </td>
 	</tr>
 	<tr>
 	   <td>TRUNC(d [, fmt ])</td>
 	   <td>If the format is missing, truncates to the closest day.</td>
-	   <td><p>SELECT TRUNC(TO_DATE('27-OCT-16','DD-MON-YY'), 'YEAR')"First Day of the Year" FROM DUAL; <br></p>
-           <p>SELECT TRUNC(TO_DATE('27-OCT-16','DD-MON-YY'), 'MONTH')"Beginning of Oct." FROM DUAL;</p></td>
+	   <td><p>SELECT TRUNC(TO_DATE('27-OCT-24','DD-MON-YY'), 'YEAR')"First Day of the Year" FROM DUAL; <br></p>
+           <p>SELECT TRUNC(TO_DATE('27-OCT-24','DD-MON-YY'), 'MONTH')"Beginning of Oct." FROM DUAL;</p></td>
 	</tr>
 </table>
 
 
 <p>Study the fmt format at http://download.oracle.com/docs/cd/B19306_01/server.102/b14200/functions230.htm </p>
 
-<p>Remember what these formats do: D, DAY, DD, HH, MI, MM, MON, MONTH, SS, YYYY, YY, YEAR</p>
+<p>Remember what these formats do: 
+	<ul>
+		<li>D - day of week as number (e.g, 1 is Sunday, 2 is Monday, etc.)</li>
+		<li>DAY - day of week (e.g., Monday)</li>
+		<li>DD - day of month on two digits (e.g., 09)</li>
+		<li>HH - hour on two digits (e.g., 05)</li>
+		<li>MI - minute on two digits </li>
+		<li>SS - seconds on two digits </li>
+		<li>MM - month as number on two digits (e.g., 10)</li>
+		<li>MON - abbrev. of month (e.g., Jan, Feb, etc.)</li>
+		<li>MONTH - full month name (e.g., January) </li>
+		<li>YYYY - year on 4 positions (e.g., 2024)</li>
+		<li>YY - year on 2 positions (e.g., 24)</li>
+		<li>YEAR -year written with letters (e.g., TWENTY TWENTY-FOUR)</li>
+	</ul>
+</p>
 
 <p>The database stores dates internally as numbers. Dates are stored in fixed-length fields of 7 bytes each, corresponding to century, year, month, day, hour, minute, and second. Being stored as numbers, applying numerical operators is possible: </p>
 <ul>
@@ -282,7 +303,7 @@
 	<tr>
 	   <td>TO_CHAR(n [, fmt])</td>
 	   <td>Converts a numerical value n to VARCHAR2, according to the fmt format. Numeric formats are described at: http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements004.htm#i34570</td>
-	   <td><p>SELECT TO_CHAR('01110' + 1) FROM dual; <br> SELECT TO_CHAR(scholarship,'$99,999') FROM students;</p></td>
+	   <td><p>SELECT TO_CHAR('01110' + 1) FROM dual; <br/> SELECT TO_CHAR(scholarship,'$999') FROM students;</p></td>
 	</tr>
 	<tr>
 	   <td>TO_CHAR({ datetime} [, fmt ])</td>
@@ -297,7 +318,7 @@
 	<tr>
 	   <td>TO_NUMBER(char [, fmt ])</td>
 	   <td>http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements004.htm#i34570</td>
-	   <td>SELECT TO_NUMBER('100.52','9,999.99') FROM DUAL;</td>
+	   <td>SELECT TO_NUMBER('100.52','999.99') FROM DUAL;</td>
 	</tr>
 	<tr>
 	   <td>CAST(expr AS type_name)</td>
@@ -376,14 +397,14 @@
 <h2>Exercises</h2>
 <p>1 Write a query to show the current date. Label the column "Today". </p>
 <p>2 For every student, show the first name, date of birth and the number of months between the current date and the date of birth. </p>
-<p>3 For every student, show the day of the week when he/she was born.</p>
-<p>4 Using the concatenation function, show for every student the text: 'Student <fname> is in group <groupno>'.</p>
-<p>5 Show the scholarships on 10 characters, filling the empty slots at the right of the number with character '$'.</p>
-<p>6 For the instructors whose last names begin with B, show the name with the first letter in lowercase and the rest in uppercase, and the number of characters. </p>
-<p>7 For every student show the name, the date of birth, the date when the student is going to celebrate his/her birthday and the date corresponding to the first Sunday after celebration. </p>
-<p>8 Order the students who do not earn a scholarship based on the month when they were born; print the first name, last name, and the month of birth.</p>
-<p>9 For every student show first name, scholarship and the text: '1st place' for value 450, '2nd place' for 350, 3rd place' for 250 and 'mention' for the students not earning a scholarship. Give alias "Prize" for the third column.</p>
-<p>10 Show all students' first names, replacing letter <i>i</i> with <i>a</i> and letter <i>a</i> with <i>i</i>.</p>
-<p>11 For every student print first name, age as '<x> years <y> months and <z> days' (i.e. '19 years 3 months and 2 days'), and the number of days until the student will celebrate his/her birthday.</p>
-<p>12 Assuming that next month the scholarships are increased as follows: 450 with 10%, 350 with 15% and 250 with 20%, show for every student his/her first name, the date corresponding to the first day of next month and the new value of the scholarship. The students not earning a scholarship will have assigned value 0.</p>
+<p>3 For every student, show the day of the week when they were born.</p>
+<p>4 Using the concatenation function, show for every student the text: 'Student &lt;fname&gt; is in group &lt;groupno&gt;'.</p>
+<p>5 Show the scholarships on 10 characters, filling the empty slots at the right of the number with the character '$'.</p>
+<p>6 For the teachers whose last names begin with B, show the name with the first letter in lowercase and the rest in uppercase, as well as the number of characters from their name. </p>
+<p>7 For every student show the name, the date of birth, the date when the student is going to celebrate their NEXT birthday and the date corresponding to the first Sunday after the celebration. </p>
+<p>8 Order the students who do not earn a scholarship based on the month when they were born; print only their first name, last name, and their month of birth.</p>
+<p>9 For every student show their first name, their scholarship and the following text based on the value of their scholarship: '1st place' for value 450, '2nd place' for 350, 3rd place' for 250 and 'mention' for the students who don't have a scholarship. Give the alias "Prize" for the third column.</p>
+<p>10 Show all students' first names, replacing letters <i>i</i> with <i>a</i> and letters <i>a</i> with <i>i</i>.</p>
+<p>11 For every student print their first name, their age as '<x> years <y> months and <z> days' (i.e. '19 years 3 months and 2 days'), and the number of days until the student will celebrate their birthday.</p>
+<p>12 Assuming that next month the scholarships are increased as follows: 450 with 10%, 350 with 15% and 250 with 20%, show for every student their first name, the date corresponding to the first day of next month and the new value of the scholarship. The students not earning a scholarship will have assigned a value of 0.</p>
 <p>13 For the students earning a scholarship, show the first name and the corresponding scholarship using only the star symbol (*) as follows: every symbol corresponds to 50 RON. In the table, align the symbols at the right.</p>
