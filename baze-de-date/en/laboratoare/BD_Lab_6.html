@@ -30,7 +30,7 @@
 	   <td>Returns the number of rows. If the argument is  *, the function will return he size of the group by considering also the null values, otherwise only non-null values are counted. The argument may be CHAR, VARCHAR2, NUMBER, DATE.</td>
 	   <td><p>SELECT COUNT(*) AS "Total number of students" FROM students;</p>
 	       <p>SELECT COUNT(NVL(scholarship,0)) AS "Total number of students" FROM students;</p>
-           <p>SELECT COUNT(scholarship) AS "# students earning scholarships" FROM students;</p>
+           <p>SELECT COUNT(scholarship) AS "# students with scholarships" FROM students;</p>
            <p>SELECT COUNT(DISTINCT scholarship) AS "# scholarship types" FROM students;</p>
 	   </td>
 	</tr>
