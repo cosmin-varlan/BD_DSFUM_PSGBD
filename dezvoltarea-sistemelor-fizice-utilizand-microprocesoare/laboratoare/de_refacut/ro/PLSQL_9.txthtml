@@ -1,0 +1,218 @@
+<h2> DBMS_SQL </h2>
+
+<p>Atunci cand un bloc PLSQL este rulat, pe langa verificarea sintactica a sa, este verificata si existenta entitatilor</p>
+<p>ce apar in cadrul blocului, intr-o tentativa de a lega variabilele existente in cod de entitatile efective pe care</p>
+<p>acestea le reprezinta: de exemplu este verificata existenta tabelelor sau a coloanelor ce sunt interogate in</p>
+<p>cadrul unui cursor pentru a putea asocia cursorul cu tabelul sau cu anumite coloane din acel tabel. Din cauza aceasta, </p>
+<p>daca am dori sa construim o tabela din interiorul unui script acest lucru ar fi imposibil pentru ca la faza de </p>
+<p>verificare s-ar testa existenta acelei tabele si blocul PLSQL ar genera o eroare.</p>
+
+<p>Cursoarele sau interogarile pe care le-ati intalnit pana acum in cadrul scripturilor PLSQL sunt statice din cauza ca</p>
+<p>ele nu se schimba de la o executie la alta a scriptului. </p>
+
+<p>Pachetul DBMS_SQL este utilizat pentru generarea de interogari SQL in mod dinamic - adica interogari a caror text nu </p>
+<p>este cunoscut inainte de executia efectiva a codului (fie din cauza ca nu stiu spre exemplu din ce tabela voi face</p>
+<p>selectia sau care este coloana care va fi utilizata pentru filtrarea datelor - evident, daca ar fi vorba de valoarea</p>
+<p>unei coloane ati putea face acest lucru prin intermediul cursoarelor cu parametri care sunt tot statice). </p>
+
+<p>O executie statica ar putea fi executata si in mod dinamic (ca si cum nu ar fi cunoscuta dinainte). Totusi, atunci cand </p>
+<p>interogarile sunt executate in mod static, serverului ii este permis sa verifice dinainte daca entitatile utilizate in</p>
+<p>script chiar exista, daca utilizatorul are drepturi asupra acestor entitati, si din acet motiv, executia statica este</p>
+<p>in general mai eficienta decat cea dinamica - nu utilizati executii dinamice decat daca chiar este nevoie de ele.</p>
+
+<p>De exemplu, pentru a exporta toate tabelele dintr-o baza de date, aveti nevoie intai sa aflati care sunt acele tabele</p>
+<p>(acest lucru este destul de simplu - prin interogarea tabelei "user_tables"; totusi, dupa acest pas, trebuie sa luati</p>
+<p>datele din fiecare tabela si sa le exportati rand cu rand intr-un fisier - si trebuie sa faceti acest lucru fara sa </p>
+<p>stiti dinainte care sunt tabelele - pentru ca numele lor le aflati tot in cadrul scriptului). Un alt exemplu ar fi sa</p>
+<p>sortati o tabela dupa un camp ales de utilizator (nu puteti face acest lucru din static SQL pentru ca implica o coloana</p>
+<p>ce nu este cunoscuta dinainte).</p>
+
+<p>Inafara de toate comenzile DML pe care le puteti executa in mod dinamic, din dynamic SQL puteti sa executati comenzi </p>
+<p>DDL (CREATE, DROP, ALTER, GRANT, REVOKE) sau comenzi SCL - session control language (ALTER SESSION sau SET ROLE).</p>
+
+<h3> Executia unei comenzi DDL </h3>
+
+<p>In mod clasic, la executia unei comenzi SQL dintr-un script PLSQL se deschide un cursor, se executa, etc. De cele mai</p>
+<p>multe ori aceste lucruri se fac implicit (de exemplu atunci cand faceti un insert intr-o tabela doar scrieti insert...).</p>
+
+<p>Atunci cand doriti sa executati o comanda o comanda prin intermediul DBMS_SQL sunt cativa pasi pe care trebuie sa ii </p>
+<p>executati, tocmai din cauza ca acestia nu se mai executa in mod implicit. Iata un minim necesar:</p>
+
+<ul>
+<li> deschiderea unui cursor (intoarce un ID cu ajutorul caruia cursorul va fi utilizat in continuare);</li>
+<li> parsarea comenzii pentru a-i verifica corectitudinea;</li>
+<li> asocierea variabilelor cu anumite valori (daca este cazul);</li>
+<li> executatea comenzii (intoarce un cod de succes/eroare);</li>
+<li> inchiderea cursorului.</li>
+</ul>
+
+
+<p>Sa creem spre exemplu un tabel dintr-un bloc PLSQL urmarind pasii precizati mai sus:</p>
+
+<pre><code class="language-sql">declare
+   v_cursor_id INTEGER;
+   v_ok INTEGER;
+begin
+  v_cursor_id := DBMS_SQL.OPEN_CURSOR;
+  DBMS_SQL.PARSE(v_cursor_id, 'CREATE TABLE TEST(id NUMBER(2,2), val VARCHAR2(30))', DBMS_SQL.NATIVE);
+  v_ok := DBMS_SQL.EXECUTE(v_cursor_id);
+  DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
+
+<p>Acesti pasi sunt utili atunci cand se doreste executarea unei comenzi de tipul create, drop, insert, update, delete etc.</p>
+
+<h3> Executia unui SELECT </h3>
+
+<p>Atunci cand doriti sa executati o interogare de tipul select, trebuie sa aveti cativa alti pasi intermediari care</p>
+<p>o sa va permita sa prealuati datele returnate de comanda. </p>
+
+<p>Pasii pe care trebuie sa ii urmam in acest caz sunt:</p>
+
+<ul>
+<li> deschiderea unui cursor (intoarce un ID cu ajutorul caruia cursorul va fi utilizat in continuare);</li>
+<li> parsarea comenzii pentru a-i verifica corectitudinea;</li>
+<li> asocierea variabilelor cu anumite valori (daca este cazul);</li>
+<li> definirea coloanelor ce trebuie sa fie returnate (prin utilizarea comenzii DEFINE_COLUMN;</li>
+<li> executatea comenzii (intoarce un cod de succes/eroare);</li>
+<li> utilizarea comenzii FETCH_ROWS pentru a prelua randurile din cursor;</li>
+<li> utilizarea VARIABLE_VALUE pentru a prelua valoarea returnata - daca se intoarce o singura valoare sau in cazul in care se preiau mai multe coloane (intregul rand) se va folosi COLUMN_VALUE pentru a prelua valoarile coloanelor din cursor si a le stoca in variabile locale;</li>
+<li> inchiderea cursorului.</li>
+</ul>
+
+
+<p>Sa vedem, ca si exemplu o sortare a tabelei profesori</p>
+<p>dupa un camp trimis ca parametru.</p>
+
+<p>Deocamdata sa consideram urmatoare procedura (in care sunt implementati doar pasii initiali), pentru a vedea utilitatea functiei</p>
+<p>de parsare a comenzii:</p>
+
+<pre><code class="language-sql">create or replace procedure afiseaza_profesori(camp IN varchar2) as
+   v_cursor_id INTEGER;
+   v_ok INTEGER;
+begin
+  v_cursor_id := DBMS_SQL.OPEN_CURSOR;
+  DBMS_SQL.PARSE(v_cursor_id, 'SELECT id, nume, prenume FROM profesori ORDER BY '||camp, DBMS_SQL.NATIVE);
+  v_ok := DBMS_SQL.EXECUTE(v_cursor_id);
+  DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
+end;
+
+<p>Considerand urmatoarele doua blocuri anonime, unul dintre ele va genera o eroare (respectiv cand va veni vremea parsarii comenzii). Puteti spune care dintre ele ?</p>
+
+<pre><code class="language-sql">begin
+  afiseaza_profesori('nume2');
+
+<pre><code class="language-sql">begin
+  afiseaza_profesori('nume');
+
+<p>Sa redefinim procedura de afisare astfel incat chiar sa preluam valorile din coloanele selectate (id, nume, prenume) si sa le afisam.</p>
+<p>Pentru aceasta avem nevoie sa declaram variabile care sa fie de acelasi tip ca si cele din tabelul profesori si dupa ce am parsat comanda</p>
+<p>sa asociem fiecarei variabile coloana pe care o reprezinta. Dupa ce executam comanda (cu EXECUTE) trebuie sa luam rand cu rand informatiile</p>
+<p>pe care le-am obtinut si sa le afisam:</p>
+
+<pre><code class="language-sql">create or replace procedure afiseaza_profesori(camp IN varchar2) as
+   v_cursor_id INTEGER;
+   v_ok INTEGER;
+   
+   v_id_prof int;
+   v_nume_prof varchar2(15);
+   v_prenume_prof varchar2(30);
+begin
+  v_cursor_id := DBMS_SQL.OPEN_CURSOR;
+  DBMS_SQL.PARSE(v_cursor_id, 'SELECT id, nume, prenume FROM profesori ORDER BY '||camp, DBMS_SQL.NATIVE);
+  DBMS_SQL.DEFINE_COLUMN(v_cursor_id, 1, v_id_prof); 
+  DBMS_SQL.DEFINE_COLUMN(v_cursor_id, 2, v_nume_prof,15); 
+  DBMS_SQL.DEFINE_COLUMN(v_cursor_id, 3, v_prenume_prof,30);   
+  v_ok := DBMS_SQL.EXECUTE(v_cursor_id);
+  
+  LOOP 
+     IF DBMS_SQL.FETCH_ROWS(v_cursor_id)>0 THEN 
+         DBMS_SQL.COLUMN_VALUE(v_cursor_id, 1, v_id_prof); 
+         DBMS_SQL.COLUMN_VALUE(v_cursor_id, 2, v_nume_prof); 
+         DBMS_SQL.COLUMN_VALUE(v_cursor_id, 3, v_prenume_prof); 
+ 
+         DBMS_OUTPUT.PUT_LINE(v_id_prof || '   ' || v_nume_prof || '    ' || v_prenume_prof);
+      ELSE 
+        EXIT; 
+      END IF; 
+  END LOOP;   
+  DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
+end;
+
+<p>Executati din nou blocul anonim care nu genera o eroare (dintre cele doua de mai sus) pentru a vedea o sortare dupa campul nume al tabelului profesori.</p>
+
+<p>Iata cum se afla din cadrul cursorului care sunt proprietatile fiecarei coloane. Cu ajutorul urmatorului bloc anonim vom lista doar numele coloanelor:</p>
+
+<pre><code class="language-sql">DECLARE
+  v_cursor_id NUMBER;
+  v_ok        NUMBER;
+  v_rec_tab     DBMS_SQL.DESC_TAB;
+  v_nr_col     NUMBER;
+  v_total_coloane     NUMBER; 
+BEGIN
+  v_cursor_id  := DBMS_SQL.OPEN_CURSOR;
+  DBMS_SQL.PARSE(v_cursor_id , 'SELECT * FROM studenti', DBMS_SQL.NATIVE);
+  v_ok := DBMS_SQL.EXECUTE(v_cursor_id );
+  DBMS_SQL.DESCRIBE_COLUMNS(v_cursor_id, v_total_coloane, v_rec_tab);
+
+  v_nr_col := v_rec_tab.first;
+  IF (v_nr_col IS NOT NULL) THEN
+    LOOP
+      DBMS_OUTPUT.PUT_LINE(v_rec_tab(v_nr_col).col_name);
+      --DBMS_OUTPUT.PUT_LINE(gettype(v_rec_tab,v_nr_col)); -- aceasta linie poate fi decomentata doar dupa ce ati compilat functia de la https://pastebin.com/ZsFQVWbQ
+      v_nr_col := v_rec_tab.next(v_nr_col);
+      EXIT WHEN (v_nr_col IS NULL);
+    END LOOP;
+  END IF;
+  DBMS_SQL.CLOSE_CURSOR(v_cursor_id);
+END;
+
+<p>Asa cum am aflat numele folosind proprietatea col_name, putem afla si alte informatii despre coloane. Incercati singuri urmatoarele atribute: col_type, col_max_len, col_name_len, col_schema_name, col_schema_name_len, col_precision, col_scale, col_null_ok (ultima poate fi true sau false si nu poate fi afisata ci doar interogata).</p>
+
+<p>Puteti afla mai multe informatii in sectiunile DESC_REC de la pagina https://docs.oracle.com/cd/B28359_01/appdev.111/b28419/d_sql.htm#CHDCIIBF .</p>
+
+<h3> Linkuri utile </h3>
+
+
+<p>http://profs.info.uaic.ro/~pmihaela/SGBD/lab4/0395-0398.html</p>
+
+<p>https://docs.oracle.com/cd/B10501_01/appdev.920/a96590/adg09dyn.htm#15124</p>
+
+<p>https://docs.oracle.com/cd/B28359_01/appdev.111/b28419/d_sql.htm#BABEDAHF</p>
+
+<p>https://pastebin.com/ZsFQVWbQ (aici gasiti o functie de conversie a tipului de date din numar in tipul efectiv - pentru o eventuala comanda de tip create)</p>
+
+<p>= Exercitiu (5pt) =</p>
+
+<p>Construiti o functie/procedura ce va genera catalogul unei materii: parametrul de intrare va fi un ID de materie si functia va genera o tabela avand acelasi nume cu materia (daca sunt mai multe cuvinte se vor concatena). Catalogul va avea campurile nota, data_notarii, numele, prenumele si numarul matricol al studentului ce a luat nota respectiva si va fi populat din tabelele existente. Tipurile de date pot fi diferite: spre exemplu, se poate intampla ca in testele ce le efectuam, numarul matricol sa fie un camp numeric sau unul de tip date. Nu va bazati pe tipurile existente in tabelele create de scriptul de creare initial ci aflati aceste tipuri de date in momentul rularii scriptului.</p>
+
+<p>Utilizati doar pachetul DBMS_SQL. Pentru utilizarea comenzii execute immediate aveti o penalizare de 3 puncte.</p>
+
+<p>= Tema (2pt) =</p>
+
+<p>Intr-o aplicatie folosind un limbaj la alegere afisati, in mod paginat (de exemplu 50 inregistrari pe pagina), catalogul pentru toti studentii din baza de date. Sa se afiseze un numar n de pagini cu posibilitatea de navigare intre pagini. Se va tine cont de viteza de afisare (folositi indecsi si explicati de ce eficientizeaza operatia de afisare paginata).</p>
+
+
+
+
+<h2>Exercitii </h2>
+
+<p>1. (5pt) Sa se construiasca o procedura PLSQL avand ca parametru numele unei tabele si care sa exporte intr-un fisier aflat in format SQL toate liniile tabelei respective. </p>
+<ul>
+<li> La inceputul fisierului va fi scrisa si o comanda de drop table respectiv una de creare a tabelei. Tipurile datelor vor fi aceleasi ca cele din tabelul initial;</li>
+<li> Se vor adauga si constrangerile initiale (unicitate, chei primare, not null; nu neaparat cheile straine);</li>
+<li> Se vor scrie comenzile de tip insert care vor popula tabela creata.</li>
+</ul>
+
+
+<p>(2 puncte createul, 1 punct constrangerile, 2 puncte inserturile)</p>
+
+<p><span style="color:red">NU SE ACCEPTA UTILIZAREA PACHETULUI DBMS_METADATA !</span></p>
+
+<p><span style="color:red">SCRIPTURILE PE CARE LE EXPORTATI TREBUIE SA POATA FI RULATE DE SERVERUL ORACLE !!! - daca nu sunt rulate corect, nici nu ne uitam la ce ati facut acolo (adica daca aveti eroare la inserturi, mai bine lasati doar createurile).</span></p>
+
+<p>Bonus (2pt): exportati si tabelele care depind de tabela exportata (de exemplu, daca export note, se va exporta si studenti+cursuri). Exportul va fi facut in acelasi fisier, si pentru aceste tabele trebuie sa generati comenzi de tip drop si create si in fisier comenzile de populare a acestor tabele se for situa inaintea exportului tabelei data ca parametru procedurii (de mai sus). In acest fel, daca fac export spre exemplu tabelei note se vor exporta in prealabil si tabelele cursuri si studenti in acelasi fisier (cum gasiti legaturile dintre tabele reprezinta munca de cercetare individuala - a voastra :D). De aceasta data trebuie sa exportati si cheile straine !</p>
+
+<p>2. (3pt) Construiti catalogul fiecarei materii in parte: pentru fiecare materie se va crea o tabela cu numele (sau IDul materiei).  Catalogul va contine nota, data notarii, numele, prenumele si numarul matricol al studentului ce a luat nota respectiva. Scriptul trebuie sa ruleze corect chiar dupa adaugarea unei noi materii sau eliminarea uneia deja existenta.</p>
+
+<p>3. (2pt) Reparati problema de data trecuta din PHP: creati un formular web impreuna cu un cod PHP care sa NU permita SQL injection.</p>
+
+<p>Atentie: <span style="color:red">Utilizarea comenzii EXECUTE IMMEDIATE in oricare dintre probleme aduce o penalizare de 3 puncte.</span></p>

@@ -1,301 +1,268 @@
-<h2> Ce este Arduino și cum să NU îl omori </h2>
+
+<p><b>Obiective:</b></p>
+<p><ul></p>
+<p><li>Înțelegerea modelului relațional al bazelor de date</p>
+<p><li>Realizarea unei imagini de ansamblu asupra limbajului SQL</p>
+<p></ul></p>
 
 
-<p>Arduino este o platformă utilizată pentru a programa o serie de 
-  procesoare din familia Atmel. Arduino utilizează procesoare de tip 
-  SoC (System on a Chip), specificațiile fiecărui tip de Arduino putând
-  fi găsite <a href="https://www.arduino.cc/en/Products/Compare" target="_blank">aici</a>. </p>
 
-  <img src="imagini/arduino_front_vectoprial.webp" style="float:right; width:350px; padding:5px;">
-
-<p>Procesorul ce va fi utilizat este unul de tip 
-   ATmega328P, funcționează la uo tensiune de 5V (deși tensiunea de 
-   intrare pentru platforma Arduino poate fi între 7V și 12V) și are 
-   16Mhz. Deși pare puțin, cei 16Mhz sunt suficienți pentru a face 
-   programe foarte complexe însă nu vă vor da atât de multa libertate 
-   ca și procesorul unui PC: de data aceasta va trebui să optimizați 
-   codul la maxim, altfel aveți șanse ca programul fie să nu încapă 
-   în memoria RAM (2Kb) sau să nu ruleze la o viteză satisfacatoare 
-   (sper că știți cum stă treaba cu complexitatea algoritmilor).</p>
-
-
-<p>Deoarece am întâlnit studenți cărora le este frică că se vor 
-  electrocuta dacă vor greși ceva în timpul acestui laborator, trebuie
-  să menționăm faptul că tensiunea care ar putea fi periculoasă pentru 
-  om este de peste 24V (deși abia peste 50V poate deveni fatală) - 
-  deci puteți lucra cu Arduino fără să aveți vreo temere că ați putea 
-  să vă electrocutați. Mai degrabă ați putea voi să faceți un rău 
-  Arduino-ului dacă nu puneți firele cum trebuie sau dacă îl puneți 
-  într-un transformator inadecvat (peste 12V). In acest laborator 
-  veți conecta Arduino la porturile USB ale calculatoarelor și cum 
-  acestea furnizează 5V (500mA), avem suficientă putere pentru ca 
-  Arduino să funcționeze. Există unele dispozitive care se pot atașa 
-  Arduino-ului și care au nevoie de mai mult de 5V, dar despre acestea 
-  vom discuta într-un laborator viitor. Pentru început iată câteva 
-  restricții de care vă rugăm să țineți cont pentru a nu arde plăcile 
-  Arduino pe care le avem în dotare:</p>
-
+<h2> Modelul relațional </h2>
 <ul>
-   <li> <b>Nu alimentați Arduino decât de la portul USB al unui calculator 
-        sau a laptopului personal.</b> - deși alimentarea din exterior cu 
-        o tensiune cuprinsă între 7V și 12V pe portul special conceput pentru 
-        alimentare nu ar trebui să ridice nici o problemă și Arduino ar 
-        putea rula programul ce deja este încărcat pe el, recomandăm să
-        nu alimentați din exterior aceste dispozitive pentru că s-ar putea 
-        ca transformatorul pe care îl aveți să nu furnizeze curentul exact 
-        în intervalul precizat sau s-ar putea ca acesta să nu fie foarte 
-        bine filtrat (și să aiba vârfuri de tensiune de peste 12V care deși 
-        nu durează decât o fracțiune de secunda, sunt suficiente pentru a 
-        arde Arduino-ul). </li>
-   <li> <b>Aveți grijă la obiectele metalice pe care le aveți pe bancă.</b> 
-        - partea "dorsală" a Arduino nu este izolată în nici un fel. Din 
-        acest motiv, atingerea sa de obiecte de metal poate provoca 
-        scurtcircuitări și puteți avea șansa să vă ardeți atât Arduino-ul 
-        cât și portul USB (dacă nu chiar toata placa de baza) a calculatorului 
-        unde este conectat.</li>
-   <li> <b>Nu scurtcircuitați Arduino în mod voit.</b> - Nu puneți fire 
-        cu ambele capete în Arduino (de exemplu dacă un fir este pus pe 
-        un pin care este setat cu LOW și cu celalalt capăt într-un pin 
-        HIGH, tensiunea din pinul HIGH se va scurge în LOW și vă 
-        veți putea întâlni cu aceleași efecte neplăcute ca și la punctul 
-        precedent.</li>
-   <li> <b>Dacă frige, nu e de bine.</b> - Scoteți rapid Arduino-ul din 
-        portul USB și chemați profesorul cu care faceți laboratorul pentru
-        a detecta care este cauza. Arduino are o serie de protecții ca să
-        nu vă ardă portul USB, dar nu încercați să îi testați aceste protecții.</li>
-</ul>
-
-<p>Deși cele de mai sus sunt menite să vă sperie puțin, un Arduino nu 
-  este atât de scump (aprox. 30 lei) deci arderea lui nu este o dramă atât 
-  de mare. De asemenea, porturi USB arse din cauza unui Arduino nu prea 
-  am văzut (dar nu e imposibil).</p>
-
-<h3> De unde cumpăr un Arduino ?</h3>
-
-<p>Câteva linkuri cu magazine online din Romania:</p>
-<ul>
-  <li><a href="https://ardushop.ro" target="_blank">ArduShop</a></li>
-  <li><a href="https://www.robomania.ro/" target="_blank">Robomania</a></li>
-  <li><a href="https://www.optimusdigital.ro" target="_blank">OptimusDigital</a></li>
-  <li><a href="https://www.robofun.ro" target="_blank">RoboFun</a></li>
-</ul>
-
-<p>Sau, dacă vreți, puteți cumpăra Arduino-uri și alte componente de la 
-  frații noștrii kinezi care sunt pe tot ebayul (vedeți totuși ca persoana 
-  de la care cumpărați să aiba un procent mare de reviewuri pozitive sau 
-  să fie certificată de catre ebay). Situri precum alibaba, aliexpress, 
-  deal extreme, etc. va pun la dispoziție și ele componente + Arduino. 
-  Vă recomandăm să vă cumpărați strict ce va trebuie și nu pachete întregi 
-  de senzori pe care ulterior să nu îi folosiți. </p>
-
-<p>Puteti încerca și la colegii care au făcut Arduino anul trecut.</p>
-<!--
-<h3>Instalarea driverelor </h3>
-
-<p>Pentru arduinourile care nu sunt originale (in speta cele de la 
-  chinezi sau care sunt de pe siturile romanesti la preturi mai mici), 
-  veti avea nevoie de un driver pentru componenta care incarca programul 
-  in procesorul Arduino-ului. Acesta poate fi gasit pe pagina cursului 
-  sau direct la adresa: https://profs.info.uaic.ro/~vcosmin/pagini/resurse_arduino/Drivers_CH341G/ </p>
-
-<p>Pentru a instala driverul intai conectati placa Arduino la calculator apoi indicati locatia in care ati dezarhivat driverul. In caz ca nu funcioneaza in acest mod, in cadrul driverului veti gasi si un executabil care va face o instalare fortata (dar tot aveti nevoie sa conectati in prealabil arduinoul si sa il tineti conectat pe durata instalarii - pentru ca installerul sa detecteze care tip de arduino il aveti conectat). Arduinourile pe care le avem in dotare nu functioneaza cu MacOS (din cate stim), studentii care au acest sistem de operare instalat pe laptopuri sunt invitati sa lucreze la calculatoarele existente in laborator.</p>
--->
-<h3>Mini ghid pentru a începe lucrul cu Arduino: </h3>
-
-<p>Arduino a fost construit special pentru a fi utilizat în educație, 
-  în special pentru școlile tehnice orientate spre electronică. Ușurința
-  cu care acesta se programează, a dus la utilizarea sa pe scară largă
-  în tot felul de proiecte și proiecțele home-made, de senzori de 
-  temperatură până la controlarea motoarelor dintr-o imprimantă 3D.
-  Platforma Arduino poate fi alimentată la portul USB al oricărui 
-  calculator (sau chiar și de către un încărcător ce oferă un port USB). 
-  Poate fi programat cu ajutorul unui limbaj foarte asemănător cu 
-  limbajul C ale cărui specificații le găsiți pe situl arduino.cc, 
-  situl oficial al platformei Arduino (mai exact <a href="https://www.arduino.cc/en/Reference/HomePage" target="_blank">aici</a> ).</p>
-
-<p>La arduino pot fi conectați diverși senzori și actuatori. Prin 
-  intermediul senzorilor sunt preluate informații din mediul înconjurător, 
-  iar actuatorii sunt utilizați pentru a-l modifica într-un anume fel 
-  (de exemplu putem prelua printr-un senzor de lumina faptul că afară 
-  s-a întunecat și putem închide un releu conectat la becul din 
-  sufragerie pentru a-l aprinde). Pentru atașarea echipamentelor 
-  hardware, Arduino UNO oferă un numar de 14 conexiuni digitale 
-  (numerotate de la 0 la 13) și 6 conexiuni analogice (numerotate de la 0 la 5). 
-  De obicei conexiunile digitale sunt utilizate pentru a conecta 
-  actuatorii iar cele anlogice pentru a conecta senzorii (deși aceasta 
-  nu este o regula).</p>
-
-<p>La fel ca orice calculator, Arduino 
-  funcționează într-o buclă infinită. Când este alimentat (sau după 
-  ce un program nou a fost uploadat), se execută o secțiune de setări 
-  după care se intră automat într-o zonă denumită loop. Structura 
-  cea mai simplă a unui program ce poate fi rulat de către Arduino 
-  este așadar:</p>
-
-<pre><code class="language-c">
-void setup() { 
-    // instructiunile de aici se executa o singura data, la inceput
-    // aceasta sectiune este utilizata pentru setari (de ex. care pin este de intrare si care de iesire)
-}
-void loop() {
-    // instructiunile de aici sunt executate intr-o bucla, dupa ultima instructiune este reluata iarasi prima
-    // aceasta bucla se termina cand alimentarea Arduino-ului este intrerupta
-}
-</code></pre>
-
-<p>Dacă vreți să programați Arduino, puteți să o faceți în limbajul C. 
-  Pentru a interacționa cu mediul fizic, există o serie de comenzi specifice
-  Arduino pe care le puteți găsi <a href="https://www.arduino.cc/reference/en/" target="_blank">aici</a>.</p>
-
-<h3>IDE</h3>
-
-<p>Exista mai multe IDEuri pentru programarea platformei Arduino 
-  (nici nu e de mirare dacă ținem cont că totul aici se desfașoară
-  în curtea curentului OpenSource), cel pe care o să îl utilizăm 
-  în cadrul acestui laborator este cel oficial, aflat pe pagina 
-  arduino.cc (mai exact, <a href="https://www.arduino.cc/en/software">aici</a>).</p>
-
-<p>Deoarece acest IDE a trecut prin foarte multe iterații și suntem 
-  convinși că nu este ultima variantă cea curentă, nu vom pune imagini cu
-  interfața IDEului. Totuși sperăm ca cele mai importante dintre meniuri
-  să fie încă disponibile. Vă enumerăm în cele ce urmează câteva dintre
-  acestea, pe care le considerăm mai interesante:
-</p>
-
-<ul>
-<li> Meniul <b>File -> Example</b>: conține exemple / coduri sursă pentru majoritatea echipamentelor existente (senzori, actuatori, shielduri, etc). Atunci când veți adăuga biblioteci noi IDEului, sunt șanse mari ca aici să se adauge exemple relevante pentru acele biblioteci.</li>
-<li> Meniul <b>File -> Preferences</b>: setați dimensiunea fontului, ce să se afișeze atunci când se compilează programul sau numerotarea liniilor de cod.  </li>
-<li> Meniul <b>Sketch -> Verify/Compile</b>: verifică programul pe care l-ați scris. Este disponibil și din primul buton în forma de cerc aflat imediat sub meniu. </li>
-<li> Meniul <b>Sketch -> Upload</b>: verifică programul și dacă este corect îl trimite în memoria Flash a procesorului Atmel după care va fi executat. </li>
-<li> Meniul <b>Sketch -> Include Library</b>: Pentru a vedea care sunt bibliotecile disponibile sau a adăuga o nouă biblioteca. </li>
-<li> Meniul <b>Tools -> Auto Format</b>: Pentru a formata codul (indenta corect) - sper că nu mai e nevoie totuși să mai folosiți asta în anul III. </li>
-<li> Meniul <b>Tools -> Serial Monitor</b>: Deschide o fereastră ce permite transmiterea de date în mod serial către Arduino sau recepționarea acestora. Poate fi deschisă și din butonul din partea dreapta-sus.  </li>
-<li> Din meniul <b>Tools</b> puteți de asemenea să selectați tipul Arduino-ului pe care îl aveți, pe ce port este conectat și care este programatorul pe care îl folosiți (default pentru UNO ar trebui să fie AVRISP mkII). </li>
+<li> este un model simplu, cu implementări foarte eficiente şi un limbaj de interogare (SQL) descriptiv simplu si expresiv;</li>
+<li> propus in anii '70 de catre Edgar Frank Codd, se regaseste in cele mai populare sisteme de gestiune de baze de date: http://db-engines.com/en/ranking_trend</li>
 </ul>
 
 
-<h3>Exemple</h3>
-
-<h4>Blink</h4>
-
-<p>Primul exemplu pe care îl vom vedea în laboratorul 1 este Blink 
-  (din meniul File->Examples->Basics->Blink). Rolul acestui progrămel 
-  este de a porni și apoi opri ledul aflat pe placa Arduino și care 
-  este conectat la pinul 13. De obicei acest program este utilizat 
-  pentru a verifica buna comunicare între un PC și platforma Arduino 
-  (puteti verifica faptul ca se trimite un program, și că acesta 
-  rulează corect - de obicei Arduino-urile noi vin cu acest program 
-  preinstalat tocmai pentru că este folosit pentru a verifica buna 
-  funcționare). Valoarea LED_BUILTIN (care este o constanta) poate 
-  fi inlocuită cu 13 - pinul digital la care este conectat ledul. 
-  Deoarece atunci când uploadați un program pe platforma Arduino 
-  acest lucru se întâmplă prin intemediul portului serial, puteți 
-  observa aprinderea intermitentă a două leduri TX/RX aflata pe placa 
-  Arduino. Daca nu vedeți aceste două leduri pâlpâind înseamnă că 
-  nu ați selectat corect portul la care este conectat Arduino sau 
-  nu ați instalat driverele.</p>
-
-<pre><code class="language-c">
-void setup() {
-  pinMode(LED_BUILTIN, OUTPUT);
-}
-
-void loop() {
-  digitalWrite(LED_BUILTIN, HIGH);  
-  delay(1000);                      
-  digitalWrite(LED_BUILTIN, LOW);    
-  delay(1000);                      
-}
-</code></pre>
-
-<h4>Trimiterea de date către portul serial al calculatorului.</h4>
-
-<p>Portul serial este probabil cel mai vechi existent. 
-  Prin el se trimit caractere unul după altul (așa cum 
-  sugerează și denumirea: serial). Deși portul serial a fost 
-  modernizat și este acum cunoscut ca USB (Universal Serial Port),
-  modul de transmitere este similar. Pentru ca cele două dispozitive 
-  să se sincronizeze trebuie ca ambele să știe viteza la care se 
-  realizează comunicarea. Această viteză pentru portul serial se 
-  măsoara în baud și indică numărul de coduri ce pot fi transmise 
-  într-o secundă. Cu cât aceasta valoare este mai mare, cu atât 
-  comunicarea este mai rapidă și instrucțiunea care trimite codul 
-  se va executa mai rapid. Pentru acest exemplu vom folosi un baud 
-  de 9600 (deși Arduino poate atinge 2.000.000 caractere pe secunda). 
-  In IDE vom scrie și apoi vom încărca următorul cod, explicațiile 
-  vor fi oferite de către profesorul de la laborator:</p>
-
-<pre><code class="language-c">
-void setup() {
-  Serial.begin(9600);
-}
-
-void loop() {
-  for (int i=0; i<10; i++)
-     Serial.println(i);
-  delay (5000);
-}
-</code></pre>
-
-<p>Dacă ați văzut cum funcționeaza programul (utilizând Serial Monitor-ul 
-la un baud de 9600 - vezi mai sus cum se accesează), deschideți aplicația 
-putty pe care puteți să o descărcați de pe Internet. La connection type 
-selectați "Serial" apoi selectați portul la care este conectat Arduino 
-(poate fi văzut în colțul din dreapta jos al IDEului) și alegeți viteza 
-de 9600. După apăsarea butonului Open veți putea vizualiza informațiile 
-transmise de Arduino.</p>
-
-<h4>Recepționarea de informații din interfața serială (sau din putty).</h4>
-
-<p>Puteți să utilizați fie Monitorul Serial din interfața IDEului fie 
-aplicația Putty pentru a observa modul de funcționare a aplicației 
-următoare.</p>
-
-<pre><code class="language-c">
-void setup() {
-  Serial.begin(9600);
-}
-
-void loop() {
-  if (Serial.available()>0)
-  {
-    int sentByte = Serial.read();
-    Serial.print("Am receptionat caracterul cu codul ascii: ");
-    Serial.println(sentByte);
-  }
-}
-</code></pre>
-
-<h4>Exerciții</h4>
-
-
-<h6>Problema 1 </h6>
-<p>Realizati un program pentru Arduino care sa primească de la portul serial una din optiunile 1,2 sau 3.</p>
+<p>Elemente:</p>
 <ul>
-  <li>  Dacă opțiunea aleasă este 1 se va afișa pe portul serial cuvântul "pornit" și va aprinde ledul de la pinul 13.</li>
-  <li>  Dacă opțiunea aleasă este 2 se va afișa pe portul serial cuvântul "oprit" și va stinge ledul de la pinul 13.</li>
-  <li>  Dacă opțiunea aleasă este 3 se va afișa pe portul serial cuvântul "blink" și va aprinde intermitent ledul de la pinul 13 (asemenea aplicatiei blink).</li>  
+<li> Baza de date constă dintr-o multime de tabele/relaţii</li>
+<li> Fiecare tabel/relaţie are un nume unic in baza de date şi conţine un set de coloane/atribute/câmpuri</li>
+<li> Fiecare atribut are un nume unic in tabelul la care aparţine si are asociat tip/domeniu din care poate lua valori</li>
+<li> Fiecare linie/înregistrare/tuplu din tabel conţine valori pentru toate atributele</li>
+<li> Ordinea liniilor/tuplelor nu are semnificaţie</li>
 </ul>
-<p>Modificați partea de blink pentru a face blink la 10 secunde. De ce nu puteți activa foarte rapid vreuna din celelalte opțiuni dacă stare ledului din modul blink tocmai s-a schimbat ?</p>
-
-<!--
 
 
+<p><b>Schema bazei de date relaţionale </b> reprezintă descrierea structurală a tabelelor în baza de date.</p>
+
+<p><b>Instanţa bazei de date </b> reprezintă conţinutul bazei de date la un anumit moment</p>
+
+<p><b>NULL</b> – este o valoare specială utilizată când nu se cunoaşte (sau e nedefinită) valoarea unui atribut pentru o înregistrare.</p>
+
+<p><b>Cheie candidat</b> – un atribut care are valori unice pentru fiecare înregistrare </p>
+<p>- sau un set de atribute ale căror valori combinate sunt unice, minimală în raport cu această proprietate (nici o submulţime nu e cheie); dacă nu este îndeplinită proprietatea de mulţime minimală avem de a face cu o supercheie</p>
+
+<p><b>Cheie primară</b> – una dintre cheile candidat aleasă pentru a identifica în mod unic înregistrările din tabel; nici un atribut implicat nu poate avea valoarea NULL</p>
+
+<p><b>Cheie alternativă</b> – cheie candidat care nu a fost aleasă drept cheie primară</p>
+
+<p><b>Cheie străină</b> – un atribut sau un set de atribute dintr-o relaţie care are corespondent o cheie candidat a altei relaţii ( sau chiar a relaţiei curente, caz în care o numim cheie străină recursivă)</p>
+
+<p>Obţinerea de informaţii din baza de date se realizează cu ajutorul interogărilor SQL. Rezultatul unei interogări este un nou tabel.</p>
+
+<p><b>Algebra relaţională</b></p>
+<ul>
+<li> Un limbaj formal</li>
+<li> Operatorii de bază din algebra relaţională: selecţie, proiecţie, produs cartezian, intersecţie, diferenţă, redenumire</li>
+<li> Bazată pe mulţimi (duplicatele se elimină)</li>
+</ul>
 
 
-<h3>Despre arhitectura procesorului ==
+<h2> Limbajul SQL </h2>
+<p>SQL - Structured Query Language</p>
+<ul>
+<li> limbajul utilizat în manipularea bazelor de date relaţionale</li>
+<li> un limbaj esenţial declarativ; exprimă ce se doreşte de la baza de date, nu şi cum se obţine rezultatul</li>
+<li> un limbaj implementat cu fundamente în algebra relaţională (semantica este definită cu ajutorul algebrei relaţionale), bazat pe multi-seturi  (nu se elimină duplicatele)</li>
+<li> deşi considerat un limbaj de programare non-procedural, majoritatea SGBD-urilor relaţionale oferă şi extensii procedurale.</li>
+</ul>
 
-Arhitecturile de calcul folosite de procesoarele existente pe piata in momentul de fata:
-* Arhitecturi CISC (Complex Instruction Set Computer) denumite si Von Neumann
-* Arhitecturi RISC (Reduced Instruction Set Computer) denumite si Harvard
 
-Arhitecturile CISC stau la baza procesoarelor INTEL/AMD si definesc procesoarele folosite de platfromele x86/x64
-Arhitecturile RISC stau la baza procesoarelor ARM ce sunt folosite de echipemente mobile si a altor variante industriale pe 8/16/32/64 biti
+<p>Limbajul SQL a fost pentru prima dată standardizat de către Organizaţia Internaţională pentru Standardizare (ISO) în anul 1987. De atunci limbajul a suferit modificări/îmbunătăţiri în mai multe rânduri, ultima versiune stabilă fiind SQL:2016.</p>
 
-Diferenta dintre cele 2 arhitecturi sta atat in design-ul setului de instructiuni cat si in felul in care BUS-ul este folosit pentru a schimba intre RAM si procesor, date si instructiuni.
-* Daca la arhitecturile CISC seturile de instructiuni cuprind sute de instructiuni cu utilizare simpla (instr dest,sursa), la arhitecturile RISC avem zeci de instructiuni cu utilizare complexa (instructiunile sunt parametrizabile si au numar variabil de parametri)
-* Daca la arhitecturile CISC avem un BUS comun pentru DATE si COD arbitrat de un procesor numit CHIPSET, la arhitecturile RISC cele 2 BUS-uri sunt total diferite, fapt ce duce la cresterea vitezei de lucru a procesorului in anumite situatii
-* Daca la arhitecturile CISC procesorul fizic ca si capsula coincide cu CPU care doar face calcule, la arhitecturile RISC, procesorul fizic este numit SoC, iar procesorul care face calcule (CPU) impreuna cu cantitati mici de RAM (kB), cantiati mici de FlashDrive (kB) si periferice precum USB, LAN, module de comunicare seriala, paralele, sunt parte integrata a capsulei SoC (System on a Chip)
+<p>Deşi standardizat la nivel internaţional, fiecare dezvoltator de baze de date a modificat şi a extins versiunea standard pentru a exploata avantajele oferite de implementarea particulară a produsului propriu. Datorită dimensiunii mari şi a complexităţii standardului cei mai mulţi dezvoltatori nu l-au implementat în totalitate. Vice-versa, standardul nu specifică comportamentul bazei de date în anumite situaţii, decizille ramânând la latitudinea dezvoltatorilor. Se vorbeşte astfel de dialecte SQL. Rezultatul este apariţia de incompatibilităţi între SGBD-uri relaţionale diferite. Unele incompatibilităţi sunt intenţionat păstrate de dezvoltatori cu scopul de fidelizare a clienţilor.</p>
 
-[[Fișier:cisc.jpg]]       [[Fișier:risc.jpg]]
--->
+<p>Declaraţia de conformitate Oracle cu standardul ISO SQL:2008 poate fi studiată la adresa </p>
+<p>https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Oracle-and-Standard-SQL.html#GUID-330DEBBB-006E-4B35-A516-5C0AEFFE06B9</p>
+
+<p>În continuare sunt listate în forma Backus-Naur cele mai uzuale comenzi SQL. Convenţiile de sintaxă în acest format sunt următoarele:</p>
+<ul>
+<li>	<>		reprezintă o variabilă de substituţie</li>
+<li>	|  		reprezintă disjuncţia</li>
+<li>	[…]		reprezintă elemente opţionale</li>
+<li>	{…|…|…}	reprezintă exact un element din listă</li>
+</ul>
+
+
+<h3> Comenzi DDL (de definire a datelor) </h3>
+
+<h4> Crearea tabelelor </h4>
+<pre><code class="language-sql">CREATE [{GLOBAL | LOCAL} TEMPORARY] TABLE
+        &lt;nume_tabel&gt;
+        (&lt;nume_coloană1&gt; data_type [constrângeri] 
+        [,&lt;nume_coloana2&gt; data_type [constrângeri]]
+        […]
+        )     
+       [ ON COMMIT { DELETE | PRESERVE } ROWS ]
+</code></pre>
+
+
+
+<p>Opţiunea TEMPORARY specifică crearea unui tabel temporar, care îşi păstrează conţinutul doar pe durata unei tranzacţii (până la apariţia comenzii COMMIT) sau pe parcursul unei sesiuni (opţiunea ON COMMIT PRESERVE ROWS).  În Oracle există doar varianta GLOBAL a tabelelor temporare: definiţia tabelului temporar este vizibilă din toate sesiunile de lucru însă accesul la date este privat (datele inserate intr-o sesiune pot fi accesate doar din sesiunea respectivă). </p>
+
+
+<h4> Ştergerea unui tabel </h4>
+<pre><code class="language-sql">DROP TABLE &lt;nume_tabel&gt;  [CASCADE CONSTRAINTS]
+</code></pre>
+
+<p>CASCADE permite ştergerea unui tabel care e referenţiat de un VIEW sau de chei străine şi şterge view-ul şi restricţia de tip cheie străină.</p>
+
+<p>În Oracle sintaxa pentru ştergerea tabelelor este:</p>
+<pre><code class="language-sql">DROP TABLE &lt;nume_tabel&gt;  [CASCADE CONSTRAINTS] [PURGE]
+</code></pre>
+
+
+<p>În Oracle tabelele şterse sunt reciclate dacă nu este specificată opţiunea PURGE, ele putând fi recuperate cu comanda: </p>
+<pre><code class="language-sql">FLASHBACK TABLE &lt;nume_tabel&gt;   TO 
+     { { SCN | TIMESTAMP } expr 
+     [ { ENABLE | DISABLE } TRIGGERS ] | 
+     BEFORE DROP [ RENAME TO <nume_nou> ]} 
+</code></pre>
+
+
+<h3> Comenzi DML (de manipulare a datelor) </h3>
+
+<h4> Inserarea înregistrărilor </h4>
+<pre><code class="language-sql">INSERT INTO &lt;nume_tabel&gt; 
+            [ (lista_coloane) ]
+            VALUES (lista_valori)
+</code></pre>
+
+
+<h4> Actualizarea valorilor </h4>
+<pre><code class="language-sql">UPDATE &lt;nume_tabel&gt;
+       SET &lt;nume_coloana1&gt; = valoare1
+           [, &lt;nume_coloana2&gt; = valoare2...]
+       [WHERE conditie]
+</code></pre>
+
+
+<h4> Ştergerea înregistrărilor </h4>
+<pre><code class="language-sql">DELETE FROM &lt;nume_tabel&gt; 
+      [WHERE conditie]
+</code></pre>
+
+
+
+<h4> Interogarea bazei de date </h4>
+<pre><code class="language-sql">SELECT [DISTINCT | ALL] {* | [expresie_coloana [AS <nume_nou>]] [,...] }
+       FROM &lt;nume_tabel&gt; [alias] [, ...]
+       [WHERE conditie]
+       [GROUP BY lista_coloane] [HAVING conditie]
+       [ORDER BY exp1 [ASC/DESC] [,exp2...]] 
+</code></pre>
+
+
+<h2> Tipuri de date (în Oracle) </h2>
+
+<table>
+   <tr>
+      <th>Tip</th>
+      <th>Proprietăţi</th>
+   </tr>
+   <tr>
+      <td>CHAR(n)</td>
+      <td>Şiruri de lungime fixă n (1 caracter e stocat pe 1 octet). Dacă valorile introduse au mai puţine caractere se adaugă blanks (spaţii) la sfarşit ; dacă valorile introduse conţin mai multe caractere apare eroare (VALUE_ERROR)</td>
+   </tr>
+   <tr>
+      <td>VARCHAR2(n)</td>
+      <td>Şiruri de lungime variabilă, n este lungimea maximă. Este indicat a fi folosit cand valorile pentru un atribut diferă ca lungime fiindcă se consumă un număr de octeţi egal cu numărul de caractere din şir</td>
+   </tr>
+   <tr>
+      <td>NUMBER</td>
+      <td>Corespunde numerelor în virgulă fixă şi mobilă. Numere în intervalul (-10<sup>126</sup>,  10<sup>126</sup>), infinit (pozitiv şi negativ)</td>
+   </tr>
+   <tr>
+      <td>NUMBER(n1, n2)</td>
+      <td>Numere ce conţin în total n1 zecimale semnificative, n2 precizând numărul de cifre de la punctual zecimal până la cea mai puţin semnificativă cifră. n2 poate lua valori negative, caz în care se face rotunjirea pe numărul de poziţii specificate în stânga punctului zecimal. Ex. pentru tipul NUMBER(5,-2), introducerea valorii 12345 generează valoarea 12300 iar pentru 12399 generează 12400</td>
+   </tr>
+   <tr>
+      <td>DATE</td>
+      <td>Reprezintă un moment de timp stocând anul, luna, ziua, orele minutele şi secundele</td>
+   </tr>
+   <tr>
+      <td>LOB (large object):<br/>BLOB, CLOB, NCLOB, BFILE</td>
+      <td>Permit stocarea în format binar sau caracter a datelor nestructurate precum text, imagini, videoclipuri…</td>
+   </tr>
+</table>
+
+
+
+<p>Pentru compatibilitate cu alte sisteme, Oracle suportă şi tipuri precum: decimal, integer, smallint, real; reprezentarea lor internă este însă definită de formatul tipului number.</p>
+
+<p>O listă completă găsiți la adresa: http://download.oracle.com/docs/cd/B19306_01/server.102/b14200/sql_elements001.htm sau la https://docs.oracle.com/cd/E11882_01/appdev.112/e25519/predefined.htm#LNPLS2047</p>
+
+<p><b>NULL</b> este o valoare specială care semnifică lipsa informaţiei. Ambele teste NULL=NULL şi NULL<>NULL returnează FALSE. Verificarea (in)egalităţii cu NULL se face utilizând IS [NOT] NULL.</p>
+
+<h2>Schema bazei de date - studiu de caz</h2>
+
+<p>Fiecare facultate a unei universităţi are nevoie să-şi facă managementul intern al studenţilor pe care îi are. Spre exemplu, un aspect important în cadrul secretariatului este cunoaşterea notelor pe care studenţii le-au luat la diversele materii pe care le-au studiat. Pe baza acestor informaţii, se poate decide dacă studentul va avea sau nu bursă, dacă va primi sau nu cazare în anul ce urmează sau daca va trebui să repete o anumită materie. Deşi aceste informaţii sunt disponibile în format clasic, în cataloage, este mult mai uşor de lucrat cu un număr mare de studenţi atunci când aceştia sunt stocaţi într-o bază de date. </p>
+
+<p>În afara informaţiilor referitoare la studenţi (nume, prenume, anul în care sunt înmatriculaţi, etc.) ce ar putea forma o tabelă într-o bază de date, şi alte informaţii precum notele sau numele cursurilor la care au participat trebuie să fie stocate. Nu este natural ca aceste informaţii să fie stocate împreună cu informaţiile personale ale studentului (de exemplu din cauză ca participarea la doua cursuri diferite ar presupune introducerea de doua ori - ca şi înregistrari diferite în tabelă - a aceloraşi informaţii privitoare la student) şi din acest motiv sunt necesare tabele suplimentare.</p>
+
+<p>În cadrul laboratorului de baze de date, vom folosi tabelele studenti, cursuri, note şi profesori, ce au urmatoarele structuri: </p>
+
+
+<p>Tabela studenti:</p>
+<ul>
+<li> nr_matricol - câmp alfanumeric de 6 caractere ce nu poate fi null;</li>
+<li> nume - câmp alfanumeric, variabil ca dimensiune dar având maxim 10 caractere ce nu poate fi null;</li>
+<li> prenume - câmp alfanumeric, variabil ca dimensiune dar având maxim 10 caractere;</li>
+<li> an - câmp numeric ce poate reţine numere formate doar dintr-o singură cifră;</li>
+<li> grupa - câmp alfanumeric de 2 caractere;</li>
+<li> bursa - câmp numeric ce poate ţine minte valori reale formate din 4 cifre înainte de virgulă şi două cifre după;</li>
+<li> data_nastere - câmp de tip dată calendaristică.</li>
+</ul>
+
+
+<p>  </p>
+
+
+<p>Tabela cursuri:</p>
+<ul>
+<li> id_curs - câmp alfanumeric de 4 caractere ce nu poate fi null;</li>
+<li> titlu_curs - câmp alfanumeric, variabil ca dimensiune dar având maxim 10 caractere ce nu poate fi null;</li>
+<li> an - câmp numeric ce poate reţine numere formate doar dintr-o singură cifră;</li>
+<li> semestru  - câmp numeric ce poate reţine o cifra;</li>
+<li> credite - câmp numeric ce poate reţine numere formate din două cifre.</li>
+</ul>
+
+
+<p>Tabela note:</p>
+<ul>
+<li> nr_matricol - câmp alfanumeric de 6 caractere ce nu poate fi null;</li>
+<li> id_curs - câmp alfanumeric de 4 caractere ce nu poate fi null;</li>
+<li> valoare - câmp numeric ce poate reţine numere formate din două cifre;</li>
+<li> data_notare - câmp de tip dată calendaristică.</li>
+</ul>
+
+
+<p>Tabela profesori:</p>
+<ul>
+<li> id_prof - câmp alfanumeric de 4 caractere ce nu poate fi null;</li>
+<li> nume - câmp alfanumeric, fix ca dimensiune având 10 caractere ce nu poate fi null;</li>
+<li> prenume - câmp alfanumeric, fix ca dimensiune având 10 caractere;</li>
+<li> grad_didactic - câmp alfanumeric, variabil ca dimensiune dar având maxim 5 caractere.</li>
+</ul>
+
+
+<p>Tabela didactic</p>
+<ul>
+<li> id_prof - câmp alfanumeric de 4 caractere ce nu poate fi null;</li>
+<li> id_curs - câmp alfanumeric de 4 caractere ce nu poate fi null.</li>
+</ul>
+
+
+<p>  </p>
+
+<p><span style="color:green">1. Creaţi aceste tabele utilizând contul student.</span></p>
+
+<p><span style="color:green">2. Inseraţi în baza de date nou creată un student Popescu Ionut, proaspat înmatriculat în anul 2 care a luat nota 10 la materia Logica pentru informatica predata de  Cristian Masalagiu în primul semestru din anul 1.</span></p>
+
+<p><span style="color:green">3. Executaţi comanda de mai jos pentru a rula un script de creare care are rolul de a crea toate tabelele de mai sus şi de a le popula cu date. Studiati continutul scriptului.</span></p>
+
+<p>Descarcati acest fisier: <a href="https://edu.info.uaic.ro/baze-de-date/resurse/script/facultate.sql">facultate.sql</a> si salvati-l in directorul C:/temp .</p>
+
+<p>Executati comanda: </p>
+
+<p><code>@ C:/temp/facultate.sql</code></p>
+
+<p>Pentru a vedea care sunt tabelele unui utilizator se va executa:</p>
+
+<p><code>SELECT table_name FROM user_tables;</code></p>
+
+
+<p>Pentru a vedea care este structura unei tabele (în cazul în care aţi uitat spre exemplu din cate litere poate fi format numele de familie al unui student), puteti executa comanda SQL*Plus describe:</p>
+
+<p><code>DESCRIBE nume_tabel</code></p>

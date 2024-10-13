@@ -1,0 +1,339 @@
+
+<p>http://docs.oracle.com/cd/E11882_01/appdev.112/e25519/triggers.htm#LNPLS759</p>
+
+<p><!--</p>
+<ul>
+<li> <span style="color:red; font-size:24px;">[[Super tema iepureasca]]</span> </li>
+<li> <span style="color:red; font-size:24px;">[[Super tema iepureasca]]</span> </li>
+<li> <span style="color:red; font-size:24px;">[[Super tema iepureasca]]</span> </li>
+<li> <span style="color:red; font-size:24px;">[[Super tema iepureasca]]</span> </li>
+<li> <span style="color:red; font-size:24px;">[[Super tema iepureasca]]</span> </li>
+</ul>
+
+
+<p>--></p>
+
+<h2>Triggere (declansatoare) </h2>
+
+<p>Triggerele sunt blocuri de cod care se executa automat, de obicei cand o operatie de tip DML este executata in baza de date. Acestea au un nume (identificator) si pot fi activate sau dezactivate utilizand acest nume.</p>
+
+<p>Atunci cand un trigger este creat se specifica si cand acesta va fi executat in mod automat. Aceasta executie este asociata cu o anumita operatie care se efectueaza asupra unei tabele, asupra unui view (triggerele peste tabele/view sunt de tip DML) a unei scheme de baze de date (de tip DDL) sau chiar asupra intregii bazei de date (de tip system). Impreuna cu tipul operatiei ce va lansa in executie trigerul, se specifica si cand se doreste executarea acestuia: de exemplu, daca vrem sa facem o operatie de stergere dintr-o tabela si dorim ca valoarea ce este stearsa sa fie copiata intr-o alta tabela de bkup, este firesc ca sa dorim executarea triggerului inainte ca stergerea efectiva sa fie efectuata - in acest fel aveam acces la valoarea ce va fi stearsa si putem sa o copiem in tabela de bkup. </p>
+
+<p>Iata care ar fi motivele pentru care am dori sa utilizam un trigger:</p>
+<ul>
+<li> generarea automata de valori intr-o coloana</li>
+<li> realizarea de LOG-uri</li>
+<li> realizarea de statistici</li>
+<li> modificarea datelor dintr-o tabela atunci cand este executata o operatie intr-un view</li>
+<li> asigurarea integritatii dintre chei primare/straine atunci cand tabelele nu sunt in acelasi tablespace (de exemplu tabela studenti este pe un calculator si tabela note este pe alt calculator si vrem ca atunci cand inseram o nota sa verificam daca exista cheia in tabela stocata pe celalalt calculator)</li>
+<li> publicarea de evenimente cand sunt facute anumite opreatii in baza de date (de exemplu afisarea automata in consola ca cineva incearca sa stearga anumite date dintr-o tabela).</li>
+<li> interzicearea operatiilor de tip DML intr-un anumit interval orar (de exemplu pentru a nu se putea pune note decat in ziua examenului)</li>
+<li> interzicerea tranzactiilor incorecte sau restrictionarea pe baza unor reguli complexe ce nu pot fi obtinute doar prin chei primare/straine, unicitate sau alte constrangeri la nivel de tabela (de exemplu am putea sa permitem sa avem mai multe inregistrari cu un acelasi identificator dar care sa aiba suma unui anumit camp mai mica decat o anumita valoare).</li>
+</ul>
+
+
+<h2> Triggere de tip DML (cu BEFORE / AFTER) </h2>
+
+<p>Pot fi construite pentru operatii de tip delete, insert, update. Tinand cont de momentul in care este executat triggerul relativ la momentul in care se face operatia asupra tabelei, triggerele pot fi BEFORE sau AFTER.</p>
+
+<p>Cand zicem BEFORE ne putem referi la momentul executiei comenzii de tip DML sau putem sa specificam o granularitate mai mare si sa executam triggereul inainte de modificarea fiecarui rand ce va fi transformat de operatia DML. De asemenea, un trigger care se executa pentru un anumit rand poate avea acces la informtaiile care existau in acel rand (sau care vor exista).</p>
+
+
+<p>Sa vedem un trigger care se executa inainte ca o operatie de tip insert, delete sau update sa fie executata:</p>
+
+<pre><code class="language-sql">set serveroutput on;
+
+CREATE OR REPLACE TRIGGER dml_stud
+   BEFORE INSERT OR UPDATE OR DELETE ON studenti
+BEGIN
+  dbms_output.put_line('Operatie DML in tabela studenti !');
+  -- puteti sa vedeti cine a declansat triggerul:
+  CASE
+     WHEN INSERTING THEN DBMS_OUTPUT.PUT_LINE('INSERT');
+     WHEN DELETING THEN DBMS_OUTPUT.PUT_LINE('DELETE');
+     WHEN UPDATING THEN DBMS_OUTPUT.PUT_LINE('UPDATE');
+     -- WHEN UPDATING('NUME') THEN .... // vedeti mai jos trigere ce se executa doar la modificarea unui anumit camp
+  END CASE;
+END;
+/
+
+delete from studenti where id=10000;
+
+
+<p>Puteti sa vedeti efectul BEFORE/AFTER compiland urmatoarele doua triggere:</p>
+
+<pre><code class="language-sql">set serveroutput on;
+
+CREATE OR REPLACE TRIGGER dml_stud1
+   BEFORE INSERT OR UPDATE OR DELETE ON studenti
+declare   
+   v_nume studenti.nume%type;
+BEGIN  
+  select nume into v_nume from studenti where id=200;
+  dbms_output.put_line('Before DML TRIGGER: ' || v_nume);
+END;
+/
+
+CREATE OR REPLACE TRIGGER dml_stud2
+   AFTER INSERT OR UPDATE OR DELETE ON studenti
+declare   
+   v_nume studenti.nume%type;
+BEGIN  
+  select nume into v_nume from studenti where id=200;
+  dbms_output.put_line('After DML TRIGGER: ' || v_nume);
+END;
+/
+
+<p>si executand apoi:  </p>
+<pre><code class="language-sql">
+update studenti set nume='NumeNou' where id=200;
+</code></pre>
+
+
+<p>Aceste triggere se vor executa totusi chiar si atunci cand se face update la un alt camp sau la un alt ID (si va afisa mereu informatiile privitoare la studentul cu IDul 200).</p>
+
+<p>Pentru a face referinta la valorile din randul curent va face un trigger care se executa la operatia pe un rand. Iata un astfel de exemplu care va afisa notele vechi si pe cele noi de fiecare data cand se va face un update (chiar si pe mai multe randuri):</p>
+
+<pre><code class="language-sql">set serveroutput on;
+CREATE OR REPLACE TRIGGER marire_nota
+  before UPDATE OF valoare ON note   -- aici se executa numai cand modificam valoarea !
+  FOR EACH ROW
+BEGIN
+  dbms_output.put_line('ID nota: ' || :OLD.id); -- observati ca aveti acces si la alte campuri, nu numai la cele modificate...
+  dbms_output.put_line('Vechea nota: ' || :OLD.valoare);  
+  dbms_output.put_line('Noua nota: ' || :NEW.valoare);    
+
+  -- totusi nu permitem sa facem update daca valoarea este mai mica (conform regulamentului universitatii):
+  IF (:OLD.valoare>:NEW.valoare) THEN :NEW.valoare := :OLD.valoare;
+  end if;  
+END;
+/
+
+update note set valoare =8 where id in (1,2,3,4);
+
+<p>In cazul in care modificarea se face intr-un nested table dintr-unul din campuri, puteti avea acces la randul ce contine acel nested table prin :PARENT. Atunci cand faceti o operatie de tip insert valoarea :OLD este NULL (pentru ca nu exista) si la fel pentru :NEW intr-o operatie de tip delete.</p>
+
+<p>Dupa cum ati vazut, ca sa evitam sa punem o nota mai mica peste o nota mai mare, am putut modifica valoarea din :NEW cu altceva in locul valorii adevarate. Nu puteti face acest lucru pentru valoarea :OLD (ea fiind deja existenta in tabela). Evident, daca operatia este delete, nu este posibil sa modificati nici valoarea :NEW (deoarece ea trebuie sa fie NULL).</p>
+
+<p>De asemenea, puteti vedea ca triggerul este construit cu BEFORE. Nu puteti modifica valoarea :NEW intr-un trigger de tip AFTER (pentru ca deja valoarea a fost scrisa in tabela cand ajunge sa fie executat triggerul).</p>
+
+<p>Daca o modificare lanseaza in executie doua triggere, unul de tip BEFORE si unul de tip AFTER si cel de tip BEFORE modifica valoarea din :NEW, triggerul after va vedea valoarea modificata (tot in :NEW). (va vedea si valoarea :OLD - aceeasi care este si in triggerul before).</p>
+
+<h3> Aparitia erorilor de tip Mutating Table </h3>
+
+<p>Atunci cand facem o operatie DML si din cauza acesteia se executa un trigger, acest trigger nu are voie sa citeasca datele din tabela care este in curs de modificare. Incercarea de a face un select asupra acestei tabele va genera o eroare de tipul Mutating table. Iata un exemplu:</p>
+
+<pre><code class="language-sql">create or replace trigger mutate_example
+after delete on note for each row
+declare 
+   v_ramase int;
+begin
+   dbms_output.put_line('Stergere nota cu ID: '|| :OLD.id);
+   select count(*) into v_ramase from note;
+   dbms_output.put_line('Au ramas '|| v_ramase || ' note.');
+end;
+/
+delete from note where id between 101 and 110;
+/
+
+<p>Evident, in momentul in care o exceptie este aruncata, nici modificarea din DML nu va avea loc (puteti verifica dupa aceea ca de fapt nu s-a modificat nimic in tabela si nota cu id-ul 101 este inca acolo).</p>
+
+<p>Pentru a evita erorile de tip mutating table exista doua metode:</p>
+<ul>
+<li> Utilizarea triggerilor compusi</li>
+<li> Utilizarea unei tabele temporare</li>
+</ul>
+
+
+<p>Un trigger compus este de fapt o compunere a celor 4 tipuri de trigere disponibile: BEFORE, BEFORE EACH ROW, AFTER EACH ROW, AFTER (aceasta este si ordinea in care se exacuta triggerele in cazul in care sunt mai multe). Solutia pentru problema anterioara este sa construim un trigger care sa afiseze doar la sfarsit numarul de linii ramase (numai triggerele de tipul "for each row" vor crea mutating table). Iata cum arata un astfel de trigger compus:</p>
+
+<pre><code class="language-sql">set serveroutput on;
+
+CREATE OR REPLACE TRIGGER stergere_note 
+FOR DELETE ON NOTE
+COMPOUND TRIGGER
+  v_ramase INT;
+  
+  AFTER EACH ROW IS 
+  BEGIN
+     dbms_output.put_line('Stergere nota cu ID: '|| :OLD.id);
+  END AFTER EACH ROW;
+  
+  AFTER STATEMENT IS BEGIN
+     select count(*) into v_ramase from note;
+     dbms_output.put_line('Au ramas '|| v_ramase || ' note.');  
+  END AFTER STATEMENT ;
+END stergere_note;
+
+delete from note where id between 241 and 250;
+ 
+
+<p>Daca aveti doua triggere care au acelasi tip de declansare (de exemplu ambele sunt de tip for each row), puteti sa controlati ordinea in care acestea se eecuta cu FOLLOWS respectiv PRECEDES.</p>
+
+<p>Pentru a activa/dezactiva un trigger puteti sa il modificati astfel:</p>
+
+<pre><code class="language-sql">ALTER TRIGGER STERGERE_NOTE DISABLE; -- SAU ENABLE
+
+<h3> Triggere de tipul instead of </h3>
+
+<p>Acest tip de triggere nu poate fi construit pentru operatii DML ce sunt efectuate asupra tabelelor ci doar daca aceste operatii afecteaza un view. Sa construim asadar un view:</p>
+
+<pre><code class="language-sql">create view std as select * from studenti;
+
+<p>Este destul de complicat sa stergem din tabela studenti... nu si daca avem trigere. Acest triger poate fi facut si direct peste tabel (cu before sau after) dar de aceasta data il vom realiza peste view-ul creat anterior. Triggerul are rolul de a sterge toate informatiile din tabelele aditionale atunci cand dorim sa stergem un student:</p>
+
+<pre><code class="language-sql">CREATE OR REPLACE TRIGGER delete_student
+  INSTEAD OF delete ON std
+BEGIN
+  dbms_output.put_line('Stergem pe:' || :OLD.nume);
+  delete from note where id_student=:OLD.id;
+  delete from prieteni where id_student1=:OLD.id;
+  delete from prieteni where id_student2=:OLD.id;
+  delete from studenti where id=:OLD.id;
+END;
+
+<p>Si sa testam triggerul prin stergerea unui student:</p>
+<pre><code class="language-sql">delete from std where id=75;
+
+<h2> Triggere DDL </h2>
+
+<p>Din punctul de vedere al momentului cand sunt executate, triggerele de sistem pot fi de tipul before, after sau instead. </p>
+
+<p>Din punctul de vedere al evenimentului ce poate fi tratat, pot fi triggere ce au loc cand este modificata schema, de baze de date sau de tipul instead of create.</p>
+
+<p>In urmatorul exemplu, se va interzice utilizarea oricarei comenzi de tipul drop. Aceasta poate fi o problema dat fiind faptul ca pentru a elimina triggerul drop_trigger trebuie sa initiem chiar o comanda de tipul drop. Ati putea, ca inaintea emiterii erorii sa interogati valoarea variabilei ora_dict_obj_name pentru a testa daca drop-ul pe care vreti sa il interziceti este pentru un singur (acel) obiect pentru care nu vreti sa se faca drop.</p>
+
+<pre><code class="language-sql">CREATE OR REPLACE TRIGGER drop_trigger
+  BEFORE DROP ON student.SCHEMA
+  BEGIN
+    RAISE_APPLICATION_ERROR (
+      num => -20000,
+      msg => 'can''t touch this');
+  END;
+/
+
+DROP TABLE NOTE;
+
+<p>In Oracle se pot face triggere care sa fie activate in momentul in care se executa o operatie de create:</p>
+
+<pre><code class="language-sql">CREATE OR REPLACE TRIGGER t
+  INSTEAD OF CREATE ON SCHEMA
+  BEGIN
+    EXECUTE IMMEDIATE 'CREATE TABLE T (n NUMBER, m NUMBER)';
+  END;
+/
+create table a(x number); -- de fapt va crea tabelul T.
+
+<p>Lista tuturor trigerelor de tip DDL poate fi consultata aici: https://docs.oracle.com/cd/E11882_01/appdev.112/e25519/triggers.htm#CHDGIJDB</p>
+
+<h2> Triggere Sistem </h2>
+
+<p>Inafara triggerelor pentru operatii de tip DDL exista doua tipuri de triggere prin intermediul carora puteti obtine diverse informatii atunci cand anumite evenimente se intampla in sistem. De exemplu ati putea sa creati o tabela de log in care sa scrieti adresa IP a clientului care s-a conectat la baza de date sau numele acestuia. Sa cream un astfel de tabel in care sa stocam lista utilizatorilor ce se autentifica in sistem si orele la care aceste autentificari au fost facute (evident, acestea trebuie sa fie facute din contul de sys.... nimeni altcineva nu ar trebui sa aiba controlul utilizatorilor care se autentifica in sistemul de gestuine de baze de date).</p>
+
+<pre><code class="language-sql">create table autentificari(nume varchar2(30), ora timestamp);
+/
+CREATE OR REPLACE TRIGGER check_user
+  AFTER LOGON ON DATABASE
+DECLARE
+  v_nume VARCHAR2(30);
+BEGIN
+  v_nume := ora_login_user;
+  INSERT INTO autentificari VALUES(v_nume, CURRENT_TIMESTAMP);
+END;
+/
+
+<p>dupa care incercati sa va autentificati ca student, inapoi ca sys as sysdba si apoi vedeti continutul tabelei autentificari. </p>
+
+<p>Puteti vedea mai multe informatii intr-un trigger de tip system. O lista completa a variabilelor ce le puteti interoga o veti gasi in tabelul de la pagina aceasta: https://docs.oracle.com/cd/E11882_01/appdev.112/e25519/triggers.htm#CHDCFDJG</p>
+
+<p>Atunci cand nu mai aveti nevoie de triggere, puteti sa le eliminati cu drop trigger urmata de numele triggerului pe care doriti sa il eliminati.</p>
+
+
+<h2> Exercitii </h2>
+
+<p>Problema 1. </p>
+
+<p>Creati doua tabele la alegere care sa fie legate printr-o cheie primara/straina si un </p>
+<p>view care sa fie peste full outer joinul dintre cele doua tabele. Construiti triggere care sa permita </p>
+<p>realizarea de operatii de tipul INSERT, UPDATE, DELETE pe view. Cand veti prezenta problema</p>
+<p>veti avea in view macar 10 randuri (ca sa avem ce sterge de exemplu).</p>
+
+
+<p>Problema 2. </p>
+
+<p>Creati un trigger care sa scrie intr-o tabela de tip LOG cate note au fost modificate</p>
+<p>de o comanda de tip update. Nu se va permite decat modificarea in plus a notelor.</p>
+
+
+<p>Problema 3.</p>
+
+<p>Creati un trigger prin intermediul caruia sa preveniti orice modificare destructiva asupra bazei de date:</p>
+<ul>
+<li> Eliminarea unei coloane dintr-o tabela</li>
+<li> Stergerea unui tabel</li>
+<li> Truncherea tabelului</li>
+</ul>
+
+
+<p>Se va scrie intr-o tabela aditionala timpul la care s-a incercat actiunea si numele utilizatorului ce a incercat sa o faca (http://www.java2s.com/Code/Oracle/User-Previliege/Getcurrentusername.htm).</p>
+
+<p>PS. veti avea nevoie de doi utilizatori care sa aiba acces in aceeasi schema de baze de date (check this: https://profs.info.uaic.ro/~bd/wiki/index.php/Doi_utilizatori_cu_aceeasi_schema). </p>
+
+<p>PS2. Daca doar unul din utilizatori declanseaza triggerul pe care l-ati facut, veti pierde doua puncte.</p>
+
+
+<p>Problema 4.</p>
+
+<ul>
+<li> Creati triggere care sa modifice o tabela de LOGuri atunci cand se face o operatie (insert/update/delete) in tabelul de note, asupra valorii. In acest tabel de LOGuri vor fi stocate ID-ul notei, vechea valoare, noua valoare, tipul operatiei si momentul in care s-a executat operatia si de catre cine (userul curent autentificat - SELECT USER FROM DUAL).</li>
+<li> Campul updated_at din tabelul note va fi modificat in conformitate (cu noul timp).</li>
+<li> Aceste operatii de modificare se vor efectua doar daca minutul sistemului este unul impar.</li>
+<li> Construiti triggere care sa nu permita modificarea, stergerea informatiilor din tabelul log si nici stergerea in intregime a acestui tabel.</li>
+</ul>
+
+
+<p>Problema 5.</p>
+
+<p>Sa se construiasca un view ca fiind joinul dintre tabelul studenti, note si cursuri, cu rolul de catalog: va contine numele si prenumele studentului, materia si nota pe care studentul a luat-o la acea materie.</p>
+
+<p>Dupa cum va puteti da seama, operatii de genul INSERT nu sunt permise pe acest view din cauza ca ar trebui sa inserati datele in toate tabelele. Totusi, cu ajutorul unui trigger, puteti sa verificati existenta studentului (si sa il creati daca nu exista), existenta materiei (si sa o creati daca nu exista) sau a notei.</p>
+
+
+<p>Construiti triggere pentru realizarea de operatii de tipul INSERT, UPDATE si DELETE pe viewul creat, care sa genereze date random atunci cand sunt adaugate informatii inexistente (de exemplu daca faceti insert cu un student inexistent, va genera un nr matricol, o bursa, grupa, an etc pentru acel student sau un numar de credite si un an, semestru pentru un curs, etc.)</p>
+
+<p>Cazuri posibile:</p>
+<ul>
+<li> Stergerea unui student si totodata a dependentelor sale (pentru tabelele definite exact ca in scriptul de creare);</li>
+<li> Inserarea unei note la un curs pentru un student inexistent cu adaugarea studentului;</li>
+<li> Inserarea unei note la un curs pentru un curs inexistent - cu adaugarea cursului;</li>
+<li> Inserarea unei note cand nu exista nici studentul si nici cursul.</li>
+<li> Update la valoarea notei pentru un student - se va modifica valoarea campului updated_at. De asemenea, valoarea nu poate fi modificata cu una mai mica (la mariri se considera nota mai mare).</li>
+</ul>
+
+
+<p>ex: INSERT INTO CATALOG VALUES ('Popescu', 'Mircea', 10, 'Yoga');</p>
+
+<p>Problema 6.</p>
+
+<p>Creati triggere care sa adauge intr-o tabela de LOG-uri operatiile DML (INSERT / UPDATE / DELETE) efectuate asupra tabelului note. In acest tabel de LOG-uri vor fi stocate ID-ul notei, vechea valoare, noua valoare, tipul operatiei, momentul in care s-a executat operatia si de catre cine (userul curent autentificat - SELECT USER FROM DUAL) - aveti nevoie de macar 2 utilizatori care sa aiba acces la aceiasi schema (check this: https://profs.info.uaic.ro/~bd/wiki/index.php/Doi_utilizatori_cu_aceeasi_schema respectiv http://www.java2s.com/Code/Oracle/User-Previliege/Getcurrentusername.htm ).</p>
+
+<p>Problema 7. </p>
+
+<ul>
+<li> Creati triggere care sa modifice o tabela de LOGuri atunci cand se face o operatie (insert/update/delete) in tabelul de note, asupra valorii. In acest tabel de LOGuri vor fi stocate ID-ul notei, vechea valoare, noua valoare, tipul operatiei si momentul in care s-a executat operatia si de catre cine (userul curent autentificat - SELECT USER FROM DUAL) - evti aevea nevoied e macar 2 utilizatori care sa aiba acces la aceiasi schema.</li>
+<li> Campul updated_at din tabelul note va fi modificat in conformitate (cu noul timp). (cu exceptia operatiei delete cand se va sterge in totalitate)</li>
+<li> Aceste operatii de modificare se vor efectua doar daca minutul sistemului este unul impar.</li>
+<li> Construiti o functie care sa permita o operatie de "ROLLBACK" a tabelului note relativ la un anumit moment de timp. De exemplu daca vreau sa refac tabelul de note asa cum era acum 90 de minute, sa pot executa "functie_rollback(90);". Aceasta functie, va prelua din tabelul de LOGuri modificarile din acea perioada (eg. ultimele 90 de minute) si va realiza operatiile inverse (daca s-a sters ceva, se va insera | daca s-a inserat ceva, se va sterge | daca s-a modificat o nota, se va modifica cu valoarae initiala). Operatiile trebuie efectuate in ordine inversa (prima executata va fi cea care 'reapara' ultima operatie scrisa in LOG).</li>
+</ul>
+
+
+<p>PS. veti avea nevoie de doi utilizatori care sa aiba acces in aceeasi schema de baze de date (check this: https://profs.info.uaic.ro/~bd/wiki/index.php/Doi_utilizatori_cu_aceeasi_schema).</p>
+
+
+<p>Problema 8.</p>
+
+<p>Construiti un trigger care sa verifice ca nota cu care se incearca modificarea notei curente este mai mare decat aceasta si sa nu permita inlocuirea notei cu una mai mica. Daca modificarea s-a efectuat atunci triggerul va afisa un mesaj de forma "<nr>. Nota  lui <nume> <prenume> la materia <titlu_curs> era <valoare> si acum este <valoare>." Unde nr este numarul modificarii, restul sunt valori din tabelele utilizate la laborator. In final se va afisa si cate note au fost cu adevarat modificate (pentru ca s-ar putea ca unele sa nu respecte conditia de a fi mai mare decat valoarea existenta. </p>
+
+<p>Problema 9.</p>
+
+<p>Din PHP, java asu alt limbaj la alegere, accesati o tabela din baza de adte studenti. Construiti doua astfel de scripturi: unul care sa permita SQL injection si altul care sa utilizeze variabile transmise dinamic (prin acest mod impiedicandu-se SQL injection). Dati exemplu de injectie ce functioneaza in primul caz, dar nu si in al doilea.</p>

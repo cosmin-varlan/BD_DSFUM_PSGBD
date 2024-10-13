@@ -1,0 +1,98 @@
+<h2>(UNcorrelated) Subqueries</h2>
+
+<p>Subqueries, also called nested queries or inner queries, are SELECT statements used within other SELECT phrases (called outer queries) in WHERE, HAVING and FROM clauses. They may also be used within DML statements for filtering purposes in the WHERE clause.</p>
+
+<p>Subqueries generally serve for obtaining values from the database that are used to filter records in the outer queries The subquery must be always enclosed in brackets and may appear only on the right side of a comparison operator. </p>
+
+<p>Syntax example:</p>
+<pre><code class="language-sql">SELECT ...
+    FROM ...
+    WHERE expr operator
+          (SELECT ...
+              FROM ...
+              [WHERE ...]
+              [GROUP BY...[HAVING...]])
+    [GROUP BY...[HAVING...]]
+    [ORDER BY...]
+
+<p>Exemple:</p>
+<pre><code class="language-sql">SELECT fname, lname
+    FROM students
+    WHERE id_stud IN
+          (SELECT id_stud
+              FROM grades
+              WHERE value=10)
+    ORDER BY lname, fname;
+--What does the above query return?
+
+<pre><code class="language-sql">SELECT DISTINCT fname, lname
+    FROM students s, grades n
+    WHERE s.id_stud=n.id_stud and value >
+          (SELECT MAX(value)
+              FROM students s, grades n
+              WHERE s.id_stud=n.id_stud AND lname='Archip')
+    ORDER BY lname, fname;
+--What does the above query return?
+
+<p>If the subquery returns a single row, the comparison operator may be a standard one from the following: >, =, >=, <, <>, <=. If the subquery returns several rows, special operators must be used as IN, ALL, ANY, SOME.</p>
+
+<p>Several subqueries may be used:</p>
+<pre><code class="language-sql">SELECT DISTINCT fname, lname
+    FROM students s, grades n
+    WHERE s.id_stud=n.id_stud and value >
+          (SELECT MAX(value)
+              FROM students s, grades n
+              WHERE s.id_stud=n.id_stud AND lname='Archip')
+      AND groupno=
+          (SELECT groupno FROM students WHERE lname='Archip')
+    ORDER BY lname, fname;
+--What does the above query return?
+
+<p>Subqueries may return more than one column, case for which the condition must be formulated over tuples:</p>
+
+<pre><code class="language-sql">SELECT DISTINCT year, groupno, fname, lname, value
+    FROM students s, grades n
+    WHERE s.id_stud=n.id_stud and (groupno,year,value) IN
+          (SELECT groupno,year, MAX(value)
+              FROM students s, grades n
+              WHERE s.id_stud=n.id_stud
+              GROUP BY groupno, year)
+    ORDER BY year, groupno;
+--What does the above query return?
+
+<h2>Limiting the number of rows returned by a query: the ROWNUM pseudocolumn </h2>
+<p>Sometimes we need to limit the number of rows returned by a query. A common example is returning <i>"top n"</i> rows. For our database we could ask for <i>"the first three students ordered descending by their average grades"</i></p>
+
+<p>In some DBMSs this problem could be solved by using the LIMIT keyword. </p>
+<p>However, in Oracle we can limit the number of rows with the aid of the ROWNUM pseudocolumn.</p>
+
+<p>ROWNUM is a column dynamically generated when the query is processed. To be able to correctly use it, one must understand exactly the moment when its values are assigned. For a complex query containing all the taught clauses, the processing order is as follows: </p>
+<ul>
+<li> the records are brought from the tables appearing in the FROM clause and are filtered to satisfy the conditions in the WHERE clause; </li>
+<li> ROWNUM is assigned for the first row and then is incremented;</li>
+<li> the projection operator corresponding to the SELECT clause is applied;</li>
+<li> groups are created as specified by the GROUP BY clause;</li>
+<li> filters are applied as specified by the HAVING option;</li>
+<li> the rows are finally ordered if ORDER BY is present.</li>
+</ul>
+
+
+<p>The order above explains why </p>
+<pre><code class="language-sql">SELECT * FROM students WHERE ROWNUM>1;
+<p>does not return any line and</p>
+<pre><code class="language-sql">SELECT * FROM students WHERE ROWNUM<4 ORDER BY lname, fname;
+<p>does not return the first three students in the alphabetical ordering, as one could expect.</p>
+
+<p>The way we can obtain the first three students in the alphabetical ordering is to first ensure the correct ordering of the rows and than limit the number of rows returned:</p>
+<pre><code class="language-sql">SELECT * FROM
+      (SELECT * FROM students ORDER BY lname, fname)
+    WHERE ROWNUM<4;
+
+<h2>Exercises==</h2>
+<p>#Show the last name for the students earning the smallest scholarship.</p>
+<p>#Show the last name for the students that are colleagues with a student called Arhire (coleague = same year and same group).</p>
+<p>#For each group show the name for the students with the lowest grade in their group. </p>
+<p>#Identify the students whose average grade is higher than the average of all the grades in the database. Show their names and their average grades.</p>
+<p>#Show the last_name and the average grade for the best three students (as decided by their average grades).</p>
+<p>#Show the name(s) and the average grades for the student(s) having the highest average grade in the database(CAUTION: limiting the number of rows may eliminate students on equal positions; find an alternative correct solution). </p>
+<p>#Show the first and last names for the students receiving the same grade as student Ciprian Ciobotariu at Logics. Exclude student Ciprian Ciobotariu from the list.</p>

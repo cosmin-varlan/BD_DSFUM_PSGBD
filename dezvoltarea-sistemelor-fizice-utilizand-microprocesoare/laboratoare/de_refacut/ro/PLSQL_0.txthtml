@@ -1,0 +1,89 @@
+<h2> Instalarea SQL developer, testare si cateva exercitii </h2>
+<p>In cel de-al doilea semestru vom lucra intr-un limbaj numit PLSQL (Procedural Language/Structured Query Language). Detalii despre acesta vor fi date in laboratorul urmator (PLSQL_1). Scripturile PLSQL pot fi scrise si intr-un fisier text cu extensia SQL pe care sa il rulati din SQLPlus*. Aceasta metoda s-ar putea sa fie putin anevoioasa si din acest motiv vom instala un IDE specializat pentru PLSQL: SQL Developer. Instructiuni despre instalarea acetui IDE si modul de conectare la baza de date Oracle gasiti aici: https://profs.info.uaic.ro/~vcosmin/pagini/resurse_bd/SQLdeveloper/sql_developer.html</p>
+
+<p>Dupa ce ati instalat SQL Developer, asigurati-va ca in contul student nu aveti nici o tabela (stergeti / drop tabelele din semestrul 1).</p>
+
+<p>Descarcati de la adresa https://profs.info.uaic.ro/~vcosmin/pagini/resurse_bd/script_populare_student.sql scriptul de populare al contului student. Deschideti acest script in SQL Developer si rulati-l. Acesta va generea o serie de tabele si le va popula cu diverse date generate random.</p>
+
+<p>Exercitii: </p>
+<ul>
+<li> Observati cheile primare si pe cele straine din tabele;</li>
+<li> Construiti (la tabla) schema bazei de date ce tocmai a fost construita de script (entitate/asociere);</li>
+<li> Adaugati in script o constrangere care sa nu permita unui aceluiasi student sa aiba doua note la aceeasi materie. Incercati sa adaugati un duplicat; stergeti constrangerea; incercati sa adaugati din nou duplicatul; incercati sa puneti din nou constrangerea.</li>
+<li> Aflati grupa din facultate care are coeziunea cea mai mare (are raportul dintre prietenii interioare grupei / numar de studenti din grupa maxim).</li>
+<li> Aflati cate dintre prietenii sunt simetrice (daca A este prieten cu B avem si ca B este prieten cu A).</li>
+<li> Adaugati o studenta "Popescu Crina-Nicoleta" si puneti-i nota 10 la materia Baze de date.</li>
+<li> Adaugati doua relatii de prietenie intre Crina si doua colege din grupa sa.</li>
+<li> Steregeti din baza de date pe una din colegele Crinei care era prietena cu ea (pentru ca s-a transferat la alta facultate).</li>
+<li> Afisati studentii care au bursa mai mare de 1350;</li>
+<li> Afisati grupa (sau grupele daca sunt mai multe) cu numarul cel mai mare de restantieri.</li>
+</ul>
+
+
+<p>Pentru verificare, din SQL Developer, selectati View->DataModeler->Browser. In freastra Browser (probabil in stanga jos) gasiti un nod denumit "Relational Models". Dati click dreapta pe acesta si selectati (singura optiune) New Relational Model. Va apare un canvas fara nimic desenat pe el. Selectati File->DataModeler->Import->DataDictionary. Selectati conexiunea pe care ati creat-o catre contul student (pe care l-ati folosit ca sa rulati scriptul) dupa care selectati schema student (este acolo un checkbox). Apasati Next si apoi toate tabelele pe care vreti sa le includeti in diagrama apoi Next, Finish. Ar trebui sa obtineti ceva de genul [https://profs.info.uaic.ro/~vcosmin/pagini/resurse_bd/script_populare_student_schema.png asta].</p>
+
+<p>Pentru cei care doriti sa lucrati sub Linux/MacOS: https://profs.info.uaic.ro/~bd/wiki/index.php/Instalare_in_Linux</p>
+
+<p>== Views ==</p>
+
+<p>Un view este o tabela fictiva care este obtinuta dintr-o operatie asupra tabelelor existente. View-ul nu exista fizic ci va fi recreat (prin executia selectului prin care a fost definit) de fiecare data cand se va face apel la el. </p>
+
+<p>Pentru crearea unui view se va executa comanda</p>
+
+<pre><code class="language-sql">CREATE VIEW nume AS SELECT coloane FROM tabela [WHERE conditii...]
+</code></pre>
+
+
+<p>Asadar, ati putea ca pentru ultima interogare din setul de exercitii sa creati un view:</p>
+<pre><code class="language-sql">CREATE VIEW bursieri_fruntasi AS SELECT * FROM studenti WHERE BURSA>1350;
+</code></pre>
+
+
+<p>Dupa crearea viewului, puteti selecta toate informatiile din "bursieri_fruntasi" si de fapt veti rula acel SQL care a fost folosit cand a fost creat view-ul.</p>
+
+<p>Executati:</p>
+<pre><code class="language-sql">SELECT * FROM bursieri_fruntasi;
+</code></pre>
+
+
+<p>Daca veti modifica informatiile din tabel, view-ul se va modifica si el:</p>
+
+<pre><code class="language-sql">UPDATE studenti SET bursa=1400 WHERE id=1;
+</code></pre>
+
+<pre><code class="language-sql">SELECT * FROM bursieri_fruntasi;
+</code></pre>
+
+
+<p>Acum in bursieri_fruntasi se afla si studentul avand ID-ul 1. Daca ii vom schimba bursa cu 1200 de exemplu (in tabel, el va fi eliminat din view). Ce se intampla daca facem acest update direct pe view ? Putem sa ii modificam bursa la 1400 incercand sa updatam viewul cand el nu se afla in view (pentru a intra in view) ?</p>
+
+<p>Un View se comporta ca si o tabela fizica (chiar daca este virtuala). Putem face operatii de inserr in ea. Executati pe rand urmatoarele doua comenzi de inserare de date:</p>
+
+<pre><code class="language-sql">insert into bursieri_fruntasi values(1998,'123AB1','NUME1','PRENUME1',3,'B1',200,sysdate, 'aaa@gmail.com', sysdate, sysdate);
+insert into bursieri_fruntasi values(1999,'123AB2','NUME2','PRENUME2',2,'B2',1400,sysdate, 'abc@gmail.com', sysdate, sysdate);
+</code></pre>
+
+
+<p>Ambele operatii sunt urmate de succes. Datele inserate, insa, nu sunt in totalitate disponibile in view: doar studentul cu IDul 1999 este vizibil in view pentru ca este singurul care are bursa mai mare decat 1350. </p>
+
+<p>Sunt cele doua randuri in tabelul studenti ? (verificati existenta lor).</p>
+
+<p>Daca vom sterge cele doua randuri din view (pentru ca acolo au fost inserate), vom reusi sau trebuie sa le stergem din tabela studenti ?</p>
+
+<p>Stergeti cele doua randuri inserate anterior.</p>
+
+<p>Pont: daca doriti sa interziceti inserarea de date ce nu ar fi vizibile ulterior in view, la crearea viewului adaugati (la sfarsitul comenzii) "with check option;";</p>
+
+<p>Informatiile despre view-uri sunt stocate in tabelele din sistem. Pentru a putea vedea care sunt view-urile userului curent, puteti sa interogati tabela user_views. Aflati structura acestei tabele si afisati numele viewurilor pentru utilizatorul curent si comenzile ce sunt executate atunci cand se selecteaza din acel view.</p>
+
+
+<p>Pentru a renunta la un view (BTW, puteti vedea view-urile create si ce contin in SQL Developer, in partea stanga, unde sunt afisate si tabelele) executand comanda DROP VIEW nume_view. </p>
+
+<p>De exemplu:</p>
+<pre><code class="language-sql">DROP VIEW bursieri_fruntasi;
+</code></pre>
+
+
+<p>De cele mai multe ori VIEW-urile sunt utilizate pentru a face JOIN-uri complexe. Construiti un view prin intermediul caruia sa fie afisat catalogul pentru materia Logica la grupa B3 din anul 2 (se vor afisa doar numele, prenumele si valoarea notei). Modificati nota primului student din catalog (in ordine alfabetica dupa nume apoi dupa prenume) in 10.</p>
+
+<p>Puteti insera in acest nou view o valoare ? DA / NU /  Explicati in cuvintele voastre de ce (nu cititi ce vedeti pe ecran). Care ar fi solutia ?</p>

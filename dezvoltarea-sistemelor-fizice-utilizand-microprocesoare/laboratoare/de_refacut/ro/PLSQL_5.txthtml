@@ -1,0 +1,356 @@
+
+<p>= Exceptii =</p>
+
+
+<p>Mai multe detalii despre excepții găsiți în documentația oficială Oracle: </p>
+<p>http://docs.oracle.com/cd/B28359_01/appdev.111/b28370/errors.htm</p>
+
+
+<h3> De ce folosim excepții </h3>
+
+<p>Multi programatori aleg sa gândească superficial și să scrie cod care să respecte specificațiile inițiale și atât. Ei speră că userii vor folosi codul doar conform acelor specificații și că nu vor aparea buguri. Oh, well... Pe lângă ei mai sunt programatorii buni care conștientizează că oricând userii sau chiar colegii lor programatori care lucrează la alte module ale aplicației pot face ceva în afara acelor specificații și își scriu codul în consecință. De exemplu userul poate apela o procedură cu niște parametri invalizi iar colegul programator poate sa omită să scrie o validare împotriva acelor valori. În final pentru noi totul se reduce la o alegere: faci suficient și nu-ți pasă ce se întâmplă în viitor sau proiectezi și scrii aplicația în așa fel încât să protejezi userii și în cazul nostru baza de date de posibile erori. Aș vrea să cred că noi facem parte din a doua categorie.</p>
+
+<p>Din fericire, limbajul PL/SQL ne oferă un mod suficient de puternic și de flexibil ca să tratăm excepțiile și să oferim userilor mesaje cât mai utile în diverse scenarii. Și cât timp folosim în mod corect excepțiile nici nu este nevoie de foarte mult cod în plus ca să prevedem și să tratăm posibilele erori. În secțiunile următoare vom vedea ce este o excepție în PL/SQL, cum se definește ea și mai ales cum se prinde și se trimite mai departe la apelant.</p>
+
+<h3> Când folosim excepții </h3>
+
+<p>Vom porni de la un exemplu și anume o funcție care primește ca și argument un ID al unui student și trebuie să returneze cea mai recentă notă a acelui student. </p>
+
+<p>Iată o primă variantă de cod pentru această procedură:</p>
+
+<pre><code class="language-sql">CREATE OR REPLACE FUNCTION nota_recenta_student(
+    pi_id_student IN studenti.id%type)
+  RETURN VARCHAR2
+AS
+  nota_recenta INTEGER;
+  mesaj        VARCHAR2(32767);
+BEGIN
+  SELECT valoare
+  INTO nota_recenta
+  FROM
+    (SELECT valoare
+    FROM note
+    WHERE id_student = pi_id_student 
+    ORDER BY data_notare DESC
+    )
+  WHERE rownum <= 1;
+  mesaj        := 'Cea mai recenta nota a studentului cu matricolul ' || pi_id_student || ' este ' || nota_recenta || '.';
+  RETURN mesaj;
+END nota_recenta_student;
+</code></pre>
+
+
+<p>Acesta este un cod din prima categorie de care vorbeam anterior. Respectă specificațiile inițiale și anume să returneze cea mai recentă notă a studentului, puteți să îl prezentați la un laborator și eventual un profesor îngăduitor vă va da punctajul maxim indiferent că poate va spune că mai puteați adăuga ceva.</p>
+<p>Acum să vedem ce s-ar putea adăuga la acest cod și pentru asta pornim de la posibile erori sau posibile valori irelevante întoarse de această funcție. Vom rula următoarele două selecturi și iată rezultatele lor:</p>
+
+<pre><code class="language-sql">
+ <nowiki>select nota_recenta_student(1) from dual;
+</code></pre>
+
+
+
+<p>Pentru a trata într-un mod mai util pentru user aceste cazuri vom face următoarele modificări în procedură:</p>
+
+<pre><code class="language-sql">   
+  CREATE OR REPLACE FUNCTION nota_recenta_student(
+    pi_id_student IN studenti.id%type)
+  RETURN VARCHAR2
+AS
+  nota_recenta INTEGER;
+  mesaj        VARCHAR2(32767);
+  counter      INTEGER;
+BEGIN
+  SELECT valoare
+  INTO nota_recenta
+  FROM
+    (SELECT valoare
+    FROM note
+    WHERE id_student = pi_id_student 
+    ORDER BY data_notare DESC
+    )
+  WHERE rownum <= 1;
+  mesaj        := 'Cea mai recenta nota a studentului cu matricolul ' || pi_id_student || ' este ' || nota_recenta || '.';
+  RETURN mesaj;
+EXCEPTION
+WHEN no_data_found THEN
+  SELECT COUNT(*) INTO counter FROM studenti WHERE id = pi_id_student ;
+  IF counter = 0 THEN
+    mesaj   := 'Studentul cu ID-ul ' || pi_id_student || ' nu exista in baza de date.';
+  ELSE
+    SELECT COUNT(*) INTO counter FROM note WHERE id_student = pi_id_student ;
+    IF counter = 0 THEN
+      mesaj   := 'Studentul cu ID-ul ' || pi_id_student || ' nu are nici o nota.';
+    END IF;
+  END IF;
+RETURN mesaj;
+END nota_recenta_student;
+</code></pre>
+
+
+<p>Așa cum ațti văzut, în funcție/procedură/bloc anonim a apărut o nouă secțiune, și anume exception:</p>
+
+<pre><code class="language-sql">begin
+exception
+
+<p>Să rulăm din nou cele două apeluri de funcție:</p>
+
+<pre><code class="language-sql">
+ <nowiki>select nota_recenta_student(1) from dual;
+</code></pre>
+
+
+<p>Care variantă vi se pare mai ok pentru utilizatorul aplicației? Ce mesaj preferați să îi </p>
+<p>afisați? "No data found" sau "Studentul cu matricolul -1 nu există în baza de date."?</p>
+
+<h3> Tipuri de excepții </h3>
+
+<p>Sunt trei tipuri de excepții (tehnic vorbind două, plus o a treia atât de generică încât merită o categorie separata):</p>
+
+<ul>
+<li> excepții definite de catre user - declarate ca și obiect de tip exception și inițializate cu ajutorul funcției PRAGMA EXCEPTION_INIT cu un cod de eroare între -20001 și -20999.</li>
+</ul>
+
+
+<p> <nowiki>declare</p>
+<p>  student_inexistent exception;</p>
+<p>  PRAGMA EXCEPTION_INIT(student_inexistent, -20001);</p>
+<p>begin</p>
+<p>  if...then</p>
+<p>     raise student_inexistent;</p>
+<p>  end if;</p>
+<p>  exception</p>
+<p>    when student_inexistent then</p>
+<p>      [do something]</p>
+<p>end;</nowiki></p>
+
+<p>In unele cazuri, desi o eroare este definita la nivel de SGBD, aceasta nu este in mod clar asociata unui identificator de tip string (cum a fost folosit "no_data_found" in cazul precedent). Spre exemplu, atunci cand o data calendaristica nu este formatata corect, aceasta eroare poate fi prinsa cu "others", dar daca vreau sa o prind exact pe aceasta (si numai pe aceasta), ar trebui sa prind eroarea asociata codului de eroare ORA-01830 - care nu are asociata o prezentare alfanumerica. Ca sa o putem prinde, ar trebui sa asociem acest cod unei erori definite de utilizator:</p>
+
+<pre><code class="language-sql">   e_bad_date_format   EXCEPTION;  
+   --PRAGMA EXCEPTION_INIT (e_bad_date_format, -1830);  
+BEGIN  
+   DBMS_OUTPUT.put_line (TO_DATE ('10-04-2010', 'DD-YYYY'));  
+EXCEPTION  
+   WHEN e_bad_date_format  
+   THEN  
+      DBMS_OUTPUT.put_line ('Bad date format'); 
+
+<ul>
+<li> excepții predefinite existente in baza de date - țineți minte că excepțiile predefinite au coduri de eroare intre -1 (unique constraint violated) și -20000. Atunci când ne definim excepțiile noastre este recomandat să folosim coduri de eroare începând cu -20001 pentru a nu ne intersecta cu acele coduri deja folosite sau rezervate de Oracle. Capătul intervalului este -20999, deci putem defini maxim o mie de excepții custom.</li>
+</ul>
+
+
+<p>Cateva exemple de excepții predefinite:</p>
+<p>DUP_VAL_ON_INDEX - A program attempts to store duplicate values in a column that is constrained by a unique index.</p>
+<p>NO_DATA_FOUND - A SELECT INTO statement returns no rows, or your program references a deleted element in a nested table or an uninitialized element in an index-by table.</p>
+<p>ZERO_DIVIDE - A program attempts to divide a number by zero.</p>
+
+<pre><code class="language-sql">   [code]
+   exception
+     when NO_DATA_FOUND then
+       [do something]
+
+<ul>
+<li> excepția predefinită OTHERS pe care baza de date o aruncă în cazul oricărei excepții din afara celor predefinite și definite de către user. </li>
+</ul>
+
+
+<p> <nowiki>begin</p>
+<p>   [code]</p>
+<p>   exception</p>
+<p>     when NO_DATA_FOUND then</p>
+<p>        [do something]</p>
+<p>     when OTHERS then</p>
+<p>        [do something]</p>
+<p>end;</nowiki></p>
+
+<p>Putem folosi WHEN OTHERS pentru a afișa mesaje generice gen "Eroare neașteptată. Vă rugăm contactați administratorul aplicației". </p>
+
+<p>Un alt mod de a folosi WHEN OTHERS este sintaxa EXCEPTION WHEN OTHERS THEN NULL care ignoră orice excepție aruncată de codul nostru. Sper că este inutil să precizez să nu folosiți niciodată într-o aplicație această construcție :) Singura folosire acceptabilă a ei este îintr-un cod de test, de exemplu dacă vrem să afișăm ceva și ignorăm deliberat orice excepție. Repet, doar pentru teste.</p>
+
+<h3> Cum folosim o excepție </h3>
+
+<p>Sunt două moduri în care putem folosi o exceptie:</p>
+
+<ul>
+<li> aruncăm excepția într-un anumit scenariu (varianta mai simpla). În acest caz nu definim explicit exceptia și doar trimitem apelantului un cod de eroare si un mesaj:</li>
+</ul>
+
+
+<p> <nowiki></p>
+
+<p>CREATE OR REPLACE FUNCTION nota_recenta_student(</p>
+<p>    pi_id_student IN studenti.id%type)</p>
+<p>  RETURN VARCHAR2</p>
+<p>AS</p>
+<p>  nota_recenta INTEGER;</p>
+<p>  mesaj        VARCHAR2(32767);</p>
+<p>  counter      INTEGER;</p>
+<p>BEGIN</p>
+<p>  SELECT valoare</p>
+<p>  INTO nota_recenta</p>
+<p>  FROM</p>
+<p>    (SELECT valoare</p>
+<p>    FROM note</p>
+<p>    WHERE id_student = pi_id_student </p>
+<p>    ORDER BY data_notare DESC</p>
+<p>    )</p>
+<p>  WHERE rownum <= 1;</p>
+<p>  mesaj        := 'Cea mai recenta nota a studentului cu ID-ul ' || pi_id_student || ' este ' || nota_recenta || '.';</p>
+<p>  RETURN mesaj;</p>
+<p>EXCEPTION</p>
+<p>WHEN no_data_found THEN</p>
+<p>  SELECT COUNT(*) INTO counter FROM studenti WHERE id = pi_id_student ;</p>
+<p>  IF counter = 0 THEN</p>
+<p>    raise_application_error (-20001,'Studentul cu ID-ul ' || pi_id_student || ' nu exista in baza de date.');</p>
+<p>  ELSE</p>
+<p>    SELECT COUNT(*) INTO counter FROM note WHERE id_student = pi_id_student;</p>
+<p>    IF counter = 0 THEN</p>
+<p>      raise_application_error (-20002,'Studentul cu ID-ul ' || pi_id_student|| ' nu are nici o nota.');</p>
+<p>    END IF;</p>
+<p>  END IF;</p>
+<p>END nota_recenta_student; </nowiki></p>
+
+<p>În caz că studentul nu există în baza de date returnăm apelantului codul de eroare -20001 și un mesaj personalizat iar în caz că studentul există dar nu are note returnăm codul de eroare -20002 si alt mesaj.</p>
+
+<ul>
+<li> definim excepția, o apelăm și apoi o aruncăm în exterior (varianta mai complicată dar cu avantajul că putem refolosi excepțiile declarate).</li>
+</ul>
+
+
+<p> <nowiki></p>
+<p>CREATE OR REPLACE FUNCTION nota_recenta_student(</p>
+<p>    pi_id_student IN studenti.id%type)</p>
+<p>  RETURN VARCHAR2</p>
+<p>AS</p>
+<p>  nota_recenta       INTEGER;</p>
+<p>  mesaj              VARCHAR2(32767);</p>
+<p>  counter            INTEGER;</p>
+<p>  student_inexistent EXCEPTION;</p>
+<p>  PRAGMA EXCEPTION_INIT(student_inexistent, -20001);</p>
+<p>  student_fara_note EXCEPTION;</p>
+<p>  PRAGMA EXCEPTION_INIT(student_fara_note, -20002);</p>
+<p>BEGIN</p>
+<p>  SELECT COUNT(*) INTO counter FROM studenti WHERE id = pi_id_student ;</p>
+<p>  IF counter = 0 THEN</p>
+<p>    raise student_inexistent;</p>
+<p>  ELSE</p>
+<p>    SELECT COUNT(*) INTO counter FROM note WHERE id_student = pi_id_student ;</p>
+<p>    IF counter = 0 THEN</p>
+<p>      raise student_fara_note;</p>
+<p>    END IF;</p>
+<p>  END IF;</p>
+<p>SELECT valoare</p>
+<p>INTO nota_recenta</p>
+<p>FROM</p>
+<p>  (SELECT valoare</p>
+<p>  FROM note</p>
+<p>  WHERE id_student = pi_id_student </p>
+<p>  ORDER BY data_notare DESC</p>
+<p>  )</p>
+<p>WHERE rownum <= 1;</p>
+<p>mesaj        := 'Cea mai recenta nota a studentului cu ID-ul ' || pi_id_student || ' este ' || nota_recenta || '.';</p>
+<p>RETURN mesaj;</p>
+<p>EXCEPTION</p>
+<p>WHEN student_inexistent THEN</p>
+<p>  raise_application_error (-20001,'Studentul cu ID-ul ' || pi_id_student || ' nu exista in baza de date.');</p>
+<p>WHEN student_fara_note THEN</p>
+<p>  raise_application_error (-20002,'Studentul cu ID-ul ' || pi_id_student || ' nu are nici o nota.');</p>
+<p>END nota_recenta_student; </nowiki></p>
+
+<p>Rezultatul este același, doar că am definit noi excepția. Acest stil are avantajul că am putea, într-un pachet separat de excepții (să-i spunem chiar excepții), să definim o listă de excepții, fiecare având codul și mesajul său. Este mai elegant să definim într-un singur loc excepțiile și doar să le apelăm în diverse locuri. În acest fel evităm duplicarea codului și hardcodările.</p>
+
+<pre><code class="language-sql">when excepții.student_inexistent then
+[cod]
+
+
+
+<p>Pentru a vedea ce anume se executa si ce anume nu se mai executa cand apare o exceptie, va lasam sa rulati urmatorul exemplu:</p>
+<pre><code class="language-sql">declare
+  testex exception;
+  PRAGMA EXCEPTION_INIT(testex, -20001);
+begin  
+  begin
+    raise testex;  
+    dbms_output.put_line('Cod ce nu se va mai executa... se va sari la tratarea exceptiei.');
+    exception
+      when testex then
+        dbms_output.put_line('Exceptia.');
+    dbms_output.put_line('Cod ce se va executa... pentru ca exceptia a fost deja tratata.');  
+  end;
+  dbms_output.put_line('Cod ce se va executa... pentru ca nu este in acelasi bloc cu cel in care s-a produs exceptia.');
+
+
+
+<h3> NU PRINDETI EXCEPTIA IN ACELASI BLOC IN CARE ATI ARUNCAT-O !!! </h3>
+
+<p>Scopul unei exceptii este de a informa apelantul unei functii sau a unei proceduri de aparitia unei situatii neprevazute in timpul rularii acelui bloc (functie sau procedura). Daca prindeti exceptia in acelasi bloc (cum am facut noi in acest laborator pentru a exemplifica majoritatea exceptiilor), nu este corect deoarece apelantul va ramane cu impresia ca totul a decurs ok si ca rezultatul este cel pe care il astepta. </p>
+
+<p>Incercati sa explicati ce s-ar intampla daca spre exemplu nu ar fi aruncata exceptia ZERO_DIVIDE, sau ce s-ar intampla daca selectul ce ar trebui sa arunce exceptia NO_DATA_FOUND ar trata singur aceasta exceptie si ar returna niste valori la intamplare in variabilele in care se facea selectia... v-ar placea un astfel de comportament ?</p>
+
+<p>Din acest motiv (ca nu v-ar placea - sper ca asta era si raspunsul vostru), ar trebui ca sa aveti grija ca in functiile voastre doar sa aruncati o exceptie si sa lasati pe cel care a apelat functia sa o trateze (ca sa isi dea si el seama ca a gresit trimitand acei parametri functiei voastre).</p>
+
+<p>Sa consideram in continuare o functie care incrementeaza valoarea trimisa ca parametru, doar daca aceasta nu este zero. In caz ca este transmis zero, ea va arunca o exceptie si isi va incheia rularea (evident nemaintorcand nici o valoare).</p>
+
+<pre><code class="language-sql">create or replace function test_ex (p_var IN INT)
+RETURN INT as 
+    testex exception;
+    PRAGMA EXCEPTION_INIT(testex, -20001);
+begin
+    if (p_var = 0) then raise testex;
+    else return p_var+1;
+    end if ;
+
+<p>In caz ca functia este apelata avand ca parametru valoarae 0, exceptia custom definita cu codul de eroare 20001 va fi aruncata in speranta ca acel cineva care a apelat functia o va prinde (in cel mai rau caz cu "others" - pentru ca nu stie despre ce e vorba, in cel mai bun caz, chiar prin intermediul codului de eroare 20001 care poate fi asociat unei exceptii definite in acea locatie in care s-a apelat functia:</p>
+
+<pre><code class="language-sql">DECLARE
+    ex_1 exception;
+    PRAGMA EXCEPTION_INIT(ex_1, -20001);
+BEGIN 
+    dbms_output.put_line(test_ex(0));
+EXCEPTION
+    WHEN ex_1 then --poate fi inlocuit si cu WHEN OTHERS, caz in care nu mai trebuie sectiunea de declare, dar prinde tot...
+        dbms_output.put_line('L-am prins pe 0');
+
+<p>Concluzia ce trebuie retinuta este: NICIODATA NU PRINDETI EXCEPTIA PE CARE ATI ARUNCAT-O IN ACELASI BLOC IN CARE ATI ARUNCAT-O (si nu ma refer numai la PLSQL ci si la Java, PHP, JavaScript sau orice alt limbaj capabil de a transmite mesaje intre blocurile de cod prin intermediul exceptiilor).</p>
+
+<p><!--</p>
+<h2> Exercitii </h2>
+
+<p>Exercitii inspirate dintr-un laborator propus intr-unul din anii anteriori de dl. Lucian Lazar</p>
+
+<p>Exercitiul 1 (5 pt). </p>
+<p>Creati o tabela ce va contine studentii ce au fost plecati cu o bursa erasmus care sa contina numarul matricol, numele si prenumele studentilor care au plecat in Erasmus impreuna cu un camp nou care sa indice tara in care au plecat (de exemplul printr-un ID numeric).</p>
+<ul>
+<li> (1pt). Creati un index unic peste coloana reprezentand numarul matricol din noua tabela. </li>
+<li> (2pt). Copiati in tabela nou creata 100 de studenti din tabela studenti alesi in mod aleatoriu si respectand conditia de unicitate de la punctul 1 (tratati exceptia DUP_VAL_ON_INDEX). Dintre cei 100 de studenti numai cativa vor putea fi copiati, unii vor fi deja existenti in tabela cea noua si vor genera exceptii.</li>
+<li> (2pt). Afisati studentii care au fost copiati cu succes si pe cei care nu au putut fi copiati.</li>
+</ul>
+
+
+<p>Exercitiul 2 (5pt).</p>
+<ul>
+<li> (2pt) Creati o procedura care sa majoreze bursa unui student (dat prin ID) cu o valoare hardcodata. Daca valoarea bursei dupa modificare este mai mare de 3000, ea va fi truncheata la 3000 si se va notifica printr-o exceptie custom blocul ce a apelat functia/procedura.</li>
+<li> (2pt) Apelati functia sau procedura dintr-un bloc anonim pentru primii 100 de studenti (in ordinea IDurilor). Apelul trebuie sa functioneze si atunci cand aveti burse peste 3000 dar si cand un student nu exista (de exemplu stergeti studentul cu ID-ul 10). <span style="color:red">In blocul anonim veti trata exceptia definita de voi si care a fost aruncata de catre procedura.</span> </li>
+<li> (1pt) Tratati in cadrul procedurii cazul in care ID-ul trimis ca parametru nu apare in BD (in tabela studenti).</li>
+</ul>
+
+
+<p>--></p>
+
+<p>= Exercitii (5pt) =</p>
+<p>Dupa cum puteti observa din scriptul de creare, toti studentii au note la materia logica.</p>
+<p>Asta inseamna ca o noua nota nu ar trebui sa fie posibil sa fie inserata pentru un student si</p>
+<p>pentru aceasta materie (nu poti avea doua note la aceeasi materie). </p>
+<p>Construiti o [https://profs.info.uaic.ro/~bd/wiki/index.php/Laboratorul_11#ALTER_TABLE constrangere] care sa arunce o exceptie cand regula de mai sus este incalcata (poate fi unicitate pe campurile id_student+id_curs, index unique peste aceleasi doua campuri sau cheie primara peste cele doua).</p>
+
+<p>Prin intermediul unui script PLSQL incercati de 1 milion de ori sa inserati o nota la materia logica.</p>
+<p>Pentru aceasta aveti doua metode:</p>
+<p> - sa vedeti daca exista nota (cu count, cum deja ati mai facut) pentru studentul X la logica si sa inserati doar daca nu exista.</p>
+<p> - sa incercati sa inserati si sa prindeti exceptia in caz ca aceasta este aruncata.</p>
+<p>Implementati ambele metode si observati timpii de executie pentru fiecare dintre ele. (3pct)</p>
+
+
+<p>Construiti o functie PLSQL care sa primeasca ca parametri numele si prenumele unui student si care sa returneze  media si, in caz ca nu exista acel student (dat prin nume si prenume) sa arunce o exceptie definita de voi. Dintr-un bloc anonim care contine intr-o structura de tip colectie mai multe nume si prenume (trei studenti existenti si trei care nu sunt in baza de date), apelati functia cu diverse valori. Prindeti exceptia si afisati un mesaj corespunzator atunci cand studentul nu exista sau afisati valoarea returnata de functie daca studentul exista.  (2pct)</p>
+
+<p>= Tema (2pt) =</p>
+<p>Demonstrati prinderea unei exceptii aruncate de catre aplicatia PLSQL intr-un limbaj de programare la algere (aruncati din PLSQL si prindeti in JAVA / PHP / ce vreti voi).</p>

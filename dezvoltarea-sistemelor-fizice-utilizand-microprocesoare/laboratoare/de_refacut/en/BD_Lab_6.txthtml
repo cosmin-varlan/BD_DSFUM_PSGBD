@@ -1,0 +1,141 @@
+<p>Objectives: </p>
+<ul>
+<li>Learn how to group records</li>
+<li>Apply aggregate functions</li>
+</ul>
+
+
+<h2>Aggregate functions in SQL</h2>
+
+<p>Aggregate functions are used within queries to return a single result row based on processing a group of records. They can be used within the SELECT list and in ORDER BY and HAVING clauses. </p>
+
+<p>CAUTION: do not use any aggregate functions in the WHERE clause !!!</p>
+
+
+
+<p>Aggregate functions can be used in conjunction with the keywords</p>
+<ul>
+<li>DISTINCT – duplicates in the group are eliminated and only afterwards the function is applied</li>
+<li>ALL – the default, makes the aggregate function to consider all the values in the group</li>
+</ul>
+
+
+<p>{| border="1"</p>
+<p>|-</p>
+<p>|<pre>COUNT ({ *|[DISTINCT|ALL] expr})</pre>	||Returns the number of rows. If the argument is  *, the function will return he size of the group by considering also the null values, otherwise only non-null values are counted. The argument may be CHAR, VARCHAR2, NUMBER, DATE.	||SELECT COUNT(*) AS "Total number of students" FROM students;</p>
+
+<p>SELECT COUNT(NVL(scholarship,0)) AS "Total number of students" FROM students;</p>
+
+<p>SELECT COUNT(scholarship) AS "# students earning scholarships" FROM students;</p>
+
+<p>SELECT COUNT(DISTINCT scholarship) AS "# scholarship types" FROM students;</p>
+<p>|-</p>
+<p>|<pre>AVG ([DISTINCT|ALL]n)</pre>	||Returns the average. The argument must be numeric.	||SELECT AVG(value) FROM grades;</p>
+<p>|-</p>
+
+<p>|<pre>MAX ([DISTINCT|ALL]expr)</pre></p>
+<p>	||Returns the maximum. The argument may be of type CHAR, VARCHAR2, NUMBER, DATE	||SELECT MAX(scholarship) FROM students;</p>
+<p>|-</p>
+<p>|<pre>MIN ([DISTINCT|ALL]expr)</pre>||Returns the minimum. The argument may be of type CHAR, VARCHAR2, NUMBER, DATE	||SELECT MIN(scholarship) FROM students;</p>
+<p>|-</p>
+<p>|<pre>STDDEV ([DISTINCT|ALL]x)</pre>||Returns the standard deviation. The argument must be numeric. ||SELECT STDDEV(scholarship) AS "Standard deviation" FROM students;</p>
+<p>|-</p>
+<p>|<pre>VARIANCE ([DISTINCT|ALL]x)</pre>||Returns the variance. The argument must be numeric. ||SELECT VARIANCE(scholarship) AS "Variance" FROM students;</p>
+<p>|-</p>
+<p>|<pre>SUM([DISTINCT|ALL]n)</pre>	||Returns the sum. The argument must be numeric.	||SELECT SUM(scholarship) FROM students;</p>
+<p>|}</p>
+
+<p>All aggregate functions ignore NULLs. An exception is COUNT with argument * which will treat NULL as a value. If we want NULLs to be considered by aggregate functions, we can make use of the NVL function to substitute nulls by a certain value (ex. 0).</p>
+
+<p>If the group/data does not contain any rows or all rows have NULLs, the aggregate function will return NULL. An exception is COUNT which will return 0 or other number.</p>
+
+<h2>Grouping data</h2>
+<p>All the examples above apply the aggregate function to a single group containing all the rows in the table, the result consisting of only one row. </p>
+
+<p>However, the aggregate functions are usually used in conjunction with the GROUP BY clause which partitions the rows of the table into several groups; the DBMS will apply the aggregate function to each group, returning one result per group.  </p>
+
+<p>Let's revisit the syntax of the Oracle query:</p>
+<pre><code class="language-sql">SELECT [DISTINCT | ALL] {* | [column_expression [AS new_name]] [,...] }
+   FROM table_name [alias] [, ...]
+   [WHERE conditiion]
+   [GROUP BY expression1 [HAVING condition] ]
+   [ORDER BY expression2 [ASC|DESC][,…]]
+
+
+<p>Example:</p>
+<pre><code class="language-sql">SELECT MAX(value) 
+    FROM grades
+    GROUP BY stud_id;
+--How many lines are returned? What is the meaning of each line?
+
+
+
+<p>Individual field values cannot be accessed in the SELECT list unless the GROUP BY clause contains the field. This means that all the fields/columns in the SELECT list which are not given as arguments to aggregate functions must also appear in the GROUP BY clause. </p>
+
+<p>Example:</p>
+<pre><code class="language-sql">SELECT MAX(value), course_id
+    FROM grades
+    GROUP BY stud_id;
+--Doesn't work?
+
+<p>Groups may be crated based on several columns:</p>
+<p>Example:</p>
+<pre><code class="language-sql">SELECT year, count(*)
+    FROM courses
+    GROUP BY year;
+--How many groups?
+
+SELECT credits, count(*)
+    FROM courses
+    GROUP BY credits;
+--How many groups?
+
+SELECT year, credits, count(*)
+    FROM courses
+    GROUP BY year, credits
+    ORDER BY year, credits;
+--How many groups?
+<p>It is not mandatory that the attributes used within the GROUP BY clause appear in the select list; but it is recommended in order to be able to interpret the results.</p>
+
+<h2>Filtering  groups</h2>
+
+<p>The WHERE clause eliminates individual rows before grouping takes place. </p>
+
+<p>The HAVING clause is used only in conjunction with the GROUP BY clause in order to eliminate groups based on the results returned by the aggregate functions or based on column values that characterize the entire group and not based on individual row values.</p>
+
+<p>Example:</p>
+<pre><code class="language-sql">SELECT course_id, COUNT(value)
+   FROM grades
+   GROUP BY course_id;
+--How many groups?
+
+SELECT course_id, COUNT(value)
+   FROM grades
+   WHERE value>8
+   GROUP BY course_id;
+--How many groups? Why?
+
+SELECT course_id, COUNT(value)
+   FROM grades
+   GROUP BY course_id
+   HAVING COUNT(value)>8;
+--How many groups? Why?
+
+<h2>Exercises==</h2>
+<p>#Show the number of students in each year of study.</p>
+<p>#Show the number of students in each group of each year of study. Order ascending based on the year and then on the group. </p>
+<p>#Show the number of students in each group of each year of study and indicate how many of them earn scholarships. </p>
+<p>#Show the amount of money the faculty spends for all the scholarships. </p>
+<p>#Compute the average amount of money per student allocated by the faculty for scholarships. (consider that the students who do not receive scholarships actually receive an amount equal to 0) </p>
+<p>#Compute the distribution of the grade values (how many 10s, how many 9s,etc.). Order descending based on the grade value.</p>
+<p>#Show the number of grades for each day of the week. Order descending based on the number of grades. </p>
+<p>#Show the number of grades for each day of the week. Order ascending based on the week day.</p>
+<p>#For each student who received at least one grade, show the last_name and the average of his/her grades. Order descending on the average.</p>
+<p>#Modify the previous query to show also the students who did not receive any grade. Their average will be null.</p>
+<p>#Modify the previous query to show for the students who did not receive any grade 0 for the average.</p>
+<p>#Modify the previous query to show only the students with the average greater than 8.</p>
+<p>#Show the last_name, the smallest grade, the highest grade and the average grade only for the students that have all their grades greater than or equal to 7.</p>
+<p>#Show the last_names and the average of their grades for the students receiving at least 4 grades.</p>
+<p>#For the students in group A2 year 3, show their names and their average grade.</p>
+<p>#Show the highest average grade obtained by a student.</p>
+<p>#For each course, show the name, the lowest grade and the highest grade.</p>
