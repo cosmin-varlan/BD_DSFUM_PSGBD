@@ -1,51 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pagina disciplinei Baze de Date</title>
+    <meta name="description" content="Pagina disciplinei Dezvoltarea sistemelor fizice utilizând microprocesoare DSFUM. de la Facultatea de Informatica Iasi">
+    <title>Pagina disciplinei Dezvoltarea sistemelor fizice utilizând microprocesoare DSFUM</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>        
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css">
     <link rel="stylesheet" href="stil.css">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
-    <script>hljs.highlightAll();</script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>    
+    
 </head>
 <body>
 
     <div class="jumbotron text-center" style="margin-bottom:0">
-        <h1>Pagina disciplinei Baze de Date</h1>
+        <h1>Dezvoltarea sistemelor fizice utilizând microprocesoare</h1>
     </div>
     <div class="container" style="margin-top:30px">
         <nav class="navbar navbar-expand-sm navbar-custom">
-            <a class="navbar-brand"  onclick="show('paginaprincipala');"><img src="imagini/BD.png" style="height: 50px;"></a>
-            <button class="navbar-toggler custom-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+            <a href="#" class="navbar-brand"  onclick="show('paginaprincipala');">
+              <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="white"  viewBox="0 0 16 16">
+                 <path d="M5 0a.5.5 0 0 1 .5.5V2h1V.5a.5.5 0 0 1 1 0V2h1V.5a.5.5 0 0 1 1 0V2h1V.5a.5.5 0 0 1 1 0V2A2.5 2.5 0 0 1 14 4.5h1.5a.5.5 0 0 1 0 1H14v1h1.5a.5.5 0 0 1 0 1H14v1h1.5a.5.5 0 0 1 0 1H14v1h1.5a.5.5 0 0 1 0 1H14a2.5 2.5 0 0 1-2.5 2.5v1.5a.5.5 0 0 1-1 0V14h-1v1.5a.5.5 0 0 1-1 0V14h-1v1.5a.5.5 0 0 1-1 0V14h-1v1.5a.5.5 0 0 1-1 0V14A2.5 2.5 0 0 1 2 11.5H.5a.5.5 0 0 1 0-1H2v-1H.5a.5.5 0 0 1 0-1H2v-1H.5a.5.5 0 0 1 0-1H2v-1H.5a.5.5 0 0 1 0-1H2A2.5 2.5 0 0 1 4.5 2V.5A.5.5 0 0 1 5 0m-.5 3A1.5 1.5 0 0 0 3 4.5v7A1.5 1.5 0 0 0 4.5 13h7a1.5 1.5 0 0 0 1.5-1.5v-7A1.5 1.5 0 0 0 11.5 3zM5 6.5A1.5 1.5 0 0 1 6.5 5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5zM6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"/>
+              </svg>
+	    </a>
+            <button class="navbar-toggler custom-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar" aria-label="menu" aria-labelledby="menus" role="navigation">
             <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="collapsibleNavbar">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                <a class="nav-link" onclick="show('curs');">Curs</a>
+                	<a href="#" class="nav-link" onclick="show('curs');">Cursuri</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" onclick="show('laborator');">Laborator</a>
+                    <a href="#" class="nav-link" onclick="show('laborator');">Laborator</a>
                 </li>      
                 <li class="nav-item">
-                <a class="nav-link" onclick="show('regulament');">Regulament(e)</a>
+                    <a href="#" class="nav-link" onclick="show('regulament');">Regulament(e)</a>
                 </li>      
                 <li class="nav-item">
-                <a class="nav-link" onclick="show('cine');">Cine suntem</a>
+                    <a href="#" class="nav-link" onclick="show('proiecte');">Proiecte</a>
+                </li>      
+
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="show('cine');">Cine suntem</a>
                 </li>                                      
-                <li class="nav-item">
-                <a class="nav-link" href="https://edu.info.uaic.ro/baze-de-date/en/#">[EN]</a>
-                </li>   
             </ul>
             </div>  
         </nav>              
@@ -53,71 +58,68 @@
     <div id="paginaprincipala" class="container" style="margin-top:30px">
         <div class="row">
             <div class="col-md-6">
-                <h2>Ce conține cursul</h2>
-                <p>Cursul de Baze de date are ca obiectiv deprinderea abilităţilor de proiectare, administrare, optimizare și interogare a unei baze de date
-                    relaţionale.</p>
+                <h2>De ce să optezi pentru DSFUM ?</h2>
                 <p>
-                    Ca și conținut, cursurile sunt organizate pe diferite tematici după cum urmează:
-                    <ul>
-                        <li>Modele și sisteme de gestiune de baze
-                            de date: istoric, particularități, proprietăți
-                            ACID vs. BASE, SQL vs NoSQL;
-                            Modelul relațional, regulile lui Codd</li>
-                        <li>Algebra relațională: tuple, relații,
-                            operatori                            </li>
-                        <li>Algebra relațională: dependențe
-                            funcționale; inferențe; închideri</li>
-                        <li>Algebra relațională: dependențe
-                            multivalute; inferențe; închideri</li>
-                        <li>Forme normale</li>
-                        <li>Proiectarea prin descompunere:
-                            normalizare
-                            Denormalizare</li>
-                        <li>Proiectarea bazelor de date relaționale:
-                            modelul Entitate/Asociere</li>
-                        <li>Proiectare fizică:
-                            Constrângeri asupra datelor</li>
-                        <li>Proiectare fizică:
-                            Declanșatoare
-                            Tabele virtuale</li>
-                        <li>Indexare</li>
-                        <li>Procesarea interogărilor. Planuri de
-                            execuție</li>
-                    </ul>
+                   Dacă vreodată te-ai întrebat cât de ușor este să inventezi un<a href="https://www.youtube.com/watch?v=u7vVvbcvklE" target="_blank"> echipament electronic</a> sau
+                   să construiești un <a href="https://www.youtube.com/watch?v=i78uVpaSt0U" target="_blank">roboțel</a> de la zero, fie că îți dorești să îți faci 
+                   <a href="https://www.youtube.com/watch?v=efGXAe6ZHns" target="_blank">televizorul să proiecteze
+                   lumini pe pereți</a> sau să îți faci o 
+                   <a href="https://www.youtube.com/watch?v=7wGRyGR7K7I" target="_blank">oglindă infinită</a>, acesta este cursul
+                   pe care TREBUIE să îl urmezi. 
                 </p>
+
+
+                <p> 
+                    Cursul de Dezvoltare a Sistemelor Fizice Utilizând Microprocesoare a fost propus ca răspuns atât
+                    la pasiunea studenților cât și a profesorilor (ce îl țin) pentru a construi echipamente 
+                    electronice. În trecut, pentru a face un aparat electronic cu un anumit scop, trebuia să fie 
+                    construită o schemă electronică, să fie făcut un cablaj și lipite piesele diferite pe acesta. 
+                    Cu puțină programare și un procesor, rezistorii, condensatorii și tranzistorii sunt de domeniul
+                    trecutului... Evident, aceste piese încă stau la baza proiectelor voastre, dar e suficient să
+                    știți să programați un microprocesor și vom sări împreună toți pașii menționați mai sus.                    
+                </p>
+
+                <p> 
+                    Dacă nu te-am convins încă, poți încerca să vezi ce au făcut colegii din anii precedenți 
+                    vizitând secțiunea de <a href="#" onclick="show('proiecte');">proiecte</a> a acestei pagini.
+                </p>    
                 
+                <p> 
+                     Știați că:  în anul 2018 cursul DSFUM a fost premiat ca fiind una dintre <a href="https://anis.ro/povesti_succes/cosmin-varlan/" target="_blank">poveștile de succes</a> 
+                     din lumea universitară românească ?
+                </p>                
             </div>              
             <div class="col-md-6">
-                <h2>Ce conține laboratorul</h2>
-                <p>Laboratoarele la materia Baze de date au ca scop principal studierea limbajului SQL. Va fi utilizat unul dintre cele mai <a href="https://db-engines.com/en/ranking">populare</a> SGBD-uri existente la ora actuala: Oracle. </p>
-                <p> Dintre capitolele ce vor fi parcurse în scopul învățarii SQL, amintim:
-                    <ul>
-                        <li>Modelul relațional și limbajul SQL –
-                            privire de anasamblu
-                            Utilitarul SQLPlus
-                            Utilizatori, roluri</li>
-                        <li>Fraza SELECT: Operatori, clauza
-                            WHERE și ORDER BY</li>
-                        <li>Funcții linie în SQL</li>
-                        <li>Join natural / intern / extern / self-join </li>
-                        <li>Gruparea și agregarea înregistrărilor I</li>
-                        <li>Subinterogări necorelate</li>
-                        <li>Subinterogări corelate</li>
-                        <li>Variabile de substituție SQLPlus, 
-                            Comenzi DML, 
-                            Comenzi DDL, 
-                            Tranzacții</li>
-                    </ul>
+                <h2>Ce vom face ?</h2>
+                
+                <p><b>Cursul:</b> Pe parcursul a 13 cursuri vom studia cum funcționează echipamentele electronice,
+                   care cele mai cunoscute platforme utilizate în prezent (Arduino, ESP, RPi), despre senzori, ecrane
+                   motoare, leduri, comunicare, sunet, tehnici de multiplexare, cum putem controla de pe telefon
+                   echipamentele pe care le facem și multe altele. </p>
+                <p> 
+                
+                <p><b>Laboratorul:</b> Aprindem leduri la comanda, le facem fade, construim muzică 8-bit, afișăm pe 
+                   ecrane diverse informații sau luăm input de la ele (touch screens), programăm matrice de leduri, 
+                   conectăm Arduino-urile sau ESP-urile între ele sau cu aplicații exterioare (e.g. serviciu web care
+                   să ofere temperatura), măsurăm distanța automat sau ne conectăm la senzori de prezență. Facem 
+                   ceasuri, cronometre, contoare, radiouri, sisteme care uda plantele, etc. Ca și concluzie: nu ne
+                   dăm bătuți de nici un proiect electronic.
+                </p>                
+                
+                <p><b>Bonus:</b> în fiecare an (din 2013 până în prezent) organizăm "Ziua Arduino" în care aveți ocazia
+                    să programați sau să utilizați shielduri mai complicate din care nu avem foarte multe.Pentru 
+                    că sunt foarte interesante nu vrem să vă privăm de această experiență. O a doua experiență interesantă 
+                    (și extracuriculară) este vizita la muzeul tehnic din cadrul complexului muzeal <a href="https://palatulculturii.ro/" target="_blank">Palatul Culturii</a> Iași.
+                    
 
                 </p>
-                <p>Ca și scop secundar, vor fi făcute o serie de exerciții ce țin de proiectarea bazelor de date, pentru a ne asigura că informațiile predate la curs sunt întelese și asimilate de studenți.
                 
             </div>
   
         </div>  
         <div class="row">
           <div class="col-md-12">
-            <div class="text-center"><p>Pentru detalii suplimentare, puteți accesa <a href="https://edu.info.uaic.ro/baze-de-date/ro/documente/Baze de date - Databses -2023-2024.pdf">Fișa Disciplinei</a></p></div>            
+            <div class="text-center"><p>Vă așteptăm la cursul opțional DSFUM. Pentru detalii suplimentare, puteti accesa <a href="https://docs.google.com/document/d/e/2PACX-1vQ4al1b29dzvtaSnGIsIjJmiuydIq-lm-fXfn6TZaW4KpKCMJ1oUd95-JDCFi5pJg/pub">Fisa Disciplinei</a></p></div>            
           </div>    
         </div>
     </div>
@@ -129,31 +131,18 @@
     <div id="curs" class="container" style="margin-top:30px">
         <div class="row">
             <div class="col-md-12">
-
-		<p>Linkul pentru serverul de discord: <a href="https://discord.gg/MxmNuxqmQB">Discord</a></p>
-
-                <ul>
-                <li><a href="https://edu.info.uaic.ro/baze-de-date/ro/documente/Curs 1 - BD.pdf">Curs 1</a><br /> </li>
-                <li><a href="https://edu.info.uaic.ro/baze-de-date/ro/documente/Curs 2 - BD.pdf">Curs 2</a><br /> </li>
-                <li><a href="https://edu.info.uaic.ro/baze-de-date/ro/documente/Curs 3 - BD.pdf">Curs 3</a><br /> </li>
-                <li><a href="https://edu.info.uaic.ro/baze-de-date/ro/documente/Curs 4 - BD.pdf">Curs 4</a><br /> </li>
-                <li><a href="https://edu.info.uaic.ro/baze-de-date/ro/documente/Curs 5_6 - BD.pdf">Curs 5,6</a><br /> </li>
-                <li><a href="https://edu.info.uaic.ro/baze-de-date/ro/documente/09. RO ER Modeling.pdf">Curs 9</a></li>
-                    <li><a href="https://edu.info.uaic.ro/baze-de-date/ro/documente/10-11. RO Physical design.pdf">Curs 10-11</a>, scripturi:</li>
-                    <ul>
-                    <li><a href="https://edu.info.uaic.ro/baze-de-date/ro/documente/10.0 create.sql">script creare</a></li>
-                    <li><a href="https://edu.info.uaic.ro/baze-de-date/ro/documente/10.1 constraints.sql">script constrangeri</a></li>
-                    <li><a href="https://edu.info.uaic.ro/baze-de-date/ro/documente/10.2 triggers.sql">script declansatoare (triggers)</a></li>
-                    <li><a href="https://edu.info.uaic.ro/baze-de-date/ro/documente/10.3 views.sql">script tabele virtuale (views)</a></li>
-                    </ul>
-                    <li><a href="https://edu.info.uaic.ro/baze-de-date/ro/documente/12-13. RO - Indexes.pdf">Curs 12-13</a><br /> 
-                    <ul>
-                    <li><a href="https://edu.info.uaic.ro/baze-de-date/ro/documente/12.1create.sql">script creare</a></li>
-                    <li><a href="https://edu.info.uaic.ro/baze-de-date/ro/documente/12.2 indexes.sql">script indexare - a se vizualiza planuri executie</a></li>
-                    </ul>
-                    <li><a href="https://edu.info.uaic.ro/baze-de-date/ro/documente/14. RO Query Processing.pdf">Curs 14</a><br /> 
-               </ul>
-                                            
+              <ul>
+                <li><a href="https://docs.google.com/presentation/d/e/2PACX-1vQtqSwjIK02-22hrBFiiFFeq9np1Wd_Q846g6_3SMEaGce8VttREhR19RKuSUeQkV0oCoEaBZ-F-uRX/pub?start=false&loop=false&delayms=3000&slide=id.p" target="_blank">Cursul &nbsp;&nbsp;1 - Introducere</a></li>
+                <li><a href="https://docs.google.com/presentation/d/e/2PACX-1vRn8dQoqjwxITuz3p6HWZbJceOqgsfs3eVmkgqPeG4w6J1cvg4kBjQn1FDH7AMc724xz2Nfa4bQaZJk/pub?start=false&loop=false&delayms=3000" target="_blank">Cursul &nbsp;&nbsp;2 - Noțiuni de bază </a></li>
+                <li><a href="https://docs.google.com/presentation/d/e/2PACX-1vQfWRrnwHM9VWWsO0xpUo9waGopJ-uKpg_yny6JsRIjalnLJIkxBaOudR0gHj2sUhXWvVQT-oxMKWxF/pub?start=false&loop=false&delayms=3000&slide=id.p" target="_blank">Cursul &nbsp;&nbsp;3 - Background în electronică</a></li>
+                <li><a href="https://docs.google.com/presentation/d/e/2PACX-1vRZ9DZDsLQrvyChFqvjCvMJEWpYAF_noxEAKYLFGb70OHapIRGBJJOqLdfLcenenxUfYCsvYULKirIq/pub?start=false&loop=false&delayms=3000&slide=id.p" target="_blank">Cursul &nbsp;&nbsp;4 - Background în electronică II</a></li>
+                <li><a href="https://docs.google.com/presentation/d/e/2PACX-1vQ_31EG2vzS1okF_yZQnaT7xRzDepjrvQEEk5ihbiqBz8Pdr_S3iqbkaAJMiR4Nyjd7zdMi5Uxq9rzU/pub?start=false&loop=false&delayms=3000&slide=id.p" target="_blank">Cursul &nbsp;&nbsp;5 - Funcționalități electronice și comunicare</a></li>
+                <li><a href="https://docs.google.com/presentation/d/e/2PACX-1vTWllRcV1od9sYe7vhSVw36WeNJKgrL7_w5E81jCZFeOOZXfqHF-NNEBJQhSVWW5i9xeQ6tP7Xl4yeO/pub?start=false&loop=false&delayms=3000&slide=id.p" target="_blank">Cursul &nbsp;&nbsp;6 - Perfierice</a></li>
+                <li><a href="https://docs.google.com/presentation/d/e/2PACX-1vQ6G6nc7IBoH8ZnxikTwY9XRGCTAIuZ6A540-QHqO5j8GVANDrW43l7vUyIM2-08SfOODq7KAU2mcNK/pub?start=false&loop=false&delayms=3000&slide=id.p" target="_blank">Cursul &nbsp;&nbsp;7 - Arduino avansat</a></li>
+                <li><a href="https://docs.google.com/presentation/d/e/2PACX-1vSm2qH__DJVufuM_xpKkUvBSdGLhzdBu4A-Xoct1tV8nYDCMD2uJPW7ishZzVF5Ezq8uTsYum96010j/pub?start=false&loop=false&delayms=3000&slide=id.p" target="_blank">Cursul &nbsp;&nbsp;8 - ESP</a></li>                
+                <li><a href="https://docs.google.com/presentation/d/e/2PACX-1vT1vlybIDBh8okMyTU0ZOWjZyevYPeG_nlmi0YWJYmEa6WDhyWGpciokgG74nsvwvJQ3Qe07O8vSBfv/pub?start=false&loop=false&delayms=3000&slide=id.p" target="_blank">Cursul &nbsp;&nbsp;9 - APPInventor</a></li>
+                <li><a href="https://docs.google.com/presentation/d/e/2PACX-1vQuQq1-WYAqg1VxJ5pe58G2aORPnPL9uz8abPO7TBVVxM1v1-Mwec1P1-T4FDhohAoQxbkkerKaQaUi/pub?start=false&loop=false&delayms=3000&slide=id.p" target="_blank">Cursul 10 - ESP / mobile / MicroPython</a></li>
+              </ul>                           
             </div>
   
         </div>  
@@ -171,28 +160,18 @@
                 <h2>Laborator</h2>
                 <div class="row">
                     <div class="col-md-2" style="background-color:rgba(0, 0, 0, .1); border-radius:5px;">
-                       <ul style="padding:10px;"> 
-                           <li><a href="#" onclick="load_lab('instalare');">Instalare </a></li>
-                           <li><a href="#" onclick="load_lab('sql_plus');">Ghid SQL*Plus</a></li><br>
-                           <li><a href="#" onclick="load_lab('lab1');">Laborator &nbsp;&nbsp;1</a></li>
-			   <li><a href="#" onclick="load_lab('lab2');">Laborator &nbsp;&nbsp;2</a></li>
-                          
-                           <!--
-
-                           <li><a href="#" onclick="load_lab('lab3');">Laborator &nbsp;&nbsp;3</a></li>
-                           <li><a href="#" onclick="load_lab('lab4');">Laborator &nbsp;&nbsp;4</a></li>
-                           <li><a href="#" onclick="load_lab('lab5');">Laborator &nbsp;&nbsp;5</a></li>
-                           <li><a href="#" onclick="load_lab('lab6');">Laborator &nbsp;&nbsp;6</a></li>
-                           <li><a href="#" onclick="load_lab('lab7');">Laborator &nbsp;&nbsp;7</a></li>
-                           <li><a href="#" onclick="load_lab('lab8');">Laborator &nbsp;&nbsp;8</a></li>
-                           <li><a href="#" onclick="load_lab('lab9');">Laborator &nbsp;&nbsp;9</a></li>
-                           <li><a href="#" onclick="load_lab('lab10');">Laborator 10</a></li>
-                           <li><a href="#" onclick="load_lab('lab11');">Laborator 11</a></li>
-                           <li><a href="#" onclick="load_lab('lab12');">Laborator 12</a></li>
-                           <li><a href="#" onclick="load_lab('lab13');">Laborator 13</a></li>
-                           <li><a href="#" onclick="load_lab('lab14');">Laborator 14</a></li>
-                           -->
-                       </ul>
+                       <ol style="padding:10px;"> 
+                           <li><a href="#" onclick="load_lab('lab1');">Introducere</a></li>
+                           <li><a href="#" onclick="load_lab('lab2');">PWM</a></li>
+                           <li><a href="#" onclick="load_lab('lab3');">Shield invatare</a></li>
+                           <li><a href="#" onclick="load_lab('lab4');">Sunet</a></li>
+                           <li><a href="#" onclick="load_lab('lab5');">Ecrane LCD</a></li>
+                           <li><a href="#" onclick="load_lab('lab6');">Ethernet</a></li>
+                           <li><a href="#" onclick="load_lab('lab7');">Carduri</a></li>
+                           <li><a href="#" onclick="load_lab('lab8');">PWM</a></li>
+                           <li><a href="#" onclick="load_lab('lab9');">8x8 Led</a></li>
+                           <li><a href="#" onclick="load_lab('lab10');">PWM</a></li>
+                       </ol>
                     </div>
                     <div class="col-md-10" id="lab_page">
                         <!-- Lab contet goes here -->
@@ -204,7 +183,7 @@
     
 
 
-    <!--       LABORATOR        -->
+    <!--       NOTARE        -->
 
 
     <div id="regulament" class="container" style="margin-top:30px">
@@ -212,75 +191,124 @@
             <div class="col-md-12">
                 
                 <h2>Evaluare și notare</h2>
-                <p>Nota la disciplina Baze de date se obține ca sumă între punctajul obținut la componenta laborator și punctajul obținut la componenta curs.</p>
+                <p>Nota pe care o veți primi la materia DSFUM este formată din 3 componente: 
+                     <ul>
+                         <li>Cinci notări la curs (teste date ad-hoc sau pentru prezență) însumând un maxim de 20 de puncte.</li>
+                         <li>Două teste în cadrul laboratorului, fiecare a câte 20 de puncte - în total 40 de puncte.</li>
+                         <li>Realizarea unui proiect la alegere (dezvoltat fizic, cu echipamente electronice achiziționate de voi sau într-un emulator).</li>                         
+                     </ul>
+                </p>
+		<p>Bonus: într-una din sâmbetele lunii decembrie de obicei organizăm "Ziua Arduino". 
+                   Participanții vor putea lucra cu o serie de plăci din care nu avem foarte multe dar care sunt foarte interesante (ca de exemplu shield GSM, Buletooth, DLNA, Touch, Ethernet). 
+                   In cadrul acestui eveniment veți putea lua puncte adiționale.</p>
 
-                <h5>Curs:</h5>
-                <p>Evaluarea la curs se realizează prin intermediul unui test din sesiune. Testul (T) va fi notat cu maxim 50 de puncte. Acest test este singurul care poate fi refăcut în sesiunea de restanță.</p>
-                
-                <h5>Laborator:</h5>
-                <p>In săptămânile 5 și 11 se vor da două teste (L1 și L2) în cadrul orelor de laborator. Impreună aceste teste pot aduce un maxim de 50 puncte. Pentru a promova laboratorul, punctajul obținut ca suma a celor doua teste trebuie să fie cel puțin 25.</p>
-                <p>Nota finală N = ( T + L1 + L2 ) / 10.</p>
-                <p>Condiții promovare: (T >= 25) & (L1 + L2 >= 25)</p>
-                <br><br>
-                <p>Notă: în cazul nepromovării, niciuna dintre componente (T, L1 sau L2) nu vor fi echivalate în anul următor, ele vor fi refăcute în întregime.</p>
             </div>
   
         </div>  
     </div>    
 
 
+
+ <!--       PROIECTE        -->
+
+
+    <div id="proiecte" class="container" style="margin-top:30px">
+        <div class="row">
+
+            <div class="col-md-3 col-sm-6">
+                <ul>
+                    <li><a href="https://youtu.be/0FjvWTCCJKw" target="_blank">Bananaaaa</a></li>
+                    <li><a href="https://youtu.be/efGXAe6ZHns" target="_blank">My Ambilight System</a></li>  
+                    <li><a href="https://youtu.be/HNnnAsTdzfs" target="_blank">Delta Robot</a></li>                  
+                    <li><a href="https://youtu.be/5gqaANZmheg" target="_blank">Piratii DSFUM</a></li>
+                    <li><a href="https://youtu.be/i78uVpaSt0U" target="_blank">CV's CNC</a></li>
+                    <li><a href="https://youtu.be/qpVel2nnJWU" target="_blank">Mario (on RPI0+emulation)</a></li>
+                    <li><a href="https://youtu.be/tg934ZbYKZI" target="_blank">Persistance of Vision</a></li>                    
+                    <li><a href="https://youtu.be/9cjpFfxWXxA" target="_blank">Arduino Arcade</a></li>
+                    <li><a href="https://youtu.be/juYZe90prA4" target="_blank">Ambilight</a></li>
+                    <li><a href="https://youtu.be/Y_xe7neW2-c" target="_blank">Cofee Table</a></li>
+                    <li><a href="https://youtu.be/u7vVvbcvklE" target="_blank">Take a break</a></li>
+                    <li><a href="https://youtu.be/tutW8zjsB4Q" target="_blank">Led Cube</a></li>
+                    <li><a href="https://youtu.be/oCbCcG99jnY" target="_blank">CNC mare</a></li>
+                    <li><a href="https://youtu.be/dXFU2DX1KRA" target="_blank">CNC mic</a></li>
+                    <li><a href="https://youtu.be/S_IaTjWk7-4" target="_blank">8x8x8 led cube</a></li>
+                </ul>
+            </div>
+
+
+            <div class="col-md-3 col-sm-6">
+                <ul>	
+                    <li><a href="https://youtu.be/4ssJg3muTFA" target="_blank">Line Follower</a></li>
+                    <li><a href="https://youtu.be/7wGRyGR7K7I" target="_blank">The Orb</a></li>
+                    <li><a href="https://youtu.be/79TJS7zLGDU" target="_blank">Magic Wand</a></li>
+                    <li><a href="https://youtu.be/Lfoz5SyI7wQ" target="_blank">Strutțcămila</a></li>
+                    <li><a href="https://youtu.be/pwskdULiheU" target="_blank">Tetris</a></li>
+                    <li><a href="https://youtu.be/6s4COohPI5c" target="_blank">BattleBot</a></li>
+                    <li><a href="https://youtu.be/W22HZ_Jr_8g" target="_blank">meRobo</a></li>
+                    <li><a href="https://youtu.be/bJllhsLlj14" target="_blank">Electronic Piano</a></li>
+                    <li><a href="https://youtu.be/tOJmGY81pxo" target="_blank">Led Memory Game</a></li>
+                    <li><a href="https://youtu.be/sEJOn45ykeM" target="_blank">Bomberman</a></li>                    
+                    <li><a href="https://youtu.be/SEoilh71958" target="_blank">HouseLight</a></li>
+                    <li><a href="https://youtu.be/w8k-2uuFeZM" target="_blank">Mechanical Flower</a></li>
+                    <li><a href="https://youtu.be/NLkZ-17OywU" target="_blank">MacroKeyboard</a></li>
+                    <li><a href="https://youtu.be/5vm2T55AdRo" target="_blank">Consola jocuri cu Arduino</a></li>
+                    <li><a href="https://youtu.be/AuE-oGjMFsg" target="_blank">Game Controller</a></li>
+                </ul>
+            </div>
+    
+
+
+            <div class="col-md-3 col-sm-6">
+                <ul>
+                    <li><a href="https://youtu.be/7c2ceIVdOc8" target="_blank">Irigator Plante</a></li>
+                    <li><a href="https://youtu.be/7wGRyGR7K7I" target="_blank">Orb</a></li>
+                    <li><a href="https://youtu.be/XmLcym8gL94" target="_blank">Persistance of Vision</a></li>
+                    <li><a href="https://youtu.be/dyKQNsXVPrU" target="_blank">Screen Controller</a></li>
+                    <li><a href="https://youtu.be/URudaYSU-R8" target="_blank">ESP on VGA</a></li>
+                    <li><a href="https://youtu.be/6sqDDWu0dpc" target="_blank">Tarantula</a></li>
+                    <li><a href="https://youtu.be/1m8fn3XImPw" target="_blank">Sonar</a></li>
+                    <li><a href="https://youtu.be/-Z2hqiMkWyE" target="_blank">Betele Bucuriei</a></li>
+                    <li><a href="https://youtu.be/pBde2XPUce8" target="_blank">Server Web</a></li>
+                    <li><a href="https://youtu.be/h_rWdZ47cMw" target="_blank">Smarthome</a></li>
+                    <li><a href="https://youtu.be/qZLC46MMh2U" target="_blank">Masina evitatoare de obstacole</a></li>
+                    <li><a href="https://youtu.be/ism21vYD4pE" target="_blank">Infinity Mirror</a></li>
+                    <li><a href="https://youtu.be/hxxGzja3BOI" target="_blank">TimeLapse tool</a></li>
+                    <li><a href="https://youtu.be/xCHoHjxwF4E" target="_blank">Alexa controlled lightbulb</a></li>
+                    <li><a href="https://youtu.be/6nDlRH2zm1k" target="_blank">Arduino synthesizer</a></li>
+                </ul>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+                <ul>
+                    <li><a href="https://youtu.be/n6qNn_dYTQs" target="_blank">Tap Clock</a></li>
+                    <li><a href="https://youtu.be/ioRYyH7-ZfM" target="_blank">Mouse Control Interface</a></li>
+                    <li><a href="https://youtu.be/mvULDFzwtK8" target="_blank">Bluetooth car + traffic signs</a></li>
+                    <li><a href="https://youtu.be/zMim9_Ww11I" target="_blank">Self balancing robot ?</a></li>
+                    <li><a href="https://youtu.be/xk2gL0iIcLs" target="_blank">Rainbow</a></li>
+                    <li><a href="https://youtu.be/1CKn44BMUi8" target="_blank">Bec pe net</a></li>
+                    <li><a href="https://youtu.be/9X-Pnns002U" target="_blank">Self balancing robot ?</a></li>
+                    <li><a href="https://youtu.be/lNvjvTgV5Vw" target="_blank">Remote Controller Smart car</a></li>
+                    <li><a href="https://youtu.be/J2GY4ZADor4" target="_blank">catfeeder</a></li>
+                    <li>Aici va fi proiectul tau, hai la DSFUM :D !</li>                    
+                </ul>
+            </div>
+
+
+        </div>  
+    </div>   
+
+
     <div id="cine" class="container" style="margin-top:30px">
         <div class="row">
             <div class="col-md-12">
-                <a href="https://profs.info.uaic.ro/~pmihaela/">Prof. Dr. Mihaela Elena Breaban</a><br />
-                <a href="https://profs.info.uaic.ro/~vcosmin/">Lect. Dr. Cosmin Varlan</a><br />
-                <a href="https://profs.info.uaic.ro/~simona.varlan/">Lect. Dr. Simona Varlan</a><br />
-		        <a href="https://lauracornei.github.io/">Asist. Drd. Laura Cornei</a><br />
-                <p>Colab. Drd. George Stoica</p>                
+                <a href="https://profs.info.uaic.ro/cosmin.varlan/">Lect. Dr. Cosmin Varlan</a><br>
+                <p>Asist. Dr. Vlad Crăciun</p>                
             </div>
         </div>  
     </div>  
 
 
 
-<!--
-
-    <br />
-    <a href="https://edu.info.uaic.ro/baze-de-date/documente/UAIC-_Fisa_disciplinei_BD-2020-2021.pdf">Fisa Disciplinei</a><br />
-    <br />
-    
-    
-    Prelegerile de curs au loc pe Webex meetings, linkurile de conectare (diferite pentru cele trei serii) sunt comunicate pe Discord
-    <li><a href="https://edu.info.uaic.ro/baze-de-date/documente/Curs 1 - BD.pdf">Curs 1</a><br /> </li>
-    <li><a href="https://edu.info.uaic.ro/baze-de-date/documente/Curs 2 - BD.pdf">Curs 2</a><br /> </li>
-    <li><a href="https://edu.info.uaic.ro/baze-de-date/documente/Curs 3 - BD.pdf">Curs 3</a><br /> </li>
-    <li><a href="https://edu.info.uaic.ro/baze-de-date/documente/Curs 4 - BD.pdf">Curs 4</a><br /> </li>
-    <li><a href="https://edu.info.uaic.ro/baze-de-date/documente/Curs 5_6 - BD.pdf">Curs 5,6</a><br /> </li>
-    <br />
-    <li><a href="https://edu.info.uaic.ro/baze-de-date/documente/09. RO ER Modeling.pdf">Curs 9 RO</a>, <a href="https://edu.info.uaic.ro/baze-de-date/documente/0.9 - ER.pdf"> Curs 9 EN</li>
-    <li><a href="https://edu.info.uaic.ro/baze-de-date/documente/10-11. RO Physical design.pdf">Curs 10-11 RO</a>, <a href="https://edu.info.uaic.ro/baze-de-date/documente/10-11. physical design - enforcing constraints, triggers, views.pdf">Curs 10-11 EN</a>, scripturi:</li>
-    <ul>
-    <li><a href="https://edu.info.uaic.ro/baze-de-date/documente/10.0 create.sql">script creare</a></li>
-    <li><a href="https://edu.info.uaic.ro/baze-de-date/documente/10.1 constraints.sql">script constrangeri</a></li>
-    <li><a href="https://edu.info.uaic.ro/baze-de-date/documente/10.2 triggers.sql">script declansatoare (triggers)</a></li>
-    <li><a href="https://edu.info.uaic.ro/baze-de-date/documente/10.3 views.sql">script tabele virtuale (views)</a></li>
-    </ul>
-    <li><a href="https://edu.info.uaic.ro/baze-de-date/documente/12-13. RO - Indexes.pdf">Curs 12-13 RO</a>, <a href="https://edu.info.uaic.ro/baze-de-date/documente/12-13. Indexes.pdf">Curs 12-13 EN</a><br /> 
-    <ul>
-    <li><a href="https://edu.info.uaic.ro/baze-de-date/documente/12.1create.sql">script creare</a></li>
-    <li><a href="https://edu.info.uaic.ro/baze-de-date/documente/12.2indexes.sql">script indexare - a se vizualiza planuri executie</a></li>
-    </ul>
-    <li><a href="https://edu.info.uaic.ro/baze-de-date/documente/14. RO Query Processing.pdf">Curs 14 RO</a>, <a href="https://edu.info.uaic.ro/baze-de-date/documente/14. Query Processing.pdf">Curs 14 EN</a><br /> 
-    
-    </li>
-    
-    <br /><br />
-    
-    Laborator<br/>
-    <a href="https://edu.info.uaic.ro/baze-de-date/wiki/index.php">Wiki - Varianta în limba Română</a><br />
-    <a href="https://edu.info.uaic.ro/baze-de-date/wiki_en/index.php">Wiki - English Version</a><br />
-    
--->
 
     <script>
 

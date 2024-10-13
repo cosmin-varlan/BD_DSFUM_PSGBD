@@ -1,294 +1,161 @@
-<p><b>Obiective:</b></p>
-<ul>
-   <li>Fraza SELECT: Operatori, clauza WHERE si ORDER BY, optiunea DISTINCT
+
+<h2> Breadboard </h2>
+
+
+
+
+<div class="row">
+    <div class="col-md-4">
+        <img src="imagini/lab2_pcb.png" style="width:100%; float:left"/>
+    </div>
+    <div class="col-md-8">        
+        <p>Cei mai tari dintre electroniști știu exact ce fac atunci când proiectează un circuit: construiesc PCB-ul (<a href="https://ro.wikipedia.org/wiki/Circuit_imprimat">Printed Circuit Board</a>), lipesc piesele, alimentează cu curent electric și totul funcționează perfect din prima. V-ați putea gândi că așa este și în cazul programatorilor: cei mai tari dintre ei compilează și rulează programul și totul merge ca pe roate. Pentru ceilalți (electroniști), cei ca noi - care suntem la început de drum, există posibilitatea de a face montaje temporare pentru a testa dacă ceea ce am construit are vreo șansă să funcționeze așa cum ne-am dori. Pentru ca aceste montaje temporare să nu arate ca un amalgam de fire lipite între ele, s-au "inventat" așa-zisele plăci pentru prototipizare.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-10">
+        <p>Plăcile pentru prototipizare sunt de două tipuri: cele ce necesită lipirea pieselor (în general pentru începătorii mai avansați :D) și care se mai numesc și stripboard și cele de tip solderless (care nu necesită lipituri) care se mai numesc și breadboard. Pentru a nu ne lipi degetele, frige sau strica diverse componente, în cadrul acestui laborator vom folosi varianta solderless. </p>
+    </div>
+    <div class="col-md-2">
+        <img src="imagini/lab2_breadboard.png" style="width:100%; float:left"/>
+    </div>
+</div>
+
+
+
+<div class="row">
+    <div class="col-md-8">
+        <p>Plăcile de prototipizare solderless (breadboard) sunt construite ca în imaginea schematică atașată acestei secțiuni: există 4 zone diferite A, B, C, D. Zonele A și D sunt utilizate pentru alimentarea cu curent electric, în timp ce zonele B și C sunt utilizate pentru montarea diverselor piese. Pentru a ne fi mai ușor să referim fiecare dintre conectorii din zona de montare a pieselor, acestea au fost indexate cu literele a, b, c, d, e / f, g, h, i, j, respectiv cu numere de la 1 la 30 - vezi imaginea alăturată reprezentând un breadboard. De asemenea, zonele A și D au un marcaj cu +, respectiv - pentru fiecare dintre rândurile lor (uneori sunt desenate două linii: albastru/roșu reprezentând aceleași polarități ale curentului: albastru=- și roșu=+).</p>
+    </div>
+    <div class="col-md-4">
+        <img src="imagini/lab2_breadboard_layout.png" style="width:100%; float:left"/>
+    </div>
+</div>
+
+
+<p>În zonele A și D, conectorii aflați pe același rând sunt interconectați. Dacă vom conecta printr-un fir conectorul marcat 3.3V de la Arduino cu oricare dintre conectorii + din zona A a breadboard-ului, toți conectorii + din zona A vor avea proprietatea de a furniza cei 3.3V preluați din Arduino. Evident, trebuie să conectăm și GND-ul Arduino-ului cu rândul -. </p> 
+<p>Zonele C și D au coloanele interconectate, dar până la jumătatea breadboard-ului. Astfel, 1a este conectat cu 1b, 1c, 1d și 1e, în timp ce 1f este conectat cu 1g, 1h, 1i și 1j. </p> 
+<p>Aveți grijă să nu conectați NICIODATĂ rândul marcat cu + cu rândul marcat cu - (din nicio zonă A sau D): indiferent dacă această conexiune ar fi făcută direct sau prin intermediul altor conexiuni din zonele C/D, rezultatul va fi un scurtcircuit și veți risca arderea componentelor cu care lucrați.</p> 
+<h2> Rezistorul </h2> 
+<p>Diverse materiale pe care le regăsim în mediul înconjurător sunt mai mult sau mai puțin conductoare de curent electric. Probabil că până acum v-ați dat seama că cele mai bune conductoare de curent electric sunt metalele (în fond, din acestea sunt construite firele), iar cele mai puțin conductoare de curent puteți să vă dați seama că sunt masele plastice (pentru că izolează firele). De fapt, cele mai bune izolatoare sunt construite din ceramică: din acest motiv, pe stâlpii de înaltă tensiune, locul în care firul ce transportă curentul atinge stâlpul este construit din ceramică. </p> 
+<p>Despre <a href="https://ro.wikipedia.org/wiki/Rezistor">rezistor</a> vom discuta și la curs. Important pentru acest laborator este să știți faptul că el poate produce o cădere a tensiunii electrice, fapt pe care ni-l dorim pentru a evita arderea LED-ului pe care îl vom conecta la Arduino. </p> 
+<p>Înainte să trecem mai departe, să facem totuși un experiment foarte interesant. Faceți următorii pași unul după altul:</p>
+
+
+<ul> 
+    <li> Cu ajutorul unui creion, desenați pe o foaie de hârtie o linie (de aprox 5cm). Încercați să treceți de mai multe ori cu creionul prin aceeași zonă pentru a depune cât mai mult din mina creionului pe foaia de hârtie.</li> 
+    <li> Fără a avea Arduino conectat la portul USB (sau la altă sursă de curent), conectați prin intermediul unui fir + din zona A a unui breadboard cu pinul indicând 5V al Arduino-ului, respectiv - a zonei A cu pinul GND al Arduino-ului. </li> 
+    <li> Introduceți un LED în zona B a breadboard-ului astfel încât pinul mai lung să fie conectat la 1e și cel scurt la 2e (aproape de centrul breadboard-ului). </li> 
+    <li> Conectați prin intermediul unui fir 1c cu + din zona A.</li> 
+    <li> Conectați două fire (preferabil de culori diferite) la 2a din zona B, respectiv la - din zona A.</li> 
+    <li> Având grijă ca cele două capete rămase libere de la firele conectate la pasul anterior să nu se atingă între ele, conectați Arduino la portul USB (nu se va întâmpla nimic special cu LED-ul).</li> 
+    <li> Puneți capătul unuia dintre fire într-o parte a liniei desenate cu creionul, iar cel de-al doilea fir atingeți-l de celălalt capăt al liniei desenate.</li> 
+    <li> Cu grijă pentru a nu atinge capetele celor două fire între ele, apropiați-le ținându-le lipite de foaia de hârtie (dar fără să ajungeți să le atingeți).</li> 
 </ul>
 
 
-<h2> Comanda SELECT (și clauzele WHERE, ORDER BY)</h2>
+<p>Cu cât distanța pe care curentul trebuie să o parcurgă prin linia de carbon desenată pe foaia de hârtie este mai mare, cu atât rezistența este mai mare și din acest motiv LED-ul se va aprinde mai puțin. Dacă micșorați distanța, LED-ul se va aprinde mai puternic. Nu atingeți niciodată cele două capete rămase libere între ele pentru a evita arderea LED-ului (nu este neapărat să se întâmple acest lucru, dar vă veți întrista dacă se va întâmpla).</p> 
+<p>În general, o rezistență de 330 ohmi este suficientă pentru a nu arde LED-ul (Puteți calcula valoarea rezistorului plecând de la culorile desenate pe acesta. Un astfel de calculator găsiți <a href="https://www.allaboutcircuits.com/tools/resistor-color-code-calculator">aici</a>. Puteți ca în locul celor două fire ce aveau capetele libere să puneți o astfel de rezistență (deci puneți o rezistență care să unească - din zona A cu 2a din zona B). În continuare, pentru a controla LED-ul cu ajutorul Arduino-ului aveți două posibilități: </p> 
+<ul> 
+    <li> fie mutați firul conectat la 5V al Arduino-ului într-unul din pinii digitali - caz în care LED-ul se va aprinde când îi veți da comanda HIGH (pinul digital se va comporta ca +)</li> 
+    <li> fie mutați firul conectat la GND al Arduino-ului într-unul din pinii digitali - caz în care LED-ul se va aprinde când îi veți da comanda LOW (pinul digital se va comporta ca -).</li> 
+</ul>
+
+<h4>Exerciții (prima parte)</h4>
+
+<p>Construiți pe propriul Breadboard următoarea schemă ce are rolul de a conecta 6 leduri pe pinii numerotați de la 7 la 13 ai Arduino-ului. Rezistorii ce vor fi folosiți sunt de 330 Ohm:</p>
+<img src="imagini/lab2_circuit.png" style="width:100%"> 
+<p>Alternativ [1], încercați să faceți această schemă în emulatorul de pe site-ul <a href="https://wokwi.com/">Wokwi</a><a href="resurse/lab2_schema_cu_6_leduri.txt">.</a> După ce ați făcut această schemă, pentru testa corectitudinea conexiunilor, scrieți un cod care să aprindă pe rând cele șase leduri.</p>
+
+<pre><code class="language-c">void setup() {
+    for(byte i=8; i<=13; i++)
+        pinMode(i, OUTPUT);
+}
+
+void loop() {
+    for(byte i=8; i<=13; i++)
+    {
+        digitalWrite(i, 1);  
+        delay(300);
+        digitalWrite(i, 0);      
+    }
+}
+</code></pre>
+  
+<p>Alternativ [2], la laborator avem o serie de piese ce conțin 6 leduri ce pot fi conectate direct în arduino având grijă ca pin-ul marcat ca GND să fie conectat în pinl GND următor pin-ului 13.</p>
+<p>Deocamdată vom salva această configurare pentru că o vom folosi ulterior în rezolvarea altor exerciții. Pentru a face acest lucru copiați conținutul tab-ul "diagram.json" din fereastra Wokwi - din păcate salvarea efectivă poate fi făcută numai dacă ați achiziționat un pachet "premium".</p>
+
+
+
+
+<h2>PWM = Pulse Width Modulation</h2> 
+<p>Pulse Width Modulation (PWM) este o tehnică de a emula o anumită tensiune, în cazul Arduinoului între 0 și 5v. Atunci când punem pin-ul Arduino-ului în modul HIGH (1), vom obține o tensiune de 5V la un curent de 20mA (tensiune și curent inofensivă chiar și pentru o muscă). Cu ajutorul acestei tensiuni putem alimenta un dispozitiv care are nevoie de 5V și un curent cel mult egal cu 20mA. Ce facem dacă tensiunea este însă prea mare ?</p> 
+<p>Pentru a alimenta dispozitive care necesită o tensiune mai mică (5V le-ar putea arde), se vor folosi pinii de tip PWM. Aceștia au rolul de a emula o tensiune între 0 și 5V prin intermediul unor impulsuri de 5V ce se produc cu o frecvență foarte mare. Această tehnică nu este specifică numai Arduino-ului, în general un transformator real (analogic) de tensiune ar fi foarte costisitor.</p>
+<p>Pentru a putea obținem o astfel de oscilație vom folosi comanda analogWrite (în locul comenzii digitalWrite). 
+   Comanda analogWrite poate fi folosită numai pentru pinii notați cu "~"" sau "PWM" pe plăcuța Arduino 
+   (Pentru Arduino UNO: 3,5,6,9,10,11). Valoarea pe care o putem da ca parametru și care indică tensiunea ce vrem 
+   să fie obținută pe pin este una între 0 și 255 unde 0 înseamnă 0V și 255 înseamnă 5V. Spre exemplu:
+   <ul>
+    <li>Setarea pinului folosind comanda analogWrite(pin, 255); va duce la obținerea în pinul respectiv la 5V [logic.D1].</li>
+    <li>Valoarea 127, spre exemplu, va face ca pe pinul utilizat să fie pe pentru un interval 
+   foarte mic de timp 0V apoi pentru un același interval pinul să fie pe 5V; urmează o nouă semi-cuantă de 0V, 
+   apoi 5V, apoi 0V etc. Dacă am măsura cu un aparat de măsură ce tensiune este la acest pin, am obține 2.5V.[logic.D2]</li> 
+     <li>Ne putem închipui că dacă dorim să obținem 1.25V, va trebui să executăm comanda analogWrite(pin,64); care 
+   va duce la împărțirea cuantei de timp în 3/4 pentru 0V și 1/4 pentru 5V. în imaginea următoarea se pot observa cuantele
+   pentru 5V, 2.5V și 1.25V [logic.D3]</li>
+   </ul>
+   O cunată are 2ms, așadar pentru a obține 2.5V Arduino setează o tensiune de 5V pentru 1ms și apoi 0V pentru 1ms:</p> 
+<img src="imagini/lab2_analizor_logic.png" style="width:100%" />
+
+<p>Pentru a măsura cuantele de timp și a vedea cum acestea alternează, se poate folosi un analizor logic sau un 
+   osciloscop. Pentru că ne interesează informație de tip digital, analizorul logic este mai indicat
+   în această situație. Acest dispozitiv are o serie de conexiuni pentru pinii arduino-ului și o interfață USB
+   care se conectează la calculator. Un software (cu care vine analizorul logic) poate face vizualizarea semnalului
+   digital așa cum este captat de analizorul logic (și vizualizarea este aproximativ ca în imaginea de mai sus).</p>
+
+
+<h4>Exercițiu (partea a doua)</h4>
+<p> Utilizând simulatorul de Arduino de pe site-ul Wokwi, conectați la acesta un analizor logic. După ce porniți 
+    simularea opriți-o imediat și vi se va permite să salvați un fișier cu extensia vcd. Acesta poate fi deschis
+    pentru vizualizare cu <a href="https://sigrok.org/wiki/Downloads">PulseView</a> sau cu alte softwuri despre
+    care puteți citi în <a href="https://docs.wokwi.com/parts/wokwi-logic-analyzer">documentația Wokwi</a>.
+    Faceți vizualizări pentru următoarele cazuri:
+    <ul>
+        <li>Pin PWM setat la valoarea 255 (comanda analogWrite poate fi dată în secțiunea setup).</li>
+        <li>Pin PWM setat la valoarea 127 (comanda analogWrite poate fi dată în secțiunea setup).</li>
+        <li>Pin PWM setat la valoarea 63  (comanda analogWrite poate fi dată în secțiunea setup).</li>
+        <li>Pin oarecare pe care se face rapid digitalWrite(pin,1) apoi imediat digitalWrite(pin,0).</li>
+    </ul>
+    Ce observați ? Discuție în cadrul laboratorului.<br>
+    Ați putea simula comportamentul unui pin de tip PWM pe un pin non-PWM ?<br>
+</p>
+
+
+<!--p>Pentru a vedea felul în care funcționează PWM, se va utiliza un analizor logic. Din păcate, nu avem decât un singur astfel de echipament și din acest motiv doar profesorul va putea să vă arate experimentul prin intermediul unui videoproiector. Vă rugăm să fiți atenți pentru că astfel veți înțelege cum trebuie să rezolvați problemele din ultima parte a laboratorului (aprox 20-30 min).</p--> 
+
+
+
+<h4> Exerciții (partea a treia) </h4> 
+
+<h6> Problema 1</h6> 
+<p>Faceți un program care să afișeze o numărătoare în binar (pe biți) pe cele 6 leduri conectate la Arduino în primul exercițiu (valori între 0 și 63).</p> 
+
+<h6> Problema 2</h6> 
+<p>Faceți un program care să afișeze în binar (pe biți) pe cele 6 leduri conectate la Arduino în primul exercițiu o valoare recepționată pe portul serial.</p> 
+
+<h6> Problema 3</h6> 
+<p> Având un LED conectat la unul din pinii PWM (cei marcați cu ~), modificați exemplul "fade" din File->Examples->Basics pentru a face LED-ul de pe breadboard să facă fade in/out.</p> 
+
+<h6> Problema 4</h6> 
+<p>Modificați aplicația de la punctul anterior pentru a putea trimite prin portul serial viteza cu care se va face fade-ul (la o viteză mai mare, timpul dintre stările aprins și stins va fi mai mic). Nu aveți voie să folosiți comanda delay în program.</p> 
+
+<h6> Problema 5</h6> 
+<p>Dată o valoare pe portul serial, să se emuleze tensiunea (volți) respectiv la unul dintre pinii Arduino care nu este de tip PWM (emularea corectă va fi măsurată cu un aparat de măsură). Nu aveți voie să folosiți comanda delay în program.</p> 
+
+<h6> Problema 6</h6> 
+<p>Construiți un program care să facă efectul de fade pe un pin NON-PWM.</p> 
+
+<h6> Problema 7</h6> 
+<p>Construiți un program care sa facă fade pe fiecare dintre cele 6 leduri conectate la pinii 8-13, fiecare la viteza proprie.</p> 
 
-<h3> Selectarea datelor dintr-un tabel </h3>
-
-<p>Atunci când se execută o comandă de tip SELECT, pot fi preluate din baza de date un număr de linii (numite si inregistrari), un număr de coloane (numite si campuri sau atribute) sau o combinaţie între cele două. </p>
-
-<p>Pentru a selecta toate liniile şi toate coloanele dintr-un tabel, poate fi executată comanda </p>
-
-<p><code>SELECT * FROM nume_tabel;</code></p>
-
-<p>Exerciţiu: selectaţi toate liniile şi toate coloanele din tabelul studenti.</p>
-
-<p>Aceasta comanda furnizează, de obicei, mai multe informaţii decât sunt necesare. Pentru a prelua doar anumite coloane, simbolul asterisc va fi inlocuit cu numele coloanelor ce se doresc a fi preluate, despărţite prin virgulă. Un exemplu este preluarea doar a numelor şi prenumelor studenţilor înscrişi la facultate, executând comanda:</p>
-
-<p><code>SELECT nume, prenume FROM studenti;</code></p>
-
-
-
-<p>Atunci când, dintr-un anumit motiv, denumirea coloanei nu este reprezentativă la afișare, aceasta poate fi modificată în timpul exprimării comenzii SELECT prin definirea unui alias. Pentru aceasta se va folosi cuvântul cheie "AS" după numele coloanei ce trebuie redenumită, urmat de numele nou al coloanei. În cazul în care noua denumire este formată din mai multe cuvinte, aceasta trebuie să fie incadrată între simbolurile ghilimele. Spre exemplu, următoarea comandă va redenumi numele coloanei "nume" din tabelul profesori în "Nume Profesor":</p>
-
-<p><code>SELECT nume AS "Nume Profesor" FROM profesori;</code></p>
-
-<p><span style="color:red">Observaţie:</span> Cuvântul AS este optional, în cazul în care acesta lipseste se va insera doar un spaţiu între numele vechi al coloanei ce trebuie selectat şi noul nume. Dacă numele nou al coloanei este format doar dintr-un singur cuvânt, ghilimelele pot fi omise (în fapt, ghilimelele sunt utilizate atunci când noul nume conţine spaţii, caractere speciale sau se doreşte a fi afişat case-sensitive - predefinit este afişat cu litere mari). Ca şi exemplu, încercaţi să executaţi comanda:</p>
-
-<p><code>SELECT nume profesor FROM profesori;</code></p>
-
-
-
-<p>Daca sunt mai multe înregistrări similare, toate acestea vor fi afişate, de exemplu dacă se doreşte aflarea anilor de studiu în care sunt înscrişi studenţii executați interogarea:</p>
-
-<p><code>SELECT an FROM studenti;</code></p>
-
-<p>Atunci când avem mai mulţi studenţi înmatriculaţi, acest an de studiu va fi afişat pentru fiecare student în parte. Cum nu ne interesează să fie afişat de mai multe ori anul 1 (doar pentru ca avem mai mulţi studenţi înscrişi în primul an), vom utiliza clauza "DISTINCT" în cadrul comenzii SELECT tocmai pentru a restricţiona preluarea din baza de date doar a datelor unice (duplicatele vor fi eliminate). Executaţi aşadar comanda:</p>
-
-<p><code>SELECT DISTINCT an FROM studenti;</code></p>
-
-<p>Criteriul DISTINCT poate fi utilizat şi pentru mai multe câmpuri selectate simultan. Spre exemplu, următoarea interogare ne va returna doar combinaţiile <an,grupa> unice în tabel: </p>
-
-<p><code>SELECT DISTINCT an, grupa FROM studenti;</code></p>
-
-<p>Echivalemt se poate folosi UNIQUE in locul lui DISTINCT:</p>
-
-<p><code>SELECT UNIQUE an, grupa FROM studenti;</code></p>
-
-
-<p><span style="color:red">Observaţie:</span> Deşi comenzile SQL au fost scrise cu litere mari, limbajul SQL nu este unul case-sensitive. Comenzile poti fi aşadar scrise şi cu litere mici. În cadrul laboratoarelor de baze de date (în această pagină) vom scrie totuşi (sau cel puţin vom încerca) cuvintele cheie cu litere mari tocmai pentru ca voi să le puteţi diferenţia de restul obiectelor (nume de tabele, nume de câmpuri) care nu fac parte din limbaj. Singurul loc în care SQL va face totuşi diferenţa între literele mari şi cele mici este în cadrul şirurilor de caractere din diverse câmpuri ale unui tabel. De exemplu, dacă veţi încerca să executaţi comanda <code>SELECT * FROM cursuri WHERE titlu_curs='LOGICA';</code> , probabil nu va funcţiona (decât dacă aveţi în tabelă un curs cu denumirea "LOGICA" - scris cu litere mari).</p>
-
-<p><span style="color:red">Observaţie:</span> O comanda SQL poate fi scrisă pe mai multe rânduri. Dacă o comandă nu a fost terminată (încă) la apăsarea tastei enter, SQL*Plus va aştepta continuarea comenzii pe rândul următor. Comanda va fi considerată completă la întâlnirea simbolului punct şi virgulă.</p>
-
-
-<p>În unele cazuri, datele existente în tabele trebuie să fie modificate înainte de afişare. O serie de operatori simpli v-au fost prezentaţi în secţiunile anterioare (spre exemplu suma, produsul etc.). Dacă, spre exemplu, dorim să afişam numele studenţilor împreună cu bursa pe care aceştia o au, la care au fost adăugaţi 10ron (pentru că au primit o sponsorizare suplimentară), comanda ce va afişa sumele finale pe care studenţii le vor primi este:</p>
-
-
-<p><code>SELECT nume, prenume, bursa + 10 FROM studenti;</code></p>
-
-<p><span style="color:red">Observaţie:</span> Precedenţa operatorilor aritmetici este cea cunoscută din matematica de gimnaziu: înmulţirea, împărţirea, adunarea, scăderea. Pentru a schimba ordinea de executare a operaţiilor, ca şi în alte limbaje cunoscute, utilizaţi parantezele rotunde.</p>
-
-<p><span style="color:green">Exerciţiu: Afişaţi jumătate din valoarea bursei studenţilor la care a fost adăugat în prealabil o sumă de 100 ron. Ţineţi cont de precedenţa operatorilor.</span></p>
-
-<h3> Valori NULL </h3>
-
-<p>Uneori, anumite câmpuri pot fi lăsate fără valoare (de exemplu pentru studenţii care nu au bursă, în loc să trecem valoarea 0, nu va fi trecută nici o valoare - uneori chiar şi valoarea 0 poate avea o semnificaţie interpretabilă: spre exemplu, aceasta ar putea însemna că studentul ia de fapt bursă dar că această bursă nu poate fi acoperită din punct de vedere financiar [insert sad student image here]). Neinserarea unei valori într-un câmp va avea ca efect trecerea în acel câmp a valorii NULL (sau &rsquo;&rsquo; - şirul vid ce este reprezentat prin două apostroafe). Dacă valoarea unui câmp este nulă şi acest câmp este utilizat într-o expresie aritmetică, rezultatul va fi de asemenea o valoare nulă (se poate observa pentru cazul  studenţilor ce nu aveau bursă).</p>
-
-<h3> Concatenarea şirurilor de caractere </h3>
-
-<p>Pentru concatenarea a două şiruri de caractere se va utiliza operatorul || (două bare verticale). Prin intermediul acestuia pot fi concatenate două şiruri de caractere oarecare, un şir de caractere cu un număr, un şir de caractere cu valoarea dintr-o coloană, sau chiar două valori ce se dorește a fi tratate ca și șiruri de caractere (conversia va fi făcută automat prin utilizarea acestui operator). Rezultatul este o nouă coloană. In cazul tipurilor de date de tip char, în baza de date sunt reţinute şi spaţiile necesare ajungerii la un număr de caractere egal cu dimensiunea câmpului (de exemplu dacă într-un câmp de tip char de 10 caractere s-au introdus doar 3 caractere, automat sunt stocate 7 spaţii pentru a completa cele 10 caractere). In cazul datelor de tip varchar2 nu sunt introduse spaţii suplimentare.  Să vedem un exemplu:</p>
-
-<p><code>SELECT 'Studentul '||nume||' '||prenume||' este inmatriculat in anul '|| an ||'.' AS info FROM studenti;</code></p>
-
-<p><span style="color:red"></p>
-<p>Observaţie:</span> Toate şirurile de caractere din SQL sunt scrise între simbolurile apostrof. Singurul loc în care se folosesc ghilimelele, pentru a grupa mai multe caractere, este atunci când dorim să creăm un alias pentru numele unei coloane.</p>
-
-<h3>Afişarea anumitor rânduri</h3>
-
-<p>Deja am filtrat (într-un exemplu anterior) anumite rânduri - duplicatele - utilizând cuvantul cheie DISTINCT. Pentru a restricţiona şi mai mult datele ce vor fi afişate, în cadrul operaţiilor de tip SELECT, se poate utiliza clauza WHERE. </p>
-
-<p>Clauza WHERE este opţională şi, atunci când va fi utilizată, va fi mereu scrisă după numele tabelului din care se face selecţia şi va fi urmată de o condiţie. Vor fi selectate doar acele rânduri din tabel care satisfac condiţia impusă de clauza WHERE. Spre exemplu, am putea selecta doar studenţii din anul 1 executând comanda: </p>
-
-<p><code>SELECT nume, prenume FROM studenti WHERE an = 1;</code></p>
-
-<p>Condiţiile ce sunt utilizate în clauza WHERE sunt de fapt expresii booleene. Oricare dintre operatorii de comparare descrişi în secţiunile anterioare pot fi utilizaţi. Următorul exemplu va afişa toţi studenţii bursieri.</p>
-
-<p><code>SELECT nume, prenume FROM studenti WHERE bursa IS NOT NULL;</code></p>
-
-<p>Condiţia ce urmează după clauza WHERE poate fi una simplă (ca cele date până acum ca exemplu) sau pot fi compuse din mai multe condiţii simple interconectate cu operatorii logici descrişi în secţiunea anterioară. Spre exemplu, dacă dorim să îi găsim pe acei studenţi din anul 1 care iau bursă, putem executa comanda: </p>
-
-<p><code>SELECT nume, prenume FROM studenti WHERE bursa IS NOT NULL AND an = 1;</code></p>
-
-<p><span style="color:red">Observaţie:</span> în evaluarea unei expresii logice compuse, precedenţa operatorilor logici este: NOT, AND, OR.</p>
-
-
-
-<p>Atunci când în clauza WHERE se doreşte lucru cu şiruri de caractere, un operator foarte util este operatorul LIKE.  Prin intermediul acestuia putem forma expresii regulate care să ne permită selectarea anumitor informaţii chiar dacă acestea nu sunt cunoscute în întregime. În cadrul acestor expresii regulate, caracterul "%" (la sută) are semnificaţia unui grup de caractere, iar caractereul "_" (underscore) semnifică un singur caracter. Spre exemplu, dacă dorim să selectăm toţi studenţii a căror nume se termină în "escu", putem executa comanda:</p>
-
-<p><code>SELECT nume, prenume FROM studenti WHERE nume LIKE '%escu';</code></p>
-
-<p><span style="color:red">Observaţie:</span> atunci când doriţi să utilizaţi efectiv caracterul % sau caracterul _, acestea vor fi prefixate (escaped) cu caracterul \ (backslash).</p>
-
-<h3>Ordonarea rezultatelor</h3>
-
-<p>Pentru a ordona datele selectate, se va utiliza clauza ORDER BY urmată de numele (sau numarul) câmpului după care se doreşte a fi făcută ordonarea (sau de către o funcţie aplicată unui câmp). Optional, după numele câmpului (funcţiei) poate fi adăugat unul dintre cuvintele cheie ASC, DESC pentru a forţa sortarea în mod ascendent sau descendent (predefinit, sortarea se realizează în mod ascendent).</p>
-
-<p>Spre exemplu, dacă dorim să sortăm studenţii în ordinea anilor de studiu, se poate executa următoarea comandă:</p>
-
-<p><code>SELECT nume, prenume, an FROM studenti ORDER BY an ASC;</code></p>
-
-<p>Atunci când sunt mai mulţi studenţi în acelaşi an, am putea dori să îi ordonăm şi după grupa din care fac parte. După clauza ORDER BY putem introduce oricâte câmpuri împreună cu opţiunea ce indică tipul sortării, despărţite prin virgulă. Spre exemplu:</p>
-
-<p><code>SELECT nume, prenume, an FROM studenti ORDER BY an ASC, grupa DESC;</code></p>
-
-<p>Putem construi interogări care să conţină ambele clauze învăţate azi: WHERE şi ORDER BY. Prima care va fi scrisă va fi clauza WHERE urmată de ORDER BY. Spre exemplu, pentru a selecta toţi studenţii din anul 1 în ordinea grupelor vom executa comanda:</p>
-
-<p><code>SELECT nume, prenume, grupa FROM studenţi WHERE an=1 ORDER BY grupa ASC;</code></p>
-
-<p>Deoarece numele de familie al studenţilor este al doilea câmp din tabel, ordonarea lor după acesta poate fi facută prin comanda:</p>
-
-<p><code>SELECT * FROM studenti ORDER BY 2;</code></p>
-
-<p>Deși această scriere este conform standardului SQL (și pare mai rapid de scris din cauză că sunt mai puține caractere de scris), nu o recomandăm pentru că, dacă la un moment dat cineva adaugă o coloană îinaintea coloanei a doua, sortarea s-ar putea face după altceva decât vechea coloană.</p>
-
-<h2> Operatori </h2>
-<h3> Operatori aritmetici uzuali</h3>
-<table>
-    <tr>
-        <th>Operator</th>
-        <th>Descriere</th>
-        <th>Exemplu</th>
-    </tr>
-    <tr>
-        <td>*</td>
-        <td>înmulţire - pt. tipurile numerice</td>
-        <td>SELECT valoare * 5 FROM note;</td>
-    </tr>
-    <tr>
-        <td>/</td>
-        <td>împărţire - pt. tipurile numerice</td>
-        <td>SELECT valoare / 10 FROM note;</td>
-    </tr>
-    <tr>
-        <td>+</td>
-        <td>dunare - pt. tipurile numerice şi DATE</td>
-        <td>SELECT valoare + 1 FROM note;</td>
-    </tr>
-    <tr>
-        <td>-</td>
-        <td>scădere - pt. tipurile numerice şi DATE</td>
-        <td>SELECT valoare-1 FROM note;</td>
-    </tr>
-
-</table>    
-
-
-<p>Dacă unul dintre operanzi e NULL, rezultatul e NULL</p>
-
-<h3> Operatori pentru şiruri </h3>
-<p><b>||</b>  - concatenare	</p>
-
-<p>Exemplu:  </p>
-<p><code>SELECT 'Numele studentului este: ' || nume FROM studenti;</code></p>
-
-<p>Dacă exact unul dintre operanzi e NULL, rezultatul e celălalt operand; dacă ambii operanzi sunt NULL rezultatul e NULL.</p>
-
-<h3> Operatori de comparare </h3>
-<p>- returnează TRUE sau FALSE, sunt aplicabili pentru toate tipurile de date </p>
-
-
-<table>
-    <tr>
-        <th>Operator</th>
-        <th>Descriere</th>
-        <th>Exemplu</th>
-    </tr>
-    <tr>
-        <td>= <br/> &gt; <br/> &gt;= <br/> &lt; <br/>  &lt;= <br/> &lt;&gt; <br/> !=</td>
-        <td>Operatori binari, semnificaţia uzuală</td>
-        <td>SELECT nume AS "Student" FROM studenti WHERE an = 2;</td>
-    </tr>
-    <tr>
-        <td>ANY, SOME</td>
-        <td>Operator aplicat unei liste sau rezultatului unei interogări  în conjuncţie cu unul din operatorii de comparare uzuali de mai sus, cu semnificaţia următoare: operatorul uzual primeşte ca al doilea operand fiecare din valorile din listă; returnează TRUE dacă pt. cel puţin o valoare din listă rezultatul e TRUE, altfel returnează FALSE.</td>
-        <td>SELECT * FROM studenti WHERE an = SOME (2,3);</td>
-    </tr>    
-    <tr>
-        <td>ALL</td>
-        <td>Ca şi ANY/SOME, cu diferenţa rezultatul este TRUE doar dacă operatorul uzual returnează TRUE pentru toate valorile din listă.</td>
-        <td>SELECT * FROM studenti WHERE an >= ALL (1, 2);</td>
-    </tr>    
-    <tr>
-        <td>IN</td>
-        <td>Verifică apartenenţa valorii primului operand la mulţimea specificată de al doilea operand. Este echivalent cu „=ANY”</td>
-        <td>SELECT * FROM studenti WHERE prenume IN ('Adrian', 'Alex');</td>
-    </tr>     
-    <tr>
-        <td>NOT IN</td>
-        <td>Returnează FALSE dacă valoarea primului operand nu face parte din lista specificată de al doilea operand. Este echivalent cu „!=ANY”</td>
-        <td>SELECT * FROM studenti WHERE an NOT IN (1,2);</td>
-    </tr>       
-    <tr>
-        <td>BETWEEN x AND y</td>
-        <td>Îl putem considera ca pe un operator ternar: returnează TRUE dacă primul operand satisface simultan condiţiile  >=x şi <=y, unde x şi y reprezentă alţi doi operanzi</td>
-        <td>SELECT nume, prenume FROM studenti WHERE an BETWEEN 1 AND 3;</td>
-    </tr>      
-    <tr>
-        <td>LIKE</td>
-        <td>Operator binar, verifică dacă primul operand este în conformitate cu un şablon specificat de al doilea operand. Şablonul este un şir de caractere, ce poate conţine unul din caracterele speciale:<br> <b style="color:red">%</b>  semnifică orice şir de caractere, chiar şirul vid (de lungime 0)<br> <b style="color:red">_</b>  suplineşte un singur caracter<br>Dacă cele două simboluri speciale trebuiesc interpretate ca atare se utilizează caracterul ESCAPE: \% şi \_</td>
-        <td>SELECT * FROM studenti WHERE nume LIKE '%andr%';<br />  (sau SELECT * FROM studenti WHERE nume LIKE '%\_%' ESCAPE '\' daca vreti sa selectati numele ce contin caracterul '_' - trebuie sa modificati tabelul)</td>
-    </tr>  
-    <tr>
-        <td>IS [NOT] NULL</td>
-        <td>Operator unar. Singurul mod de test pentru null</td>
-        <td>SELECT * FROM studenti WHERE bursa IS NOT NULL AND bursa > 200;</td>
-    </tr>              
-</table>
-
-
-
-<h3>Operatori logici</h3>
-<table>
-    <tr>
-        <th>Operator</th>
-        <th>Descriere</th>
-        <th>Exemplu</th>    
-    </tr>
-    <tr>
-        <td>NOT</td>
-        <td>Operator unar reprezentând negaţia</td>
-        <td>SELECT * FROM studenti WHERE NOT (bursa IS NULL);</td>
-    </tr>
-    <tr>
-        <td>AND</td>
-        <td>Operator binar reprezentând ŞI-ul logic</td>
-        <td>SELECT * FROM studenti WHERE an='3' AND bursa IS NOT NULL;</td>
-    </tr>
-    <tr>
-        <td>OR</td>
-        <td>Operator binar reprezentând SAU-ul logic</td>
-        <td>SELECT * FROM studenti WHERE an='3' OR bursa IS NOT NULL;</td>
-    </tr>        
-</table>
-
-
-<h3> Operatori pentru mulţimi </h3>
-<p>-operanzii sunt interogări (rezultatele interogărilor – deci tabele/relaţii), semnificaţia şi restricţiile de aplicare sunt cele specificate de algebra relaţională.</p>
-
-<table>
-    <tr>
-        <th>Operator</th>
-        <th>Descriere</th>
-        <th>Exemplu</th>    
-    </tr>
-    <tr>
-        <td>UNION [ALL]</td>
-        <td>Reuniunea specifică mulţimilor. Dacă ALL este specificat duplicatele nu sunt eliminate.</td>
-        <td>SELECT nume FROM studenti WHERE an = '2' <br/>UNION <br/>SELECT nume FROM studenti WHERE an = '3';</td>
-    </tr>
-    <tr>
-        <td>INTERSECT [ALL]	</td>
-        <td>Intersecţia specifică mulţimilor, duplicatele sunt eliminate.</td>
-        <td>SELECT nume FROM studenti WHERE an = 2 <br/> INTERSECT <br/>SELECT nume FROM studenti WHERE bursa IS NOT NULL;</td>
-    </tr>
-    <tr>
-        <td>MINUS</td>
-        <td>Înregistrările distincte selectate de prima interogare care nu există în a doua interogare.</td>
-        <td>SELECT nume FROM studenti WHERE an = 3 <br/> MINUS <br/> SELECT nume FROM studenti WHERE bursa IS NULL;</td>
-    </tr>        
-</table>
-
-
-
-
-<h2> Exerciții </h2>
-<ol>
-    <li> Scrieți o interogare pentru a afișa numele, prenumele, anul de studiu si data nașterii pentru toți studenții. Editați în SQL*Plus și executați. Salvați apoi interogarea intr-un fișier numit p1.sql.</li>
-    <li> Scrieți și executați o interogare pentru a afișa în mod unic valorile burselor.</li>
-    <li> Încărcați fișierul p1.sql în buffer. Dați fiecărei coloane din clauza SELECT un alias. Executați înterogarea.</li>
-    <li> Afișați numele concatenat cu prenumele urmat de virgulă și anul de studiu. Ordonați crescător după anul de studiu. Denumiți coloana “Studenți pe ani de studiu”.</li>
-    <li> Afișați numele, prenumele și data de naștere a studenților născuți între 1 ianuarie 1995 si 10 iunie 1997. Ordonați descendent după anul de studiu.</li>
-    <li> Afișați numele și prenumele precum și anii de studiu pentru toți studenții născuți în 1995.</li>
-    <li> Afișați studenții (toate informațiile pentru aceștia) care nu iau bursă. </li>
-    <li> Afișați studenții (nume și prenume) care iau bursă și sunt în anii 2 și 3 de studiu. Ordonați alfabetic ascendent după nume și descendent după prenume.</li>
-    <li> Afișați studenții care iau bursă, precum și valoarea bursei dacă aceasta ar fi mărită cu 15%.</li>
-    <li> Afișați studenții al căror nume începe cu litera P și sunt în anul 1 de studiu.</li>
-    <li> Afișați toate informațiile despre studenții care au două apariții ale literei “a” în prenume.</li>
-    <li> Afișați toate informațiile despre studenții al căror prenume este “Alexandru”, “Ioana” sau “Marius”.</li>
-    <li> Afișați studenții bursieri din semianul A.</li>
-    <li> Afișați toate informatiile despre studentii ale caror prenume contine EXACT o singura data litera 'a' (se ignora litera 'A' de la inceputul unor prenume).</li>
-    <li> Afişaţi numele şi prenumele profesorilor a căror prenume se termină cu litera "n" (întrebare capcană).</li>
-</ol>
